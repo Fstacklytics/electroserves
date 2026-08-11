@@ -1,0 +1,30 @@
+site_name: ElectroServes
+tagline: Licensed electrical and electronics specialists serving Dar es Salaam and beyond.
+phone: "+255 22 213 4567"
+emergency_phone: "+255 754 900 111"
+email: hello@electroserves.co.tz
+address: Plot 42, Nyerere Road, Kurasini
+city: Dar es Salaam
+country: Tanzania
+map_embed_url: "https://www.google.com/maps/embed?pb=!1m14!1m8!1m3!1d3961.0!2d39.2695!3d-6.8235!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sDar+es+Salaam!5e0!3m2!1sen!2stz!4v1700000000000"
+business_hours:
+  - day: Monday – Friday
+    hours: 08:00 – 18:00
+  - day: Saturday
+    hours: 09:00 – 15:00
+  - day: Sunday
+    hours: Emergency callouts only
+  - day: Public holidays
+    hours: Emergency callouts only
+social_links:
+  facebook: https://www.facebook.com/electroserves
+  instagram: https://www.instagram.com/electroserves
+  linkedin: https://www.linkedin.com/company/electroserves
+  whatsapp: https://wa.me/255754900111
+copyright: ElectroServes Tanzania Limited
+logo: ""
+favicon: ""
+years_in_business: 12
+projects_completed: 640
+happy_clients: 480
+team_size: 18

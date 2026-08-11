@@ -1,0 +1,16 @@
+name: Rehema Mushi
+role: Senior Electronics Technician
+bio: >-
+  Rehema runs the Kurasini workshop and handles the board-level repairs other
+  technicians decline. Her diagnosis reports are the reason clients trust us when we
+  say a unit is not worth repairing.
+photo: ""
+certifications:
+  - name: Advanced Electronics Servicing
+    issuer: Vocational Education and Training Authority
+    year: 2016
+  - name: IPC-7711/7721 Rework and Repair
+    issuer: IPC International
+    year: 2021
+order: 3
+published: true

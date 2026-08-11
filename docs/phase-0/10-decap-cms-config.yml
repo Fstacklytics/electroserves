@@ -1,0 +1,284 @@
+# Decap CMS Configuration — ElectroServes
+# This file defines all content collections managed through the CMS admin interface
+
+backend:
+  name: github
+  repo: electroserves/electroserves-website  # Replace with actual repo
+  branch: main
+  base_url: https://electroserves.co.tz      # Replace with actual auth server URL
+  squash_merges: true
+  commit_messages:
+    create: "content(create): {{collection}} — {{slug}}"
+    update: "content(update): {{collection}} — {{slug}}"
+    delete: "content(delete): {{collection}} — {{slug}}"
+    uploadMedia: "media(upload): {{path}}"
+    deleteMedia: "media(delete): {{path}}"
+
+# Enable editorial workflow (creates PRs for review)
+publish_mode: editorial_workflow
+
+# Local development
+local_backend: true
+
+# Media configuration
+media_folder: "content/uploads"
+public_folder: "/uploads"
+
+# Site URL
+site_url: https://electroserves.co.tz
+display_url: https://electroserves.co.tz
+
+# Logo
+logo_url: /images/logo.svg
+
+# Editor settings
+editor:
+  preview: false
+
+# Slug configuration
+slug:
+  encoding: "ascii"
+  clean_accents: true
+  sanitize_replacement: "-"
+
+# ============================================================
+# COLLECTIONS
+# ============================================================
+
+collections:
+
+  # ----------------------------------------------------------
+  # Site Settings (single file)
+  # ----------------------------------------------------------
+  - name: "settings"
+    label: "Site Settings"
+    files:
+      - label: "General Settings"
+        name: "site_settings"
+        file: "content/settings/site.yml"
+        fields:
+          - { label: "Site Name", name: "site_name", widget: "string" }
+          - { label: "Tagline", name: "tagline", widget: "string" }
+          - { label: "Phone Number", name: "phone", widget: "string" }
+          - { label: "Emergency Phone", name: "emergency_phone", widget: "string" }
+          - { label: "Email Address", name: "email", widget: "string" }
+          - { label: "Physical Address", name: "address", widget: "text" }
+          - { label: "City", name: "city", widget: "string", default: "Dar es Salaam" }
+          - { label: "Country", name: "country", widget: "string", default: "Tanzania" }
+          - { label: "Google Maps Embed URL", name: "map_embed_url", widget: "string", required: false }
+          - label: "Business Hours"
+            name: "business_hours"
+            widget: "list"
+            fields:
+              - { label: "Day", name: "day", widget: "string" }
+              - { label: "Hours", name: "hours", widget: "string" }
+          - label: "Social Media Links"
+            name: "social_links"
+            widget: "object"
+            fields:
+              - { label: "Facebook", name: "facebook", widget: "string", required: false }
+              - { label: "Instagram", name: "instagram", widget: "string", required: false }
+              - { label: "Twitter/X", name: "twitter", widget: "string", required: false }
+              - { label: "LinkedIn", name: "linkedin", widget: "string", required: false }
+              - { label: "YouTube", name: "youtube", widget: "string", required: false }
+              - { label: "WhatsApp", name: "whatsapp", widget: "string", required: false }
+          - { label: "Copyright Text", name: "copyright", widget: "string" }
+          - { label: "Logo", name: "logo", widget: "image", required: false }
+          - { label: "Favicon", name: "favicon", widget: "image", required: false }
+
+      - label: "SEO Defaults"
+        name: "seo_defaults"
+        file: "content/settings/seo.yml"
+        fields:
+          - { label: "Default Meta Title", name: "default_title", widget: "string" }
+          - { label: "Default Meta Description", name: "default_description", widget: "text" }
+          - { label: "Default OG Image", name: "default_og_image", widget: "image" }
+          - { label: "Google Analytics ID", name: "ga_id", widget: "string", required: false }
+          - { label: "Google Site Verification", name: "google_verification", widget: "string", required: false }
+
+  # ----------------------------------------------------------
+  # Hero Slides (Homepage carousel)
+  # ----------------------------------------------------------
+  - name: "hero_slides"
+    label: "Hero Slides"
+    folder: "content/hero"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "heading"
+    fields:
+      - { label: "Heading", name: "heading", widget: "string" }
+      - { label: "Subheading", name: "subheading", widget: "text" }
+      - { label: "Background Image", name: "image", widget: "image" }
+      - { label: "CTA Button Text", name: "cta_text", widget: "string", default: "Get a Quote" }
+      - { label: "CTA Button Link", name: "cta_link", widget: "string", default: "/contact" }
+      - { label: "Secondary CTA Text", name: "cta_secondary_text", widget: "string", required: false }
+      - { label: "Secondary CTA Link", name: "cta_secondary_link", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", default: 1 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+
+  # ----------------------------------------------------------
+  # Services
+  # ----------------------------------------------------------
+  - name: "services"
+    label: "Services"
+    folder: "content/services"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Icon Name", name: "icon", widget: "string", hint: "Heroicon or Lucide icon name" }
+      - { label: "Short Description", name: "short_description", widget: "text", hint: "Used on services overview page" }
+      - { label: "Full Description", name: "body", widget: "markdown" }
+      - { label: "Featured Image", name: "image", widget: "image" }
+      - label: "Features / What's Included"
+        name: "features"
+        widget: "list"
+        fields:
+          - { label: "Feature", name: "feature", widget: "string" }
+      - { label: "Price Range", name: "price_range", widget: "string", required: false, hint: "e.g., 'From TZS 50,000'" }
+      - { label: "Category", name: "category", widget: "select", options: ["residential", "commercial", "electronics", "emergency", "installation"] }
+      - { label: "Order (display position)", name: "order", widget: "number", default: 1 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
+
+  # ----------------------------------------------------------
+  # Projects / Portfolio
+  # ----------------------------------------------------------
+  - name: "projects"
+    label: "Projects"
+    folder: "content/projects"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Category", name: "category", widget: "select", options: ["residential", "commercial", "industrial", "electronics", "installation"] }
+      - { label: "Short Description", name: "short_description", widget: "text" }
+      - { label: "Full Description", name: "body", widget: "markdown" }
+      - { label: "Featured Image", name: "featured_image", widget: "image" }
+      - label: "Image Gallery"
+        name: "gallery"
+        widget: "list"
+        fields:
+          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Caption", name: "caption", widget: "string", required: false }
+      - { label: "Client Name", name: "client_name", widget: "string", required: false }
+      - { label: "Location", name: "location", widget: "string" }
+      - { label: "Completion Date", name: "completion_date", widget: "datetime", format: "YYYY-MM-DD", time_format: false }
+      - label: "Services Used"
+        name: "services_used"
+        widget: "relation"
+        collection: "services"
+        search_fields: ["title"]
+        value_field: "slug"
+        display_fields: ["title"]
+        multiple: true
+        required: false
+      - { label: "Featured Project", name: "featured", widget: "boolean", default: false }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
+
+  # ----------------------------------------------------------
+  # Blog Posts
+  # ----------------------------------------------------------
+  - name: "blog"
+    label: "Blog"
+    folder: "content/blog"
+    create: true
+    slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
+    identifier_field: "title"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Author", name: "author", widget: "string" }
+      - { label: "Publish Date", name: "date", widget: "datetime", default: "{{now}}", format: "YYYY-MM-DD" }
+      - { label: "Category", name: "category", widget: "select", options: ["Tips & Advice", "Industry News", "Company Updates", "Project Spotlights", "Safety"] }
+      - { label: "Tags", name: "tags", widget: "list", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary for blog listing" }
+      - { label: "Featured Image", name: "featured_image", widget: "image" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
+
+  # ----------------------------------------------------------
+  # Testimonials
+  # ----------------------------------------------------------
+  - name: "testimonials"
+    label: "Testimonials"
+    folder: "content/testimonials"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "client_name"
+    fields:
+      - { label: "Client Name", name: "client_name", widget: "string" }
+      - { label: "Company / Organization", name: "company", widget: "string", required: false }
+      - { label: "Rating (1-5)", name: "rating", widget: "number", min: 1, max: 5, default: 5 }
+      - { label: "Testimonial Quote", name: "quote", widget: "text" }
+      - { label: "Client Photo", name: "photo", widget: "image", required: false }
+      - { label: "Service Used", name: "service_used", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", default: 1 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+
+  # ----------------------------------------------------------
+  # Team Members
+  # ----------------------------------------------------------
+  - name: "team"
+    label: "Team Members"
+    folder: "content/team"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "name"
+    fields:
+      - { label: "Full Name", name: "name", widget: "string" }
+      - { label: "Role / Title", name: "role", widget: "string" }
+      - { label: "Bio", name: "bio", widget: "markdown" }
+      - { label: "Photo", name: "photo", widget: "image" }
+      - label: "Certifications"
+        name: "certifications"
+        widget: "list"
+        required: false
+        fields:
+          - { label: "Certification Name", name: "name", widget: "string" }
+          - { label: "Issuing Body", name: "issuer", widget: "string", required: false }
+          - { label: "Year", name: "year", widget: "number", required: false }
+      - { label: "Email (public)", name: "email", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", default: 1 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+
+  # ----------------------------------------------------------
+  # FAQs
+  # ----------------------------------------------------------
+  - name: "faqs"
+    label: "FAQs"
+    folder: "content/faqs"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "question"
+    fields:
+      - { label: "Question", name: "question", widget: "string" }
+      - { label: "Answer", name: "answer", widget: "markdown" }
+      - { label: "Category", name: "category", widget: "select", options: ["General", "Services", "Pricing", "Emergency", "Warranty"] }
+      - { label: "Order", name: "order", widget: "number", default: 1 }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+
+  # ----------------------------------------------------------
+  # Static Pages
+  # ----------------------------------------------------------
+  - name: "pages"
+    label: "Pages"
+    folder: "content/pages"
+    create: true
+    slug: "{{slug}}"
+    identifier_field: "title"
+    filter: { field: "layout", value: "page" }
+    fields:
+      - { label: "Layout", name: "layout", widget: "hidden", default: "page" }
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
+      - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
+      - { label: "Published", name: "published", widget: "boolean", default: true }

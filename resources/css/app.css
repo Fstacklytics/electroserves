@@ -1,0 +1,153 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/*
+| Base layer
+|--------------------------------------------------------------------------
+| Global element defaults. Fonts are self-hosted-friendly: the stack falls
+| back to system fonts if Inter fails to load, so text is never invisible
+| (font-display: swap is set on the @font-face declarations that ship with
+| the font, and the preconnect hints live in the layout head).
+*/
+
+@layer base {
+    :root {
+        /* Height of the sticky header, used to offset in-page anchor targets. */
+        --header-height: 4.5rem;
+    }
+
+    html {
+        scroll-behavior: smooth;
+        /* Anchored headings must not hide under the sticky navbar. */
+        scroll-padding-top: calc(var(--header-height) + 1rem);
+        -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+        @apply bg-white text-neutral-700 antialiased;
+        text-rendering: optimizeLegibility;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        @apply font-semibold text-neutral-900;
+        text-wrap: balance;
+    }
+
+    /*
+     * A single, consistent focus indicator for every interactive element.
+     * `:focus-visible` keeps the ring off mouse clicks but always shows it for
+     * keyboard users. Nothing in this codebase may set `outline: none` without
+     * providing a replacement.
+     */
+    :focus-visible {
+        @apply outline-none ring-2 ring-primary-600 ring-offset-2 ring-offset-white;
+        border-radius: 0.25rem;
+    }
+
+    /* Images never cause layout shift: they scale within their box. */
+    img,
+    picture,
+    svg,
+    video {
+        @apply max-w-full;
+        height: auto;
+    }
+
+    /* Give in-page anchor targets breathing room under the sticky header. */
+    [id] {
+        scroll-margin-top: calc(var(--header-height) + 1rem);
+    }
+}
+
+/*
+| Component layer
+|--------------------------------------------------------------------------
+| Repeated utility combinations extracted per ADR-004's mitigation note.
+*/
+
+@layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+    }
+
+    .section-spacing {
+        @apply py-16 sm:py-20 lg:py-24;
+    }
+
+    /*
+     * Visible only to screen readers, but becomes visible on focus.
+     * Used by the skip-to-content link.
+     */
+    .skip-link {
+        @apply sr-only;
+    }
+
+    .skip-link:focus {
+        @apply not-sr-only fixed left-4 top-4 z-[100] rounded-md bg-primary-800 px-4 py-3 text-sm font-semibold text-white shadow-lg;
+    }
+
+    /* Minimum accessible hit area for any control. */
+    .touch-target {
+        @apply inline-flex min-h-touch min-w-touch items-center justify-center;
+    }
+
+    /* Placeholder used instead of an external image service. */
+    .image-placeholder {
+        @apply flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800;
+    }
+}
+
+/*
+| Utilities
+|--------------------------------------------------------------------------
+*/
+
+@layer utilities {
+    /* Applied by Alpine before it initialises, to avoid a flash of raw markup. */
+    [x-cloak] {
+        display: none !important;
+    }
+
+    .text-balance {
+        text-wrap: balance;
+    }
+}
+
+/*
+| Reduced motion
+|--------------------------------------------------------------------------
+| Visitors who ask for less motion get no animation, no smooth scrolling and
+| no carousel auto-advance (the carousel also checks this in JS).
+*/
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    *,
+    *::before,
+    *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+        scroll-behavior: auto !important;
+    }
+}
+
+/*
+| Print
+|--------------------------------------------------------------------------
+| Legal pages and quotes are commonly printed.
+*/
+
+@media print {
+    .no-print {
+        display: none !important;
+    }
+
+    body {
+        @apply bg-white text-black;
+    }
+}

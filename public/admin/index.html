@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="robots" content="noindex, nofollow">
+    <title>Content Manager — ElectroServes</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%231e40af'/%3E%3Cpath d='M17.6 5 9 18h5.4L13 27l9.4-13.6H16.8z' fill='%23fbbf24'/%3E%3C/svg%3E">
+    <style>
+        /* Shown only if the CMS bundle fails to load, so the page is never blank. */
+        .cms-fallback {
+            font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+            max-width: 34rem;
+            margin: 4rem auto;
+            padding: 0 1.5rem;
+            color: #334155;
+            line-height: 1.6;
+        }
+        .cms-fallback h1 { color: #0f172a; font-size: 1.5rem; }
+        .cms-fallback a { color: #1d4ed8; }
+    </style>
+</head>
+<body>
+    <!--
+        Decap CMS mounts into the body. This fallback is removed once the bundle
+        initialises; if the CDN is unreachable it stays visible and explains what
+        happened rather than leaving an empty page.
+    -->
+    <noscript>
+        <div class="cms-fallback">
+            <h1>JavaScript is required</h1>
+            <p>The content manager needs JavaScript to run. Please enable it and reload this page.</p>
+            <p><a href="/">Return to the website</a></p>
+        </div>
+    </noscript>
+
+    <div id="cms-fallback" class="cms-fallback">
+        <h1>Loading the content manager…</h1>
+        <p id="cms-fallback-message">
+            If this message is still here after a few seconds, the content manager could not be
+            loaded. Check your internet connection and reload the page.
+        </p>
+        <p><a href="/">Return to the website</a></p>
+    </div>
+
+    <!-- Version is pinned; update deliberately on security releases (ADR-002). -->
+    <script
+        src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"
+        onerror="document.getElementById('cms-fallback-message').textContent =
+            'The content manager could not be downloaded. This is usually a network problem — check your connection and reload.';"
+    ></script>
+
+    <script>
+        // Remove the fallback only once the CMS has actually initialised.
+        window.addEventListener('load', function () {
+            if (window.CMS) {
+                var fallback = document.getElementById('cms-fallback');
+                if (fallback && fallback.parentNode) {
+                    fallback.parentNode.removeChild(fallback);
+                }
+            }
+        });
+    </script>
+</body>
+</html>
