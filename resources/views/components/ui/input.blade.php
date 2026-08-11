@@ -1,0 +1,84 @@
+@props([
+    'name',
+    'label',
+    'id' => null,
+    'type' => 'text',
+    'value' => null,
+    'placeholder' => null,
+    'required' => false,
+    'disabled' => false,
+    'readonly' => false,
+    'error' => null,
+    'helpText' => null,
+    'autocomplete' => null,
+    'inputmode' => null,
+    'maxlength' => null,
+])
+
+@php
+    /**
+     * Text input with a permanently associated <label>.
+     *
+     * States: default, focus, error, disabled, readonly.
+     *
+     * The error message and help text are wired to the input with
+     * aria-describedby, and aria-invalid is set so the error is announced.
+     */
+    $id = $id ?? 'input-'.\Illuminate\Support\Str::slug($name).'-'.\Illuminate\Support\Str::random(4);
+    $error = $error ?? $errors->first($name);
+    $hasError = filled($error);
+
+    $describedBy = array_filter([
+        $helpText ? $id.'-help' : null,
+        $hasError ? $id.'-error' : null,
+    ]);
+@endphp
+
+<div class="w-full">
+    <label for="{{ $id }}" class="block text-sm font-medium text-neutral-900">
+        {{ $label }}
+        @if ($required)
+            <span class="text-danger-600" aria-hidden="true">*</span>
+            <span class="sr-only">(required)</span>
+        @endif
+    </label>
+
+    <input
+        type="{{ $type }}"
+        id="{{ $id }}"
+        name="{{ $name }}"
+        value="{{ old($name, $value) }}"
+        @if ($placeholder) placeholder="{{ $placeholder }}" @endif
+        @if ($required) required @endif
+        @if ($disabled) disabled aria-disabled="true" @endif
+        @if ($readonly) readonly @endif
+        @if ($autocomplete) autocomplete="{{ $autocomplete }}" @endif
+        @if ($inputmode) inputmode="{{ $inputmode }}" @endif
+        @if ($maxlength) maxlength="{{ $maxlength }}" @endif
+        @if ($hasError) aria-invalid="true" @endif
+        @if ($describedBy) aria-describedby="{{ implode(' ', $describedBy) }}" @endif
+        {{ $attributes->merge([
+            'class' => 'mt-1.5 block w-full min-h-touch rounded-md border px-3 py-2.5 text-base shadow-sm transition-colors '
+                .'placeholder:text-neutral-400 '
+                .'focus:outline-none focus:ring-2 focus:ring-offset-0 '
+                .'disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500 '
+                .'read-only:bg-neutral-50 '
+                .($hasError
+                    ? 'border-danger-500 text-danger-900 focus:border-danger-600 focus:ring-danger-500'
+                    : 'border-neutral-300 text-neutral-900 focus:border-primary-600 focus:ring-primary-500'),
+        ]) }}
+    >
+
+    @if ($helpText)
+        <p id="{{ $id }}-help" class="mt-1.5 text-sm text-neutral-500">{{ $helpText }}</p>
+    @endif
+
+    @if ($hasError)
+        <p id="{{ $id }}-error" class="mt-1.5 flex items-start gap-1.5 text-sm font-medium text-danger-700">
+            <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+            </svg>
+            <span>{{ $error }}</span>
+        </p>
+    @endif
+</div>

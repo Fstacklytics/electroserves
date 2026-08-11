@@ -1,0 +1,187 @@
+name: CI
+
+on:
+  push:
+    branches: ['**']
+  pull_request:
+    branches: [main]
+
+# Cancel superseded runs on the same branch.
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  php:
+    name: PHP — lint, test
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: mbstring, dom, fileinfo, tokenizer, xml, ctype, json
+          coverage: none
+          tools: composer:v2
+
+      - name: Cache Composer packages
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install PHP dependencies
+        # `install` when a lock file is present, otherwise resolve from
+        # composer.json. See the note in .gitignore about the lock file.
+        run: |
+          if [ -f composer.lock ]; then
+            composer install --prefer-dist --no-interaction --no-progress
+          else
+            composer update --prefer-dist --no-interaction --no-progress
+          fi
+
+      - name: Lint every PHP file
+        # -l reports syntax errors; fail the job if any file does not parse.
+        run: |
+          find app config routes tests database -name '*.php' -print0 2>/dev/null \
+            | xargs -0 -n1 -P4 php -l > /dev/null
+
+      - name: Validate Blade templates compile
+        run: |
+          cp .env.example .env
+          php artisan key:generate
+          php artisan view:cache
+          php artisan view:clear
+
+      - name: Validate the Decap CMS configuration is parseable
+        run: |
+          php -r '
+            $file = "public/admin/config.yml";
+            if (! is_file($file)) { fwrite(STDERR, "Missing $file\n"); exit(1); }
+            require "vendor/autoload.php";
+            try {
+                $parsed = Symfony\Component\Yaml\Yaml::parseFile($file);
+            } catch (Throwable $e) {
+                fwrite(STDERR, "config.yml is not valid YAML: ".$e->getMessage()."\n");
+                exit(1);
+            }
+            if (! isset($parsed["collections"])) { fwrite(STDERR, "config.yml has no collections\n"); exit(1); }
+            echo "Decap config OK (", count($parsed["collections"]), " collections)\n";
+          '
+
+      - name: Validate all content files parse
+        # A malformed content file must never reach production, even though the
+        # application degrades gracefully at runtime.
+        run: |
+          php -r '
+            require "vendor/autoload.php";
+            $failures = 0;
+            $rii = new RecursiveIteratorIterator(new RecursiveDirectoryIterator("content"));
+            foreach ($rii as $file) {
+                if ($file->isDir()) { continue; }
+                $ext = strtolower($file->getExtension());
+                if (! in_array($ext, ["yml", "yaml", "md"], true)) { continue; }
+                $contents = file_get_contents($file->getPathname());
+                if ($ext === "md") {
+                    if (! preg_match("/^---\n(.*?)\n---/s", str_replace([\"\r\n\"], \"\n\", $contents), $m)) { continue; }
+                    $contents = $m[1];
+                }
+                try {
+                    Symfony\Component\Yaml\Yaml::parse($contents);
+                } catch (Throwable $e) {
+                    fwrite(STDERR, $file->getPathname().": ".$e->getMessage()."\n");
+                    $failures++;
+                }
+            }
+            if ($failures > 0) { fwrite(STDERR, "$failures content file(s) failed to parse\n"); exit(1); }
+            echo "All content files parse\n";
+          '
+
+      - name: Run the test suite
+        run: php vendor/bin/phpunit
+
+  frontend:
+    name: Frontend — build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: Install JS dependencies
+        run: npm ci
+
+      - name: Build production assets
+        run: npm run build
+
+      - name: Enforce the asset size budget
+        # Performance budget: under 500KB of CSS + JS, excluding images.
+        run: |
+          BYTES=$(find public/build/assets -type f \( -name '*.js' -o -name '*.css' \) -printf '%s\n' | awk '{sum+=$1} END {print sum+0}')
+          echo "Bundled CSS + JS: $BYTES bytes"
+          if [ "$BYTES" -gt 512000 ]; then
+            echo "::error::Asset budget exceeded: ${BYTES} bytes is over the 500KB limit."
+            exit 1
+          fi
+
+  security:
+    name: Security — audit, secret scan
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          # Gitleaks needs history to scan commits, not just the tree.
+          fetch-depth: 0
+
+      - name: Set up PHP 8.3
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          coverage: none
+          tools: composer:v2
+
+      - name: Install PHP dependencies for audit
+        run: |
+          if [ -f composer.lock ]; then
+            composer install --prefer-dist --no-interaction --no-progress
+          else
+            composer update --prefer-dist --no-interaction --no-progress
+          fi
+
+      - name: Composer audit
+        run: composer audit --no-interaction
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: npm
+
+      - name: npm audit
+        run: npm audit --audit-level=high
+
+      - name: Secret scan
+        uses: gitleaks/gitleaks-action@v2
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Ensure no .env file is committed
+        run: |
+          if git ls-files --error-unmatch .env > /dev/null 2>&1; then
+            echo "::error::.env must never be committed."
+            exit 1
+          fi
+          echo "No .env in the repository."

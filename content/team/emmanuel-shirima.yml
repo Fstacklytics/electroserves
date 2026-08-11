@@ -1,0 +1,16 @@
+name: Emmanuel Shirima
+role: Emergency Response Supervisor
+bio: >-
+  Emmanuel coordinates the 24-hour callout rota and takes most of the out-of-hours
+  calls himself. He has an unusual talent for diagnosing a fault accurately from a
+  description over the phone.
+photo: ""
+certifications:
+  - name: Licensed Electrician Grade I
+    issuer: Contractors Registration Board Tanzania
+    year: 2015
+  - name: First Aid at Work
+    issuer: Tanzania Red Cross Society
+    year: 2024
+order: 4
+published: true
