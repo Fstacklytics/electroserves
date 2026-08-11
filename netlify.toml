@@ -34,10 +34,25 @@
 
 # The Decap CMS admin page must be able to load its own JS bundle from unpkg
 # and the Netlify Identity widget; the strict site CSP would block those.
+#
+# 'unsafe-eval' is required only here: Decap CMS (AJV) compiles the config.yml
+# JSON Schema with `new Function()` at load time. Without it the admin UI
+# reports "Error loading the CMS configuration / EvalError". The public-site
+# CSP above stays without 'unsafe-eval'.
+#
+# Cover both /admin (trailingSlash: never) and /admin/* (index.html, config.yml).
+[[headers]]
+  for = "/admin"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
