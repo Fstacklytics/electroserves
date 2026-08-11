@@ -26,6 +26,24 @@
     >
     <noscript>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+
+        {{--
+            Controls that only do something once Alpine has initialised are
+            marked with `data-js-only` and removed for non-JS visitors, so the
+            page never presents a button that cannot work. The filtered card
+            lists themselves stay fully visible: filtering is a progressive
+            enhancement layered on top of the complete, server-rendered page.
+
+            An inline <style> is used rather than an inline <script> so the rule
+            applies before first paint (no flash of dead controls) and so this
+            keeps working if script-src is ever tightened to drop
+            'unsafe-inline'.
+        --}}
+        <style>
+            [data-js-only] {
+                display: none !important;
+            }
+        </style>
     </noscript>
 
     <x-common.favicon :settings="$siteSettings" />

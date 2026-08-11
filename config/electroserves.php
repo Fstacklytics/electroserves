@@ -71,6 +71,130 @@ return [
 
     /*
     |--------------------------------------------------------------------------
+    | Response Cache
+    |--------------------------------------------------------------------------
+    |
+    | Full-page HTML caching for anonymous visitors, implemented by
+    | App\Services\ResponseCacheService and applied by
+    | App\Http\Middleware\ResponseCacheMiddleware.
+    |
+    | This sits on top of the content cache above: that one memoises *parsed*
+    | Markdown and YAML, this one memoises the *rendered page*. Both are keyed
+    | so that publishing content rolls them over.
+    |
+    | Disabled by default. It is a production optimisation, and leaving it off
+    | locally means authors see their edits immediately. Enable it in
+    | production with RESPONSE_CACHE_ENABLED=true.
+    |
+    | Safety rules (enforced in the service, not merely documented here):
+    |   - GET and HEAD only;
+    |   - only plain 200 responses — never redirects, never error pages;
+    |   - never when the session holds validation errors, flashed data or old
+    |     input;
+    |   - never when the response sets a cookie or is marked no-store/private;
+    |   - never when the body contains a CSRF token;
+    |   - never for the routes listed in `excluded_routes`.
+    |
+    */
+
+    'response_cache' => [
+
+        'enabled' => env('RESPONSE_CACHE_ENABLED', false),
+
+        /*
+         * Cache store for rendered pages. Null uses the application default.
+         * Naming a dedicated store (for example a separate `file` store, or a
+         * separate Redis database) lets `responsecache:clear` empty it
+         * wholesale without touching the content cache; see deploy/README.md.
+         */
+        'store' => env('RESPONSE_CACHE_STORE'),
+
+        'prefix' => 'electroserves.response',
+
+        /*
+         * Fallback TTL in seconds for any cacheable route not listed below.
+         * Zero disables caching for those routes.
+         */
+        'default_ttl' => (int) env('RESPONSE_CACHE_TTL', 600),
+
+        /*
+         * Per-route TTLs, keyed by route name. Pages that change rarely are
+         * held longer; pages that reflect newly published content are held
+         * briefly so an editor sees their work quickly even before the content
+         * fingerprint rolls over.
+         */
+        'routes' => [
+            'home' => (int) env('RESPONSE_CACHE_TTL_HOME', 600),
+            'services.index' => (int) env('RESPONSE_CACHE_TTL_SERVICES', 1800),
+            'services.show' => (int) env('RESPONSE_CACHE_TTL_SERVICES', 1800),
+            'projects.index' => (int) env('RESPONSE_CACHE_TTL_PROJECTS', 1800),
+            'projects.show' => (int) env('RESPONSE_CACHE_TTL_PROJECTS', 1800),
+            'blog.index' => (int) env('RESPONSE_CACHE_TTL_BLOG', 600),
+            'blog.show' => (int) env('RESPONSE_CACHE_TTL_BLOG', 600),
+            'about' => (int) env('RESPONSE_CACHE_TTL_STATIC', 3600),
+            'testimonials' => (int) env('RESPONSE_CACHE_TTL_STATIC', 3600),
+            'faq' => (int) env('RESPONSE_CACHE_TTL_STATIC', 3600),
+            'privacy' => (int) env('RESPONSE_CACHE_TTL_LEGAL', 86400),
+            'terms' => (int) env('RESPONSE_CACHE_TTL_LEGAL', 86400),
+            'sitemap' => (int) env('RESPONSE_CACHE_TTL_SITEMAP', 3600),
+            'robots' => (int) env('RESPONSE_CACHE_TTL_SITEMAP', 3600),
+        ],
+
+        /*
+         * Routes that must never be cached.
+         *
+         * `contact` renders a CSRF token and stores `contact_form_rendered_at`
+         * in the session for the minimum-submit-time spam check; a shared copy
+         * would both leak a token and defeat that check. `contact.store` is a
+         * POST and is excluded by method as well — it is listed here so the
+         * intent survives any future change to the route.
+         *
+         * `styleguide` is a development aid and is not registered in
+         * production at all.
+         */
+        'excluded_routes' => [
+            'contact',
+            'contact.store',
+            'styleguide',
+        ],
+
+        /*
+         * Path patterns (Request::is syntax) that must never be cached, for
+         * anything not reached through a named route.
+         */
+        'excluded_paths' => [
+            'admin',
+            'admin/*',
+            'up',
+        ],
+
+        /*
+         * Query parameters stripped before building the cache key, so that
+         * inbound campaign links do not each create their own entry. Anything
+         * that genuinely changes the page — `page`, `category`, `service` —
+         * is deliberately absent from this list.
+         */
+        'ignored_query_parameters' => [
+            'utm_source',
+            'utm_medium',
+            'utm_campaign',
+            'utm_term',
+            'utm_content',
+            'gclid',
+            'fbclid',
+            'ref',
+        ],
+
+        /*
+         * Emit X-Response-Cache: HIT|MISS|BYPASS. Useful when validating a
+         * deployment; harmless to leave on, as it describes only the cache
+         * decision.
+         */
+        'send_header' => env('RESPONSE_CACHE_HEADER', true),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
     | Contact Form
     |--------------------------------------------------------------------------
     |

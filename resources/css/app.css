@@ -21,12 +21,13 @@
         scroll-behavior: smooth;
         /* Anchored headings must not hide under the sticky navbar. */
         scroll-padding-top: calc(var(--header-height) + 1rem);
-        -webkit-text-size-adjust: 100%;
+        /* Autoprefixer adds the -webkit- prefix Safari/iOS still needs. */
+        text-size-adjust: 100%;
     }
 
     body {
         @apply bg-white text-neutral-700 antialiased;
-        text-rendering: optimizeLegibility;
+        text-rendering: optimizelegibility;
     }
 
     h1, h2, h3, h4, h5, h6 {

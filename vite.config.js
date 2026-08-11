@@ -27,6 +27,21 @@ export default defineConfig({
     },
 
     build: {
+        /*
+         * Supported browsers: Chrome 90+, Firefox 90+, Safari 14+, Edge 90+.
+         *
+         * These are the esbuild target strings for exactly that matrix. Edge
+         * 90+ is Chromium-based and covered by chrome90. Keep this list in
+         * sync with the `browserslist` key in package.json, which is what
+         * Autoprefixer reads for the CSS side of the same matrix.
+         *
+         * Safari 14 is the constraint that matters: it predates top-level
+         * await and a few 2021+ syntax features, so esbuild will down-level
+         * or error rather than silently shipping code that white-screens on
+         * an older iPhone.
+         */
+        target: ['chrome90', 'firefox90', 'safari14', 'edge90'],
+
         // Fail the build if a bundle grows unexpectedly large; the performance
         // budget is 500KB total for HTML + CSS + JS.
         chunkSizeWarningLimit: 300,
