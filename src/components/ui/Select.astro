@@ -1,0 +1,87 @@
+---
+interface Props {
+    name: string;
+    label: string;
+    options?: Record<string, string>;
+    id?: string;
+    value?: string;
+    placeholder?: string;
+    required?: boolean;
+    disabled?: boolean;
+    error?: string;
+    helpText?: string;
+    class?: string;
+    [key: string]: any;
+}
+
+const {
+    name,
+    label,
+    options = {},
+    id,
+    value,
+    placeholder,
+    required = false,
+    disabled = false,
+    error,
+    helpText,
+    class: className = '',
+    children,
+    ...rest
+} = Astro.props;
+
+const fieldId = id ?? `select-${name}-${Math.random().toString(36).slice(2, 6)}`;
+const hasError = Boolean(error);
+const describedBy = [helpText ? `${fieldId}-help` : null, hasError ? `${fieldId}-error` : null].filter(Boolean).join(' ') || undefined;
+const entries = Object.entries(options);
+---
+<div class="w-full">
+    <label for={fieldId} class="block text-sm font-medium text-neutral-900">
+        {label}
+        {required && (
+            <>
+                <span class="text-danger-600" aria-hidden="true">*</span>
+                <span class="sr-only">(required)</span>
+            </>
+        )}
+    </label>
+
+    <select
+        id={fieldId}
+        name={name}
+        required={required || undefined}
+        disabled={disabled || undefined}
+        aria-disabled={disabled ? 'true' : undefined}
+        aria-invalid={hasError ? 'true' : undefined}
+        aria-describedby={describedBy}
+        class:list={[
+            'mt-1.5 block w-full min-h-touch rounded-md border px-3 py-2.5 text-base shadow-sm transition-colors',
+            'focus:outline-none focus:ring-2 disabled:cursor-not-allowed disabled:bg-neutral-100 disabled:text-neutral-500',
+            hasError
+                ? 'border-danger-500 text-danger-900 focus:border-danger-600 focus:ring-danger-500'
+                : 'border-neutral-300 text-neutral-900 focus:border-primary-600 focus:ring-primary-500',
+            className,
+        ]}
+        {...rest}
+    >
+        {placeholder && <option value="">{placeholder}</option>}
+        {
+            entries.map(([optionValue, optionLabel]) => (
+                <option value={optionValue} selected={value !== undefined && String(value) === String(optionValue)}>{optionLabel}</option>
+            ))
+        }
+    </select>
+
+    {helpText && <p id={`${fieldId}-help`} class="mt-1.5 text-sm text-neutral-500">{helpText}</p>}
+
+    {
+        hasError && (
+            <p id={`${fieldId}-error`} class="mt-1.5 flex items-start gap-1.5 text-sm font-medium text-danger-700">
+                <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                </svg>
+                <span>{error}</span>
+            </p>
+        )
+    }
+</div>

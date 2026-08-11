@@ -1,0 +1,114 @@
+---
+import '../styles/global.css';
+import { siteSettings } from '../lib/content';
+import { resolveSeo, toJsonLd, type Seo, type SeoOptions } from '../lib/seo';
+import Navbar from '../components/common/Navbar.astro';
+import Footer from '../components/common/Footer.astro';
+import SkipToContent from '../components/common/SkipToContent.astro';
+import ToastContainer from '../components/common/ToastContainer.astro';
+import CookieBanner from '../components/common/CookieBanner.astro';
+
+interface Props {
+    /** Optional SEO overrides; defaults resolve against site-wide settings. */
+    seo?: SeoOptions;
+    /** Pre-resolved SEO (used by detail pages that add canonical/type). */
+    resolved?: Seo;
+    /** JSON-LD object(s) to inject. */
+    schema?: Record<string, unknown> | Record<string, unknown>[];
+    /** Current pathname (defaults to Astro.url.pathname). */
+    pathname?: string;
+    title?: string;
+}
+
+const { seo = {}, resolved, schema, pathname } = Astro.props;
+const settings = siteSettings();
+const url = Astro.url;
+
+const resolvedSeo: Seo = resolved ?? resolveSeo(url, {
+    title: seo.title,
+    description: seo.description,
+    image: seo.image,
+    type: seo.type,
+    canonical: seo.canonical,
+    robots: seo.robots,
+});
+
+const faviconSvg =
+    '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32"><rect width="32" height="32" rx="6" fill="#1e40af"/><path d="M17.6 5 9 18h5.4L13 27l9.4-13.6H16.8z" fill="#fbbf24"/></svg>';
+
+const schemas = schema ? (Array.isArray(schema) ? schema : [schema]) : [];
+const ogImage = resolvedSeo.image
+    ? new URL(resolvedSeo.image, url.origin).toString()
+    : null;
+---
+
+<!doctype html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>{resolvedSeo.title}</title>
+    <meta name="description" content={resolvedSeo.description}>
+    <meta name="robots" content={resolvedSeo.robots}>
+    <link rel="canonical" href={resolvedSeo.canonical}>
+
+    <meta property="og:site_name" content={resolvedSeo.siteName}>
+    <meta property="og:title" content={resolvedSeo.title}>
+    <meta property="og:description" content={resolvedSeo.description}>
+    <meta property="og:type" content={resolvedSeo.type}>
+    <meta property="og:url" content={resolvedSeo.canonical}>
+    <meta property="og:locale" content={resolvedSeo.locale}>
+    {ogImage && (
+        <>
+            <meta property="og:image" content={ogImage}>
+            <meta property="og:image:alt" content={resolvedSeo.title}>
+        </>
+    )}
+
+    <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'}>
+    <meta name="twitter:title" content={resolvedSeo.title}>
+    <meta name="twitter:description" content={resolvedSeo.description}>
+    {ogImage && <meta name="twitter:image" content={ogImage}>}
+    {resolvedSeo.twitterHandle && <meta name="twitter:site" content={resolvedSeo.twitterHandle}>}
+    {resolvedSeo.googleVerification && (
+        <meta name="google-site-verification" content={resolvedSeo.googleVerification}>
+    )}
+
+    <meta name="theme-color" content="#1e40af">
+
+    <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent(faviconSvg)}`}>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        rel="stylesheet"
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+        media="print"
+        onload="this.media='all'"
+    >
+    <noscript>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap">
+        <style>
+            [data-js-only] { display: none !important; }
+        </style>
+    </noscript>
+
+    {schemas.map((s) => (
+        <script type="application/ld+json" set:html={toJsonLd(s)} />
+    ))}
+</head>
+<body class="flex min-h-screen flex-col bg-white font-sans text-base text-neutral-700">
+    <SkipToContent />
+    <Navbar pathname={pathname ?? url.pathname} />
+    <main id="main-content" tabindex="-1" class="flex-1 focus:outline-none">
+        <slot />
+    </main>
+    <Footer />
+    <ToastContainer />
+    <CookieBanner />
+    <script>
+        import '../js/client.ts';
+    </script>
+</body>
+</html>

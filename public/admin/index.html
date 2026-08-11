@@ -43,6 +43,13 @@
         <p><a href="/">Return to the website</a></p>
     </div>
 
+    <!--
+        Netlify Identity widget: required by the git-gateway backend so editors
+        can sign in with Netlify Identity. Enable Identity -> Enable Git Gateway
+        in the Netlify UI and invite editors from the Identity tab.
+    -->
+    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+
     <!-- Version is pinned; update deliberately on security releases (ADR-002). -->
     <script
         src="https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js"

@@ -1,0 +1,9 @@
+/*
+ * Global stylesheet entry — Path B (Astro).
+ *
+ * The design tokens, base layers and component utilities live in
+ * resources/css/app.css (kept from the Laravel build). Tailwind + Autoprefixer
+ * run through PostCSS (see postcss.config.mjs), so the @tailwind directives
+ * below are expanded at build time.
+ */
+@import '../../resources/css/app.css';

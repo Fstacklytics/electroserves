@@ -1,0 +1,14 @@
+---
+interface Props {
+    title: string;
+    subtitle?: string;
+    id?: string;
+    align?: 'center' | 'left';
+}
+
+const { title, subtitle, id, align = 'center' } = Astro.props;
+---
+<div class:list={['max-w-2xl', align === 'center' && 'mx-auto text-center']}>
+    <h2 id={id || undefined} class="text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">{title}</h2>
+    {subtitle && <p class="mt-3 text-base leading-relaxed text-neutral-600">{subtitle}</p>}
+</div>

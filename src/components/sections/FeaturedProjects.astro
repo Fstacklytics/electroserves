@@ -1,0 +1,41 @@
+---
+import { t } from '../../lib/i18n';
+import type { Project } from '../../lib/content';
+import SectionHeading from './SectionHeading.astro';
+import EmptyState from '../ui/EmptyState.astro';
+import ProjectCard from './ProjectCard.astro';
+
+interface Props {
+    projects: Project[];
+}
+
+const { projects } = Astro.props;
+---
+<section class="section-spacing bg-neutral-50" aria-labelledby="featured-projects-heading">
+    <div class="container-page">
+        <SectionHeading id="featured-projects-heading" title={t('home.projects.heading')} subtitle={t('home.projects.subheading')} />
+
+        {
+            projects.length === 0 ? (
+                <div class="mt-10">
+                    <EmptyState message={t('home.projects.empty')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" />
+                </div>
+            ) : (
+                <>
+                    <ul role="list" class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {
+                            projects.map((project) => (
+                                <li class="h-full"><ProjectCard project={project} /></li>
+                            ))
+                        }
+                    </ul>
+                    <div class="mt-10 text-center">
+                        <a href="/projects" class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                            {t('common.cta.view_all')}
+                        </a>
+                    </div>
+                </>
+            )
+        }
+    </div>
+</section>

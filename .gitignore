@@ -1,34 +1,28 @@
-/.phpunit.cache
+# Dependencies
 /node_modules
-/public/build
-/public/hot
-/public/storage
-/storage/*.key
-/storage/pail
-/vendor
+
+# Astro build output
+/dist
+/.astro
+/_astro
+
+# Environment
 .env
-.env.backup
 .env.production
-.phpactor.json
-.phpunit.result.cache
-Homestead.json
-Homestead.yaml
+
+# Logs
 npm-debug.log
 yarn-error.log
-/auth.json
+
+# Editors
 /.fleet
 /.idea
 /.nova
 /.vscode
 /.zed
 
-# Sandbox toolchain artefacts (see .sandbox-toolchain.sh)
-/storage/preview
-/.artifact-cache
+# OS
+.DS_Store
 
-# composer.lock is intentionally not committed from this sandbox: Packagist is
-# unreachable here, so the lock file generated locally records sandbox-local
-# artifact paths instead of real Packagist dist URLs. Generate and commit a
-# proper lock file by running `composer update` in an environment with
-# Packagist access.
-/composer.lock
+# npm audit / build caches
+/.cache

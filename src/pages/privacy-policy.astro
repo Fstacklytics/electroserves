@@ -1,0 +1,51 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../lib/i18n';
+import { staticPages } from '../lib/content';
+import { renderMarkdown } from '../lib/markdown';
+import { resolveSeo, breadcrumbSchema } from '../lib/seo';
+import PageHeader from '../components/sections/PageHeader.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+
+const url = Astro.url;
+const page = staticPages().find((p) => p.slug === 'privacy-policy');
+const { html: bodyHtml } = await renderMarkdown(page?.body ?? '', 'privacy policy');
+const title = page?.title ?? t('legal.privacy_title');
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: title },
+];
+
+const schema = breadcrumbSchema([
+    { label: t('common.nav.home'), url: `${url.origin}/` },
+    { label: title },
+]);
+
+const seo = resolveSeo(url, {
+    title,
+    description: page?.metaDescription ?? t('legal.meta_description', { title }),
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <PageHeader title={title} breadcrumbs={breadcrumbs}>
+        {
+            page?.updatedAt && (
+                <p class="mt-3 text-sm text-neutral-500">{t('legal.last_updated', { date: page.formattedUpdatedAt() ?? '' })}</p>
+            )
+        }
+    </PageHeader>
+
+    <section class="section-spacing">
+        <div class="container-page">
+            {
+                bodyHtml !== '' ? (
+                    <div class="prose prose-neutral mx-auto max-w-prose" set:html={bodyHtml} />
+                ) : (
+                    <EmptyState message={t('legal.missing_body')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" icon={false} />
+                )
+            }
+        </div>
+    </section>
+</Base>

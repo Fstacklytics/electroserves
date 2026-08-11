@@ -1,0 +1,254 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t } from '../../lib/i18n';
+import { projects, getProject, services } from '../../lib/content';
+import { renderMarkdown } from '../../lib/markdown';
+import { resolveSeo, breadcrumbSchema, organizationSchema } from '../../lib/seo';
+import Breadcrumb from '../../components/common/Breadcrumb.astro';
+import Badge from '../../components/ui/Badge.astro';
+import Card from '../../components/ui/Card.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import Media from '../../components/ui/Media.astro';
+import ProjectCard from '../../components/sections/ProjectCard.astro';
+import CtaBanner from '../../components/sections/CtaBanner.astro';
+
+export async function getStaticPaths() {
+    return projects().map((project) => ({ params: { slug: project.slug } }));
+}
+
+const { slug } = Astro.params;
+const project = getProject(slug ?? '');
+const url = Astro.url;
+
+if (!project) {
+    return Astro.redirect('/404');
+}
+
+const { html: bodyHtml } = await renderMarkdown(project.body, `project ${project.slug}`);
+const allProjects = projects();
+const allServices = services();
+const linkedServices = allServices.filter((s) => project.servicesUsed.includes(s.slug));
+const relatedProjects = allProjects.filter((p) => p.slug !== project.slug && p.category === project.category).slice(0, 3);
+const gallery = project.gallery;
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: t('projects.index.title'), url: '/projects' },
+    { label: project.title },
+];
+
+const schema = [
+    organizationSchema(),
+    breadcrumbSchema([
+        { label: t('common.nav.home'), url: `${url.origin}/` },
+        { label: t('projects.index.title'), url: `${url.origin}/projects` },
+        { label: project.title },
+    ]),
+];
+
+const seo = resolveSeo(url, {
+    title: project.title,
+    description: project.metaDescription ?? project.shortDescription,
+    image: project.featuredImage,
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <div class="border-b border-neutral-200 bg-neutral-50">
+        <div class="container-page">
+            <Breadcrumb crumbs={breadcrumbs} />
+        </div>
+    </div>
+
+    <article>
+        <header class="bg-neutral-50 pb-10">
+            <div class="container-page">
+                <Badge variant="primary">{project.categoryLabel}</Badge>
+                <h1 class="mt-3 max-w-3xl text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">{project.title}</h1>
+                <p class="mt-4 max-w-3xl text-lg leading-relaxed text-neutral-600">{project.shortDescription}</p>
+            </div>
+        </header>
+
+        <div class="container-page -mt-2">
+            <Media src={project.featuredImage} alt={project.title} width={1280} height={720} eager class="aspect-[16/9] w-full rounded-lg object-cover shadow-md" />
+        </div>
+
+        <div class="section-spacing">
+            <div class="container-page">
+                <div class="grid gap-12 lg:grid-cols-3">
+                    <div class="lg:col-span-2">
+                        {
+                            bodyHtml !== '' ? (
+                                <div class="prose prose-neutral max-w-none" set:html={bodyHtml} />
+                            ) : (
+                                <EmptyState message={t('projects.show.no_description')} icon={false} />
+                            )
+                        }
+
+                        <section class="mt-12" aria-labelledby="gallery-heading">
+                            <h2 id="gallery-heading" class="text-xl font-bold text-neutral-900">{t('projects.show.gallery')}</h2>
+
+                            {
+                                gallery.length === 0 ? (
+                                    <div class="mt-4">
+                                        <EmptyState message={t('projects.show.gallery_empty')} icon={false} />
+                                    </div>
+                                ) : (
+                                    <div x-data={`lightbox({ total: ${gallery.length} })`} class="mt-4">
+                                        <ul role="list" class="grid grid-cols-2 gap-4 sm:grid-cols-3">
+                                            {
+                                                gallery.map((item, index) => (
+                                                    <li>
+                                                        <button type="button" x-on:click={`show(${index})`} class="group block w-full overflow-hidden rounded-lg border border-neutral-200">
+                                                            <span class="sr-only">{t('projects.show.view_image', { caption: item.caption ?? project.title })}</span>
+                                                            <Media src={item.image} alt="" width={480} height={360} class="aspect-[4/3] w-full object-cover transition-transform duration-200 group-hover:scale-105" />
+                                                        </button>
+                                                        {item.caption && <p class="mt-1.5 text-xs text-neutral-500">{item.caption}</p>}
+                                                    </li>
+                                                ))
+                                            }
+                                        </ul>
+
+                                        <div
+                                            x-show="open"
+                                            x-cloak
+                                            x-trap.noscroll="open"
+                                            x-on:keydown.escape.window="close()"
+                                            x-on:keydown.arrow-right.prevent="next()"
+                                            x-on:keydown.arrow-left.prevent="previous()"
+                                            class="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-950/90 p-4"
+                                            role="dialog"
+                                            aria-modal="true"
+                                            aria-label={t('projects.show.lightbox_label')}
+                                        >
+                                            <button type="button" x-on:click="close()" class="absolute right-4 top-4 touch-target rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-neutral-950">
+                                                <span class="sr-only">{t('projects.show.close_lightbox')}</span>
+                                                <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                                                    <path d="M6.28 5.22a.75.75 0 0 0-1.06 1.06L8.94 10l-3.72 3.72a.75.75 0 1 0 1.06 1.06L10 11.06l3.72 3.72a.75.75 0 1 0 1.06-1.06L11.06 10l3.72-3.72a.75.75 0 0 0-1.06-1.06L10 8.94 6.28 5.22Z" />
+                                                </svg>
+                                            </button>
+
+                                            {
+                                                gallery.length > 1 && (
+                                                    <>
+                                                        <button type="button" x-on:click="previous()" class="absolute left-2 touch-target rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-neutral-950 sm:left-6">
+                                                            <span class="sr-only">{t('projects.show.previous_image')}</span>
+                                                            <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                                                                <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </button>
+                                                        <button type="button" x-on:click="next()" class="absolute right-2 touch-target rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-neutral-950 sm:right-6">
+                                                            <span class="sr-only">{t('projects.show.next_image')}</span>
+                                                            <svg class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                                                                <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
+                                                            </svg>
+                                                        </button>
+                                                    </>
+                                                )
+                                            }
+
+                                            <figure class="max-h-full w-full max-w-4xl">
+                                                {
+                                                    gallery.map((item, index) => (
+                                                        <div x-show={`isActive(${index})`} x-cloak={index > 0 ? true : undefined}>
+                                                            <Media src={item.image} alt={item.caption ?? project.title} width={1280} height={960} class="mx-auto max-h-[75vh] w-auto rounded-lg object-contain" />
+                                                            {item.caption && <figcaption class="mt-3 text-center text-sm text-neutral-300">{item.caption}</figcaption>}
+                                                        </div>
+                                                    ))
+                                                }
+                                                <p class="mt-2 text-center text-xs text-neutral-400" aria-live="polite">
+                                                    <span x-text="current + 1"></span> / {gallery.length}
+                                                </p>
+                                            </figure>
+                                        </div>
+                                    </div>
+                                )
+                            }
+                        </section>
+                    </div>
+
+                    <aside class="lg:col-span-1">
+                        <Card padding="md" class="lg:sticky lg:top-28">
+                            <dl class="space-y-4 text-sm">
+                                {
+                                    project.clientName && (
+                                        <div>
+                                            <dt class="font-semibold text-neutral-900">{t('projects.show.client')}</dt>
+                                            <dd class="mt-0.5 text-neutral-600">{project.clientName}</dd>
+                                        </div>
+                                    )
+                                }
+                                {
+                                    project.location && (
+                                        <div>
+                                            <dt class="font-semibold text-neutral-900">{t('projects.show.location')}</dt>
+                                            <dd class="mt-0.5 text-neutral-600">{project.location}</dd>
+                                        </div>
+                                    )
+                                }
+                                {
+                                    project.completionDate && (
+                                        <div>
+                                            <dt class="font-semibold text-neutral-900">{t('projects.show.completed')}</dt>
+                                            <dd class="mt-0.5 text-neutral-600">
+                                                <time datetime={project.completionDateIso() ?? undefined}>{project.formattedCompletionDate()}</time>
+                                            </dd>
+                                        </div>
+                                    )
+                                }
+                                {
+                                    linkedServices.length > 0 && (
+                                        <div>
+                                            <dt class="font-semibold text-neutral-900">{t('projects.show.services_used')}</dt>
+                                            <dd class="mt-2">
+                                                <ul role="list" class="flex flex-wrap gap-2">
+                                                    {
+                                                        linkedServices.map((service) => (
+                                                            <li>
+                                                                <a href={`/services/${service.slug}`} class="inline-flex min-h-touch items-center rounded-full bg-primary-50 px-3 text-xs font-medium text-primary-800 hover:bg-primary-100">{service.title}</a>
+                                                            </li>
+                                                        ))
+                                                    }
+                                                </ul>
+                                            </dd>
+                                        </div>
+                                    )
+                                }
+                            </dl>
+
+                            <div class="mt-6">
+                                <a href="/contact" class="inline-flex min-h-touch w-full items-center justify-center gap-2 rounded-md bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                                    {t('common.cta.get_quote')}
+                                </a>
+                            </div>
+                        </Card>
+                    </aside>
+                </div>
+            </div>
+        </div>
+
+        {
+            relatedProjects.length > 0 && (
+                <section class="section-spacing bg-neutral-50" aria-labelledby="related-heading">
+                    <div class="container-page">
+                        <h2 id="related-heading" class="text-2xl font-bold tracking-tight text-neutral-900">{t('projects.show.related')}</h2>
+                        <ul role="list" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {
+                                relatedProjects.map((related) => (
+                                    <li class="h-full"><ProjectCard project={related} /></li>
+                                ))
+                            }
+                        </ul>
+                    </div>
+                </section>
+            )
+        }
+    </article>
+
+    <CtaBanner
+        heading={t('projects.show.cta_heading')}
+        body={t('projects.show.cta_body')}
+        buttonLabel={t('common.cta.get_quote')}
+        buttonHref="/contact"
+    />
+</Base>

@@ -1,5 +1,10 @@
 # Decap CMS Configuration — ElectroServes
 # This file defines all content collections managed through the CMS admin interface
+#
+# NOTE (Path B): the deployed configuration lives in public/admin/config.yml and
+# authenticates via Netlify Identity + Git Gateway (backend: git-gateway). The
+# collection definitions below are the source of truth for field schemas; only
+# the `backend`/`media_folder` blocks differ in the deployed copy.
 
 backend:
   name: github

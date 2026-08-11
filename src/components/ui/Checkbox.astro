@@ -1,0 +1,86 @@
+---
+interface Props {
+    name: string;
+    label: string;
+    id?: string;
+    value?: string;
+    checked?: boolean;
+    required?: boolean;
+    disabled?: boolean;
+    error?: string;
+    helpText?: string;
+    class?: string;
+    [key: string]: any;
+}
+
+const {
+    name,
+    label,
+    id,
+    value = '1',
+    checked = false,
+    required = false,
+    disabled = false,
+    error,
+    helpText,
+    class: className = '',
+    children,
+    ...rest
+} = Astro.props;
+
+const fieldId = id ?? `checkbox-${name}-${Math.random().toString(36).slice(2, 6)}`;
+const hasError = Boolean(error);
+const describedBy = [helpText ? `${fieldId}-help` : null, hasError ? `${fieldId}-error` : null].filter(Boolean).join(' ') || undefined;
+---
+<div class="w-full">
+    <div class="flex items-start gap-3">
+        <input
+            type="checkbox"
+            id={fieldId}
+            name={name}
+            value={value}
+            checked={checked || undefined}
+            required={required || undefined}
+            disabled={disabled || undefined}
+            aria-disabled={disabled ? 'true' : undefined}
+            aria-invalid={hasError ? 'true' : undefined}
+            aria-describedby={describedBy}
+            class:list={[
+                'mt-1 h-5 w-5 shrink-0 rounded border-2 text-primary-700 transition-colors',
+                'focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-1',
+                'disabled:cursor-not-allowed disabled:bg-neutral-100',
+                hasError ? 'border-danger-500' : 'border-neutral-300',
+                className,
+            ]}
+            {...rest}
+        />
+        <label
+            for={fieldId}
+            class:list={[
+                'text-sm leading-relaxed',
+                disabled ? 'cursor-not-allowed text-neutral-500' : 'text-neutral-700',
+            ]}
+        >
+            {label}
+            {required && (
+                <>
+                    <span class="text-danger-600" aria-hidden="true">*</span>
+                    <span class="sr-only">(required)</span>
+                </>
+            )}
+        </label>
+    </div>
+
+    {helpText && <p id={`${fieldId}-help`} class="mt-1.5 pl-8 text-sm text-neutral-500">{helpText}</p>}
+
+    {
+        hasError && (
+            <p id={`${fieldId}-error`} class="mt-1.5 flex items-start gap-1.5 pl-8 text-sm font-medium text-danger-700">
+                <svg class="mt-0.5 h-4 w-4 shrink-0" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 1 1-16 0 8 8 0 0 1 16 0Zm-8-5a.75.75 0 0 1 .75.75v4.5a.75.75 0 0 1-1.5 0v-4.5A.75.75 0 0 1 10 5Zm0 10a1 1 0 1 0 0-2 1 1 0 0 0 0 2Z" clip-rule="evenodd" />
+                </svg>
+                <span>{error}</span>
+            </p>
+        )
+    }
+</div>

@@ -1,279 +1,148 @@
 # ElectroServes Website
 
-> A modern, beautiful website for an electronics and electrical services company, built with Laravel + Decap CMS.
+> A modern, accessible website for an electronics and electrical services
+> company, built as a **static site** with Astro + Tailwind + Alpine and
+> Decap CMS, deployed to **Netlify** (Path B).
 
 ---
 
-## 📋 Project Overview
-
-**ElectroServes** is an electronics and electrical services company based in Dar es Salaam, Tanzania. This project delivers a professional, responsive, and accessible marketing website with a git-based content management system.
-
-### Tech Stack
+## Tech Stack
 
 | Layer | Technology |
 |---|---|
-| Framework | Laravel 11 (PHP 8.3) |
-| Templates | Blade |
-| CSS | Tailwind CSS 3 |
-| Interactivity | Alpine.js 3 |
-| CMS | Decap CMS (git-based) |
-| Content Storage | Markdown + YAML files in Git |
-| Build Tool | Vite |
-| Git Hosting | GitHub |
-| CI/CD | GitHub Actions |
-| Deployment | VPS (Nginx + PHP-FPM) |
-| Database | None (file-based) |
+| Framework | Astro 4 (static output) |
+| Language | TypeScript / JavaScript (Node 20 LTS) |
+| CSS | Tailwind CSS 3 (design tokens in `tailwind.config.js`) |
+| Interactivity | Alpine.js 3 (`resources/js/`) |
+| CMS | Decap CMS (Netlify Identity + Git Gateway) |
+| Content Storage | Markdown + YAML files in Git (`content/`) |
+| Content validation | zod at the build-time boundary (`src/content/config.ts`) |
+| Forms | Netlify Forms + honeypot |
+| Build Tool | Astro / Vite (`astro.config.mjs`, `postcss.config.mjs`) |
+| CI/CD | GitHub Actions → Netlify |
+| Deployment | Netlify static (`netlify.toml`) |
+| Database | None (file-based content) |
+
+> This is **Path B** — the previous Laravel / Nginx + PHP-FPM runtime is removed.
+> See `docs/DEPLOY-NETLIFY-PATH-B.md` for the trade-offs and
+> `docs/DEPLOY-VERCEL-ASSESSMENT.md` for why Vercel was assessed and not chosen.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
-Visitor → Nginx (HTTPS) → PHP-FPM → Laravel → Blade Templates
-                                              ↓
-                                    Read Markdown/YAML
-                                    from content/ directory
-                                              ↓
-                                    Render HTML Response
-
-Content Admin → /admin → Decap CMS → GitHub OAuth → Git Commit → content/ files
+Content files (content/*)  ──┐
+                              ├─►  build-time parse + zod validation  ──►  static HTML (dist/)
+Netlify Identity + Git Gateway │
+   (Decap CMS /admin)  ────────┘                 ▲
+                                                 │ deployed
+Visitor ──► Netlify CDN (static HTML + headers from netlify.toml)
 ```
+
+There is no server runtime: content is parsed **once at build time** and served
+as static files. Contact submissions go through **Netlify Forms** with a
+honeypot field.
 
 ---
 
-## 📁 Project Structure
+## Getting started
 
-```
-electroserves/
-├── app/
-│   ├── Http/
-│   │   ├── Controllers/       # Page controllers (HomeController, ServiceController, etc.)
-│   │   └── Middleware/        # Custom middleware
-│   ├── Services/
-│   │   ├── ContentService.php # Reads and parses Markdown/YAML content files
-│   │   └── MarkdownService.php # Markdown to HTML conversion
-│   └── Models/                # Content data objects (not Eloquent)
-├── content/                   # ALL CMS-MANAGED CONTENT LIVES HERE
-│   ├── settings/              # Site settings (YAML)
-│   ├── hero/                  # Hero slides (YAML)
-│   ├── services/              # Service pages (Markdown + frontmatter)
-│   ├── projects/              # Project case studies (Markdown + frontmatter)
-│   ├── blog/                  # Blog posts (Markdown + frontmatter)
-│   ├── testimonials/          # Customer testimonials (YAML)
-│   ├── team/                  # Team member profiles (YAML)
-│   ├── faqs/                  # FAQ entries (YAML)
-│   ├── pages/                 # Static pages (Markdown + frontmatter)
-│   └── uploads/               # Media files (images)
-├── public/
-│   ├── admin/                 # Decap CMS admin interface
-│   │   ├── index.html         # CMS entry point
-│   │   └── config.yml         # CMS configuration
-│   └── uploads/               # Symlink to content/uploads
-├── resources/
-│   ├── views/
-│   │   ├── layouts/           # Base layouts (app, auth, error)
-│   │   ├── components/        # Reusable Blade components
-│   │   │   ├── ui/            # Design system primitives (button, card, badge)
-│   │   │   ├── sections/      # Page sections (hero, features, cta, footer)
-│   │   │   └── common/        # Shared components (navbar, footer, sidebar)
-│   │   ├── pages/             # Page templates (home, about, contact, etc.)
-│   │   └── partials/          # Partial templates
-│   ├── css/
-│   │   └── app.css            # Tailwind CSS entry point
-│   └── js/
-│       └── app.js             # Alpine.js entry point
-├── routes/
-│   └── web.php                # All web routes
-├── config/
-│   └── electroserves.php      # App-specific configuration
-├── tests/
-│   ├── Feature/               # Feature tests (HTTP tests)
-│   └── Unit/                  # Unit tests (ContentService, etc.)
-├── .github/
-│   └── workflows/
-│       └── ci.yml             # CI/CD pipeline
-├── tailwind.config.js
-├── vite.config.js
-├── composer.json
-├── package.json
-└── README.md
-```
-
----
-
-## 🚀 Getting Started
-
-### Prerequisites
-- PHP 8.3+
-- Composer
-- Node.js 18+
-- npm
-
-### Installation
+Prerequisites: **Node 20 LTS** and npm.
 
 ```bash
-# Clone the repository
-git clone https://github.com/Fstacklytics/electroserves.git
-cd electroserves
-
-# Install PHP dependencies
-composer install
-
-# Install JS dependencies
 npm install
-
-# Copy environment file
-cp .env.example .env
-
-# Generate application key
-php artisan key:generate
-
-# Build assets
-npm run build
-
-# Start development server
-php artisan serve
-
-# In another terminal, watch for asset changes
-npm run dev
+npm run dev        # local dev server (http://localhost:4321)
+npm run build      # static build into dist/
+npm run preview    # preview the built site
 ```
 
-### Decap CMS Local Development
+### Decap CMS locally
 
 ```bash
-# Start the Decap CMS local proxy server
-npx decap-server
+npx netlify dev    # serves the site + the /admin local backend proxy
+```
 
-# Access CMS at http://localhost:8080/admin
+Open `http://localhost:8888/admin`. On the deployed site, enable **Identity →
+Git Gateway** in Netlify and invite editors; they log in at `/admin`.
+
+---
+
+## Project structure
+
+```
+├── content/                  # ALL CMS-managed content (Markdown + YAML)
+│   ├── settings/             # site.yml, seo.yml
+│   ├── hero/ services/ projects/ blog/ testimonials/ team/ faqs/ pages/
+├── src/
+│   ├── content/config.ts     # zod schemas for every collection
+│   ├── lib/                  # content loader, markdown, seo, i18n helpers
+│   ├── i18n/en.json          # all user-facing strings
+│   ├── components/           # ui/, sections/, common/, icons/
+│   ├── layouts/Base.astro    # base layout (SEO head, nav, footer, toast)
+│   └── pages/                # index, services, projects, blog, about, etc.
+├── resources/
+│   ├── css/app.css           # Tailwind base layers + design tokens
+│   └── js/                   # Alpine components (app.js, carousel, modal, …)
+├── public/
+│   ├── admin/                # Decap CMS (index.html + config.yml)
+│   └── robots.txt
+├── netlify.toml              # build config + security headers
+├── astro.config.mjs
+└── tailwind.config.js
 ```
 
 ---
 
-## 📄 Pages
+## Pages
 
-| Page | Route | Content Source |
+| Page | Route | Content source |
 |---|---|---|
-| Homepage | `/` | `content/hero/`, `content/services/`, `content/testimonials/` |
+| Homepage | `/` | `content/hero`, `content/services`, `content/testimonials` |
 | Services | `/services` | `content/services/` |
-| Service Detail | `/services/{slug}` | `content/services/{slug}.md` |
-| About Us | `/about` | `content/pages/about.md`, `content/team/` |
+| Service detail | `/services/{slug}` | `content/services/{slug}.md` |
 | Projects | `/projects` | `content/projects/` |
-| Project Detail | `/projects/{slug}` | `content/projects/{slug}.md` |
+| Project detail | `/projects/{slug}` | `content/projects/{slug}.md` |
 | Blog | `/blog` | `content/blog/` |
-| Blog Post | `/blog/{slug}` | `content/blog/{slug}.md` |
+| Blog post | `/blog/{slug}` | `content/blog/{slug}.md` |
+| About | `/about` | `content/pages/about.md`, `content/team/` |
 | Testimonials | `/testimonials` | `content/testimonials/` |
 | Contact | `/contact` | `content/settings/site.yml` |
 | FAQ | `/faq` | `content/faqs/` |
-| Privacy Policy | `/privacy-policy` | `content/pages/privacy-policy.md` |
+| Privacy policy | `/privacy-policy` | `content/pages/privacy-policy.md` |
 | Terms | `/terms` | `content/pages/terms.md` |
-| CMS Admin | `/admin` | Decap CMS interface |
+| CMS admin | `/admin` | Decap CMS |
 
 ---
 
-## 🎨 Design System
+## Design system
 
-### Colors (Tailwind config)
-```
-Primary:    Blue (#1E40AF → #3B82F6)
-Secondary:  Amber/Orange (#D97706 → #F59E0B)
-Success:    Green
-Warning:    Yellow
-Error:      Red
-Neutral:    Slate scale
-```
-
-### Typography
-```
-Headings: Inter (Bold/SemiBold)
-Body: Inter (Regular/Medium)
-Mono: JetBrains Mono (code snippets in blog)
-```
-
-### Spacing
-```
-Base unit: 4px (Tailwind default)
-Sections: py-16 to py-24
-Container: max-w-7xl mx-auto px-4 sm:px-6 lg:px-8
-```
-
-### Breakpoints
-```
-sm:  640px   (mobile landscape)
-md:  768px   (tablet)
-lg:  1024px  (small desktop)
-xl:  1280px  (desktop)
-2xl: 1536px  (large desktop)
-```
+- **Colors:** primary (blue), secondary (amber), neutral (slate), success / warning / danger / info — defined in `tailwind.config.js`.
+- **Typography:** Inter (self-hosted-friendly, `font-display: swap`), JetBrains Mono for code.
+- **Spacing:** 4 px base, `min-h-touch` (44 px) accessible touch targets.
+- **Accessibility:** WCAG 2.1 AA, single focus ring (`:focus-visible`), skip link, labelled inputs, 44×44 px targets, reduced-motion support.
 
 ---
 
-## 🧪 Testing
+## Testing / verification
+
+The PHPUnit suite was removed with the Laravel runtime. The equivalent static
+checks run in CI (`.github/workflows/ci.yml`):
 
 ```bash
-# Run all tests
-php vendor/bin/phpunit
-
-# Run one suite
-php vendor/bin/phpunit --testsuite Unit
-php vendor/bin/phpunit --testsuite Feature
-
-# Run JS tests
-npm run test
-```
-
----
-
-## 📦 Deployment
-
-```bash
-# Via GitHub Actions (automatic on push to main)
-# Or manually:
-git pull origin main
-composer install --no-dev --optimize-autoloader
+npm run lint:css
+npm run lint:js
 npm run build
-php artisan config:cache
-php artisan route:cache
-php artisan view:cache
 ```
+
+A build that fails validation logs the offending content file and renders its
+fallback empty state rather than failing — see `src/lib/content.ts`.
 
 ---
 
-## 📚 Documentation
+## Documentation
 
-All project documentation is in `/docs/`:
+See `docs/` — in particular `docs/DEPLOY-NETLIFY-PATH-B.md` (deployment /
+trade-offs) and `docs/phase-0/07-technology-decision-log.md` (decision record).
 
-```
-docs/
-├── phase-0/
-│   ├── 01-problem-statement.md      # Four-question problem statement
-│   ├── 02-user-flows.md             # User flow diagrams
-│   ├── 03-scope-boundary.md         # In/out of scope
-│   ├── 04-data-model.md             # Data model diagram
-│   ├── 05-pii-classification.md     # PII and data classification
-│   ├── 06-architecture-decisions.md # ADRs (8 decisions)
-│   ├── 07-technology-decision-log.md # Technology choices
-│   ├── 08-threat-model.md           # Security threat model
-│   ├── 09-slo-document.md           # SLOs and reliability
-│   └── 10-decap-cms-config.yml      # CMS configuration
-└── phase-1/                         # Foundation documents (next)
-```
-
----
-
-## 📋 Development Checklist Progress
-
-- [x] Phase 0 — Decisions (all deliverables complete)
-- [x] Phase 1 — Foundation (Laravel 11 app, ContentService, DataObjects, all routes,
-      security headers, env validation, Decap admin, sample content, CI, 153 tests)
-- [x] Phase 2 — Design System (full component library with all states, layout shells,
-      section components, `/styleguide`, component + accessibility tests, 359 tests)
-- [ ] Phase 3 — Dev Layer
-- [ ] Phase 4 — Build
-- [ ] Phase 5 — Gate
-- [ ] Phase 6 — Integration
-- [ ] Phase 7 — Hardening
-- [ ] Phase 8 — Launch
-
----
-
-*Last Updated: 2026-08-11*
+*Last updated: 2026-08-11*

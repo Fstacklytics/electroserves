@@ -1,0 +1,57 @@
+---
+interface Props {
+    hoverable?: boolean;
+    bordered?: boolean;
+    padding?: 'none' | 'sm' | 'md' | 'lg';
+    as?: string;
+    class?: string;
+    [key: string]: any;
+}
+
+const {
+    hoverable = false,
+    bordered = true,
+    padding = 'md',
+    as = 'div',
+    class: className = '',
+    children,
+    ...rest
+} = Astro.props;
+
+const paddings: Record<string, string> = {
+    none: '',
+    sm: 'p-4',
+    md: 'p-6',
+    lg: 'p-8',
+};
+
+const classes = [
+    'relative overflow-hidden rounded-lg bg-white',
+    bordered ? 'border border-neutral-200' : '',
+    paddings[padding] ?? paddings.md,
+    hoverable
+        ? 'shadow-sm transition duration-200 hover:-translate-y-0.5 hover:shadow-lg focus-within:-translate-y-0.5 focus-within:shadow-lg'
+        : 'shadow-sm',
+    className,
+]
+    .filter(Boolean)
+    .join(' ');
+const Tag = as;
+---
+<Tag class={classes} {...rest}>
+    {
+        Astro.slots.has('header') && (
+            <div class:list={[padding !== 'none' && 'mb-4 border-b border-neutral-200 pb-4']}>
+                <slot name="header" />
+            </div>
+        )
+    }
+    <slot />
+    {
+        Astro.slots.has('footer') && (
+            <div class:list={[padding !== 'none' && 'mt-4 border-t border-neutral-200 pt-4']}>
+                <slot name="footer" />
+            </div>
+        )
+    }
+</Tag>

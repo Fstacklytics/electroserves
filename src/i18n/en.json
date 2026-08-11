@@ -1,0 +1,374 @@
+{
+  "about": {
+    "title": "About Us",
+    "heading": "About ElectroServes",
+    "meta_description": "Meet the certified electricians and electronics technicians behind ElectroServes in Dar es Salaam, Tanzania.",
+    "story_missing": "Our company story is being written. In the meantime, please get in touch — we are happy to tell you about our work in person.",
+    "team": {
+      "heading": "Meet the team",
+      "subheading": "Certified technicians and engineers who will be on your site.",
+      "empty": "Team profiles are being prepared.",
+      "certifications": "Certifications",
+      "photo_alt": "Photograph of {name}",
+      "email_label": "Email {name}"
+    },
+    "certifications": {
+      "heading": "Licences and certifications",
+      "subheading": "We work to Tanzanian and international electrical standards.",
+      "empty": "Certification details are being compiled."
+    }
+  },
+  "blog": {
+    "index": {
+      "title": "Blog",
+      "heading": "Advice, news and safety guidance",
+      "subheading": "Practical guidance on electrical safety, maintenance and getting the most from your installation.",
+      "meta_description": "Electrical safety tips, maintenance advice and company news from the ElectroServes team in Dar es Salaam.",
+      "filter_label": "Filter posts by category",
+      "filter_all": "All posts",
+      "filter_scope": "Filters apply to this page.",
+      "empty_global": "No articles have been published yet. Check back soon.",
+      "empty_filtered": "No articles in this category on this page.",
+      "clear_filter": "Show all posts",
+      "read_article": "Read {title}"
+    },
+    "show": {
+      "by_author": "By {author}",
+      "reading_time": "{minutes} min read",
+      "contents": "On this page",
+      "tags": "Tags",
+      "share": "Share this article",
+      "share_twitter": "Share on X",
+      "share_facebook": "Share on Facebook",
+      "share_linkedin": "Share on LinkedIn",
+      "copy_link": "Copy link",
+      "link_copied": "Link copied to clipboard",
+      "copy_failed": "Could not copy the link. You can copy it from the address bar.",
+      "related": "Related articles",
+      "no_body": "The full text of this article is being finalised.",
+      "back_to_blog": "Back to all articles"
+    }
+  },
+  "common": {
+    "skip_to_content": "Skip to main content",
+    "nav": {
+      "label": "Main navigation",
+      "home": "Home",
+      "services": "Services",
+      "projects": "Projects",
+      "about": "About Us",
+      "blog": "Blog",
+      "testimonials": "Testimonials",
+      "faq": "FAQ",
+      "contact": "Contact",
+      "open_menu": "Open main menu",
+      "close_menu": "Close main menu",
+      "mobile_menu_label": "Mobile navigation"
+    },
+    "cta": {
+      "get_quote": "Get a Quote",
+      "learn_more": "Learn more",
+      "view_all": "View all",
+      "read_more": "Read more",
+      "contact_us": "Contact us",
+      "call_now": "Call now",
+      "back_to_top": "Back to top"
+    },
+    "footer": {
+      "quick_links": "Quick links",
+      "our_services": "Our services",
+      "get_in_touch": "Get in touch",
+      "follow_us": "Follow us",
+      "business_hours": "Business hours",
+      "emergency_line": "Emergency line",
+      "built_with": "All rights reserved."
+    },
+    "social": {
+      "facebook": "Visit our Facebook page",
+      "instagram": "Visit our Instagram profile",
+      "twitter": "Visit our X profile",
+      "linkedin": "Visit our LinkedIn page",
+      "youtube": "Visit our YouTube channel",
+      "whatsapp": "Message us on WhatsApp"
+    },
+    "breadcrumb": { "label": "Breadcrumb" },
+    "modal": { "label": "Dialog", "close": "Close dialog" },
+    "tabs": { "label": "Filter" },
+    "cookies": {
+      "label": "Privacy notice",
+      "message": "We use only the cookies required to keep this site working securely. We do not track you or share your information.",
+      "learn_more": "Read our privacy policy",
+      "dismiss": "Got it"
+    },
+    "states": {
+      "loading": "Loading…",
+      "error_title": "Something went wrong",
+      "error_retry": "Try again",
+      "empty": "Nothing to show yet"
+    },
+    "pagination": {
+      "label": "Pagination",
+      "previous": "Previous",
+      "next": "Next",
+      "go_to_page": "Go to page {page}",
+      "current_page": "Page {page}, current page"
+    },
+    "meta": { "phone": "Phone", "email": "Email", "address": "Address" }
+  },
+  "contact": {
+    "title": "Contact",
+    "heading": "Get in touch",
+    "subheading": "Tell us what you need. We reply to every enquiry, usually within one working day.",
+    "meta_description": "Contact ElectroServes in Dar es Salaam for electrical installation, electronics repair and 24/7 emergency callouts.",
+    "form": {
+      "heading": "Request a quote",
+      "submit": "Send enquiry",
+      "submitting": "Sending…",
+      "required_note": "Fields marked with an asterisk (*) are required.",
+      "send_another": "Send another enquiry"
+    },
+    "fields": {
+      "name": "Full name",
+      "name_placeholder": "e.g. Amina Hassan",
+      "email": "Email address",
+      "email_placeholder": "you@example.com",
+      "phone": "Phone number",
+      "phone_placeholder": "+255 700 000 000",
+      "phone_help": "Optional — add it if you would prefer us to call you back.",
+      "service_type": "What do you need help with?",
+      "service_placeholder": "Select a service",
+      "message": "Tell us about the job",
+      "message_placeholder": "Describe the property, the work needed and any deadlines.",
+      "message_help": "The more detail you give, the more accurate our quote will be.",
+      "consent": "I agree that ElectroServes may use these details to respond to my enquiry.",
+      "consent_link": "Read our privacy policy"
+    },
+    "validation": {
+      "name_required": "Please tell us your name so we know who to reply to.",
+      "name_min": "Please enter your full name.",
+      "email_required": "We need an email address to send our reply to.",
+      "email_invalid": "That email address does not look right. Please check it.",
+      "phone_invalid": "Please enter a phone number using digits, spaces, brackets, + or -.",
+      "service_required": "Please choose the service you need.",
+      "service_invalid": "Please choose one of the listed services.",
+      "message_required": "Please describe the work you need done.",
+      "message_min": "Please give us a little more detail — at least 10 characters.",
+      "message_max": "Please keep your message under 5,000 characters.",
+      "consent_required": "Please confirm we may use your details to reply to you.",
+      "summary_heading": "Please fix the following before sending:"
+    },
+    "status": {
+      "success_title": "Thank you — your enquiry is on its way.",
+      "success_body": "A member of our team will get back to you within one working day.",
+      "error_title": "We could not send your enquiry.",
+      "error_body": "Something went wrong on our side. Please try again, or call us on {phone} and we will help you straight away.",
+      "error_body_no_phone": "Something went wrong on our side. Please try again in a few minutes.",
+      "rate_limited_title": "That is a few too many enquiries.",
+      "rate_limited_body": "You have reached the limit for now. Please wait a little while before sending another, or call us on {phone}.",
+      "rate_limited_body_no_phone": "You have reached the limit for now. Please wait a little while before sending another."
+    },
+    "service_other": "Something else",
+    "sidebar": {
+      "heading": "Other ways to reach us",
+      "phone_label": "Call us",
+      "emergency_label": "Emergency line (24/7)",
+      "email_label": "Email us",
+      "address_label": "Visit us",
+      "hours_label": "Business hours",
+      "map_title": "Map showing the ElectroServes office location",
+      "map_unavailable": "A map of our location is not available right now."
+    }
+  },
+  "errors": {
+    "404": {
+      "code": "404",
+      "title": "We could not find that page",
+      "body": "The page you asked for does not exist, or it may have been moved. The links below should get you back on track."
+    },
+    "403": {
+      "code": "403",
+      "title": "That page is not available to you",
+      "body": "You do not have permission to view this page. If you believe this is a mistake, please get in touch."
+    },
+    "419": {
+      "code": "419",
+      "title": "Your session expired",
+      "body": "For your security, the form you were filling in timed out. Please go back and submit it again."
+    },
+    "429": {
+      "code": "429",
+      "title": "Too many requests",
+      "body": "You have made a lot of requests in a short time. Please wait a moment and try again."
+    },
+    "500": {
+      "code": "500",
+      "title": "Something went wrong on our side",
+      "body": "We hit an unexpected problem. Our team has been notified. Please try again in a few minutes."
+    },
+    "503": {
+      "code": "503",
+      "title": "We are down for maintenance",
+      "body": "The site is briefly unavailable while we make an update. Please try again shortly."
+    },
+    "actions": {
+      "home": "Go to the homepage",
+      "services": "Browse our services",
+      "contact": "Contact support",
+      "retry": "Try again",
+      "back": "Go back"
+    },
+    "help": "If you need help right now, call us on {phone}."
+  },
+  "faq": {
+    "title": "Frequently Asked Questions",
+    "heading": "Frequently asked questions",
+    "subheading": "Answers to the questions we are asked most often. If yours is not here, just ask.",
+    "meta_description": "Answers about pricing, callout times, warranties and emergency electrical services from ElectroServes.",
+    "empty": "We have not published any questions yet. Contact us with your question and we will answer it directly.",
+    "expand": "Expand answer",
+    "collapse": "Collapse answer",
+    "cta": {
+      "heading": "Still have questions?",
+      "body": "Our team is happy to talk through your situation, with no obligation.",
+      "button": "Ask us directly"
+    }
+  },
+  "home": {
+    "hero": {
+      "label": "Highlighted services",
+      "empty_heading": "Powering homes and businesses across Tanzania",
+      "empty_subheading": "Licensed electrical and electronics specialists serving Dar es Salaam and the surrounding regions.",
+      "previous_slide": "Previous slide",
+      "next_slide": "Next slide",
+      "go_to_slide": "Go to slide {number}",
+      "pause": "Pause slideshow",
+      "play": "Play slideshow",
+      "slide_position": "Slide {current} of {total}"
+    },
+    "services": {
+      "heading": "What we do",
+      "subheading": "From a single socket to a full commercial installation, our certified technicians handle it safely and to standard.",
+      "empty": "Our service list is being updated. Please contact us and we will talk you through what we offer."
+    },
+    "projects": {
+      "heading": "Recent work",
+      "subheading": "A selection of installations and repairs we have completed for clients across the region.",
+      "empty": "We are preparing our project gallery. Get in touch to ask about work similar to yours."
+    },
+    "stats": {
+      "heading": "Why clients choose us",
+      "years": "Years in business",
+      "projects": "Projects completed",
+      "clients": "Satisfied clients",
+      "team": "Certified technicians"
+    },
+    "testimonials": {
+      "heading": "What our clients say",
+      "subheading": "Feedback from homeowners, businesses and institutions we have worked with.",
+      "empty": "We are collecting feedback from our clients. Check back soon."
+    },
+    "cta": {
+      "heading": "Ready to get started?",
+      "body": "Tell us what you need and we will come back to you with a clear, itemised quote — usually within one working day.",
+      "button": "Request a quote",
+      "secondary": "Browse our services"
+    },
+    "emergency": {
+      "heading": "Electrical emergency?",
+      "body": "Our emergency team responds 24 hours a day, seven days a week.",
+      "button": "Call the emergency line"
+    }
+  },
+  "legal": {
+    "privacy_title": "Privacy Policy",
+    "terms_title": "Terms of Service",
+    "meta_description": "{title} for the ElectroServes website.",
+    "last_updated": "Last updated {date}",
+    "missing_body": "This document is being updated. If you need a copy in the meantime, please contact us and we will send it to you."
+  },
+  "projects": {
+    "index": {
+      "title": "Projects",
+      "heading": "Our completed work",
+      "subheading": "Installations, upgrades and repairs delivered for clients across Tanzania.",
+      "meta_description": "Browse completed electrical and electronics projects by ElectroServes across residential, commercial and industrial sites in Tanzania.",
+      "filter_label": "Filter projects by category",
+      "filter_all": "All projects",
+      "filter_scope": "Filters apply to this page.",
+      "empty_global": "We are preparing our project gallery. Please contact us to ask about work similar to yours.",
+      "empty_filtered": "No projects in this category on this page.",
+      "clear_filter": "Show all projects"
+    },
+    "show": {
+      "client": "Client",
+      "location": "Location",
+      "completed": "Completed",
+      "category": "Category",
+      "services_used": "Services used",
+      "gallery": "Project gallery",
+      "gallery_empty": "No additional photographs were published for this project.",
+      "related": "Similar projects",
+      "no_description": "A written case study for this project is on its way.",
+      "view_image": "View larger image: {caption}",
+      "lightbox_label": "Project image viewer",
+      "close_lightbox": "Close image viewer",
+      "previous_image": "Previous image",
+      "next_image": "Next image",
+      "image_position": "Image {current} of {total}",
+      "cta_heading": "Planning something similar?",
+      "cta_body": "We will walk your site, size the work and give you a written quote."
+    }
+  },
+  "seo": {
+    "default_description": "ElectroServes provides licensed electrical installation, electronics repair and 24/7 emergency callout services in Dar es Salaam, Tanzania."
+  },
+  "services": {
+    "index": {
+      "title": "Services",
+      "heading": "Electrical and electronics services",
+      "subheading": "Certified, insured and standards-compliant work for homes, businesses and institutions across Dar es Salaam.",
+      "meta_description": "Residential and commercial electrical installation, electronics repair and 24/7 emergency callout services in Dar es Salaam, Tanzania.",
+      "filter_label": "Filter services by category",
+      "filter_all": "All services",
+      "showing": "Showing {count} of {total} services",
+      "empty_global": "Our services are being updated. Please contact us directly and we will help you straight away.",
+      "empty_filtered": "No services match this category yet.",
+      "clear_filter": "Show all services"
+    },
+    "show": {
+      "whats_included": "What's included",
+      "price_from": "Indicative pricing",
+      "related_projects": "Related projects",
+      "related_projects_empty": "We have not published a case study for this service yet.",
+      "request_quote": "Request a quote for {service}",
+      "cta_body": "Tell us about your site and requirements, and we will prepare a written quote.",
+      "no_description": "A detailed description of this service is being written. Contact us and we will explain exactly what is involved.",
+      "category_label": "Category"
+    },
+    "card": { "learn_more_about": "Learn more about {service}" }
+  },
+  "styleguide": {
+    "title": "Style guide",
+    "description": "Living reference of every UI component in every state.",
+    "note": "This page is available in development only and is never registered in production."
+  },
+  "testimonials": {
+    "title": "Testimonials",
+    "heading": "What our clients say",
+    "subheading": "Feedback from the homeowners, businesses and institutions we have worked with.",
+    "meta_description": "Read reviews and testimonials from ElectroServes clients across Dar es Salaam and Tanzania.",
+    "empty": "We are collecting feedback from our clients. Check back soon.",
+    "empty_filtered": "No testimonials for this service yet.",
+    "clear_filter": "Show all testimonials",
+    "filter_label": "Filter testimonials by service",
+    "filter_all": "All services",
+    "rating_label": "Rated {rating} out of 5",
+    "photo_alt": "Photograph of {name}",
+    "service_label": "Service",
+    "cta": {
+      "heading": "Had a great experience?",
+      "body": "We would love to hear about it — and other clients find it genuinely useful.",
+      "button": "Share your feedback"
+    }
+  }
+}

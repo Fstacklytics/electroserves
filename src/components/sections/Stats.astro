@@ -1,0 +1,43 @@
+---
+import { t } from '../../lib/i18n';
+import { siteSettings } from '../../lib/content';
+
+const settings = siteSettings();
+
+const stats = [
+    settings.yearsInBusiness > 0 ? { value: settings.yearsInBusiness, label: t('home.stats.years'), suffix: '+' } : null,
+    settings.projectsCompleted > 0 ? { value: settings.projectsCompleted, label: t('home.stats.projects'), suffix: '+' } : null,
+    settings.happyClients > 0 ? { value: settings.happyClients, label: t('home.stats.clients'), suffix: '+' } : null,
+    settings.teamSize > 0 ? { value: settings.teamSize, label: t('home.stats.team'), suffix: '' } : null,
+].filter(Boolean) as Array<{ value: number; label: string; suffix: string }>;
+
+const cols = Math.min(4, stats.length);
+const lgColsClass: Record<number, string> = {
+    1: 'lg:grid-cols-1',
+    2: 'lg:grid-cols-2',
+    3: 'lg:grid-cols-3',
+    4: 'lg:grid-cols-4',
+};
+const lgCols = lgColsClass[cols] ?? 'lg:grid-cols-4';
+---
+{
+    stats.length > 0 && (
+        <section class="bg-neutral-900" aria-labelledby="stats-heading">
+            <div class="container-page py-12 sm:py-16">
+                <h2 id="stats-heading" class="sr-only">{t('home.stats.heading')}</h2>
+                <dl class:list={['grid grid-cols-2 gap-8', lgCols]}>
+                    {
+                        stats.map((stat) => (
+                            <div class="text-center">
+                                <dt class="order-2 mt-1 text-sm text-neutral-400">{stat.label}</dt>
+                                <dd class="order-1 text-3xl font-bold text-white sm:text-4xl">
+                                    {stat.value.toLocaleString()}{stat.suffix}
+                                </dd>
+                            </div>
+                        ))
+                    }
+                </dl>
+            </div>
+        </section>
+    )
+}

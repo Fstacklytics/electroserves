@@ -1,0 +1,43 @@
+# ElectroServes — Path B (Netlify)
+#
+# Replaces the old Nginx + PHP-FPM deployment (deploy/nginx.conf +
+# deploy/README.md). The site is fully static (Astro build output in dist/),
+# so the hardening that used to live in Nginx and SecurityHeadersMiddleware now
+# lives here as response headers, and the contact form is handled by Netlify
+# Forms with a honeypot.
+
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# Immutable hashed assets get a long cache. Astro writes build assets to
+# dist/_assets/ with content hashes in the filename.
+[[headers]]
+  for = "/_assets/*"
+  [headers.values]
+    Cache-Control = "public, max-age=31536000, immutable"
+
+# Security headers for the whole site. These replace Nginx hardening +
+# SecurityHeadersMiddleware from the Laravel build.
+#
+# CSP is deliberately conservative: scripts from self and the Netlify Identity
+# host (the admin login widget), styles from self + Google Fonts, fonts from
+# fonts.gstatic.com, images from self + data: URIs. The /admin/* rule below
+# relaxes script-src so the Decap CMS bundle (served from unpkg) can load.
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+
+# The Decap CMS admin page must be able to load its own JS bundle from unpkg
+# and the Netlify Identity widget; the strict site CSP would block those.
+[[headers]]
+  for = "/admin/*"
+  [headers.values]
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
+    X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
