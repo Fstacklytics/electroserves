@@ -23,7 +23,7 @@
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 <body class="flex min-h-screen flex-col bg-white font-sans text-base text-neutral-700">
-    <a href="#main-content" class="skip-link">{{ __('common.skip_to_content') }}</a>
+    <x-common.skip-to-content />
 
     <x-common.navbar :settings="$siteSettings" />
 

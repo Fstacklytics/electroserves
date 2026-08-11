@@ -40,7 +40,7 @@
 </head>
 <body class="flex min-h-screen flex-col bg-white font-sans text-base text-neutral-700">
     {{-- Must be the first focusable element on the page. --}}
-    <a href="#main-content" class="skip-link">{{ __('common.skip_to_content') }}</a>
+    <x-common.skip-to-content />
 
     <x-common.navbar :settings="$siteSettings" />
 
@@ -52,6 +52,8 @@
 
     {{-- Global live region for transient notifications. --}}
     <x-common.toast-container />
+
+    <x-common.cookie-banner />
 
     @stack('scripts')
 </body>

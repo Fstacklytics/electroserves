@@ -54,6 +54,22 @@ return [
         'label' => 'Breadcrumb',
     ],
 
+    'modal' => [
+        'label' => 'Dialog',
+        'close' => 'Close dialog',
+    ],
+
+    'tabs' => [
+        'label' => 'Filter',
+    ],
+
+    'cookies' => [
+        'label' => 'Privacy notice',
+        'message' => 'We use only the cookies required to keep this site working securely. We do not track you or share your information.',
+        'learn_more' => 'Read our privacy policy',
+        'dismiss' => 'Got it',
+    ],
+
     'states' => [
         'loading' => 'Loading…',
         'error_title' => 'Something went wrong',

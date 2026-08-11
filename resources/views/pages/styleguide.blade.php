@@ -105,6 +105,11 @@
                 <div class="sm:col-span-2">
                     <x-ui.textarea name="sg_textarea_error" label="Textarea with error" error="This field is required." />
                 </div>
+
+                <x-ui.checkbox name="sg_check" label="Default checkbox" />
+                <x-ui.checkbox name="sg_check_required" label="Required checkbox" required />
+                <x-ui.checkbox name="sg_check_error" label="Checkbox with error" error="You must agree to continue." />
+                <x-ui.checkbox name="sg_check_disabled" label="Disabled checkbox" disabled />
             </div>
         </section>
 
@@ -187,37 +192,24 @@
             </div>
         </section>
 
-        {{-- Alpine components --}}
+        {{-- Interactive components --}}
         <section aria-labelledby="sg-interactive">
             <h2 id="sg-interactive" class="text-2xl font-bold text-neutral-900">Interactive components</h2>
 
             <div class="mt-6 grid gap-8 sm:grid-cols-2">
                 {{-- Dropdown --}}
-                <div x-data="dropdown()" class="relative">
+                <div>
                     <p class="mb-2 text-sm font-semibold text-neutral-700">Dropdown</p>
-                    <button
-                        type="button"
-                        x-ref="trigger"
-                        x-on:click="toggle()"
-                        x-on:keydown.arrow-down.prevent="focusNext()"
-                        x-on:keydown.arrow-up.prevent="focusPrevious()"
-                        x-on:keydown.escape.prevent="close(true)"
-                        :aria-expanded="open ? 'true' : 'false'"
-                        aria-haspopup="true"
-                        class="min-h-touch rounded-md border border-neutral-300 px-4 text-sm font-medium hover:bg-neutral-100"
-                    >Open menu</button>
-
-                    <div
-                        x-ref="menu"
-                        x-show="open"
-                        x-cloak
-                        role="menu"
-                        class="absolute z-10 mt-2 w-48 rounded-md border border-neutral-200 bg-white py-1 shadow-lg"
-                    >
+                    <x-ui.dropdown label="Options">
                         @foreach (['First item', 'Second item', 'Third item'] as $item)
-                            <button type="button" role="menuitem" x-on:click="onSelect()" class="block w-full px-4 py-2.5 text-left text-sm hover:bg-neutral-100">{{ $item }}</button>
+                            <button
+                                type="button"
+                                role="menuitem"
+                                x-on:click="onSelect()"
+                                class="block w-full px-4 py-2.5 text-left text-sm text-neutral-700 hover:bg-neutral-100"
+                            >{{ $item }}</button>
                         @endforeach
-                    </div>
+                    </x-ui.dropdown>
                 </div>
 
                 {{-- Modal --}}
@@ -225,55 +217,51 @@
                     <p class="mb-2 text-sm font-semibold text-neutral-700">Modal</p>
                     <x-ui.button variant="outline" size="md" x-on:click="show()">Open modal</x-ui.button>
 
-                    <div
-                        x-show="open"
-                        x-cloak
-                        x-trap.noscroll="open"
-                        x-on:keydown.escape.window="close()"
-                        class="fixed inset-0 z-[70] flex items-center justify-center bg-neutral-950/60 p-4"
-                        role="dialog"
-                        aria-modal="true"
-                        aria-labelledby="sg-modal-title"
-                    >
-                        <div x-on:click.outside="close()" class="w-full max-w-md rounded-lg bg-white p-6 shadow-xl">
-                            <h3 id="sg-modal-title" class="text-lg font-semibold text-neutral-900">Example dialog</h3>
-                            <p class="mt-2 text-sm text-neutral-600">Focus is trapped here and returns to the trigger on close.</p>
-                            <div class="mt-6 flex justify-end gap-3">
-                                <x-ui.button variant="ghost" size="sm" x-on:click="close()">Cancel</x-ui.button>
-                                <x-ui.button variant="primary" size="sm" x-on:click="close()">Confirm</x-ui.button>
-                            </div>
-                        </div>
-                    </div>
+                    <x-ui.modal title="Example dialog">
+                        Focus is trapped here while the dialog is open, Escape closes it, and focus
+                        returns to the button that opened it.
+
+                        <x-slot:footer>
+                            <x-ui.button variant="ghost" size="sm" x-on:click="close()">Cancel</x-ui.button>
+                            <x-ui.button variant="primary" size="sm" x-on:click="close()">Confirm</x-ui.button>
+                        </x-slot:footer>
+                    </x-ui.modal>
                 </div>
 
                 {{-- Accordion --}}
                 <div>
                     <p class="mb-2 text-sm font-semibold text-neutral-700">Accordion</p>
-                    <div x-data="accordion({ multiple: false })" class="divide-y divide-neutral-200 rounded-lg border border-neutral-200">
-                        @foreach (['one', 'two'] as $key)
-                            <div>
-                                <h3>
-                                    <button
-                                        type="button"
-                                        data-accordion-header
-                                        :aria-expanded="isOpen(@js($key)) ? 'true' : 'false'"
-                                        aria-controls="sg-panel-{{ $key }}"
-                                        x-on:click="toggle(@js($key))"
-                                        x-on:keydown.arrow-down.prevent="moveFocus(1, $event.target)"
-                                        x-on:keydown.arrow-up.prevent="moveFocus(-1, $event.target)"
-                                        class="flex w-full min-h-touch items-center justify-between px-4 text-left text-sm font-medium hover:bg-neutral-50"
-                                    >Section {{ $key }}</button>
-                                </h3>
-                                <div id="sg-panel-{{ $key }}" x-show="isOpen(@js($key))" x-cloak x-collapse>
-                                    <p class="px-4 pb-4 text-sm text-neutral-600">Panel content for section {{ $key }}.</p>
-                                </div>
-                            </div>
-                        @endforeach
-                    </div>
+                    <x-ui.accordion
+                        :multiple="false"
+                        :items="[
+                            ['id' => 'sg-acc-1', 'heading' => 'What areas do you cover?', 'content' => 'All of Dar es Salaam and the surrounding areas.'],
+                            ['id' => 'sg-acc-2', 'heading' => 'Are you licensed?', 'content' => 'Yes — registered with the Contractors Registration Board.'],
+                        ]"
+                    />
+                </div>
+
+                {{-- Accordion, empty --}}
+                <div>
+                    <p class="mb-2 text-sm font-semibold text-neutral-700">Accordion — empty state</p>
+                    <x-ui.accordion :items="[]" />
+                </div>
+
+                {{-- Tabs --}}
+                <div class="sm:col-span-2">
+                    <p class="mb-2 text-sm font-semibold text-neutral-700">Tabs / filters</p>
+                    <x-ui.tabs
+                        label="Filter by category"
+                        :tabs="['all' => 'All', 'residential' => 'Residential', 'commercial' => 'Commercial']"
+                    >
+                        <p class="mt-4 text-sm text-neutral-600">
+                            Active filter:
+                            <span class="font-semibold text-neutral-900" x-text="active"></span>
+                        </p>
+                    </x-ui.tabs>
                 </div>
 
                 {{-- Toast --}}
-                <div>
+                <div class="sm:col-span-2">
                     <p class="mb-2 text-sm font-semibold text-neutral-700">Toast</p>
                     <div class="flex flex-wrap gap-2">
                         @foreach (['info', 'success', 'error'] as $type)
@@ -287,5 +275,78 @@
                 </div>
             </div>
         </section>
+
+        {{-- Media --}}
+        <section aria-labelledby="sg-media">
+            <h2 id="sg-media" class="text-2xl font-bold text-neutral-900">Media</h2>
+            <p class="mt-1 text-sm text-neutral-600">
+                Missing images fall back to an inline placeholder — never an external service, and never a broken image.
+            </p>
+
+            <div class="mt-6 grid gap-6 sm:grid-cols-3">
+                <div>
+                    <p class="mb-2 text-xs font-medium text-neutral-500">Missing image (decorative)</p>
+                    <x-ui.media :src="null" alt="" :width="400" :height="300" class="w-full rounded-lg" />
+                </div>
+                <div>
+                    <p class="mb-2 text-xs font-medium text-neutral-500">Missing image (labelled)</p>
+                    <x-ui.media :src="null" :width="400" :height="300" label="Project photograph" class="w-full rounded-lg" />
+                </div>
+                <div>
+                    <p class="mb-2 text-xs font-medium text-neutral-500">Unsafe reference (rejected)</p>
+                    <x-ui.media src="javascript:alert(1)" alt="" :width="400" :height="300" class="w-full rounded-lg" />
+                </div>
+            </div>
+        </section>
+
+        {{-- Section components --}}
+        <section aria-labelledby="sg-sections">
+            <h2 id="sg-sections" class="text-2xl font-bold text-neutral-900">Section components</h2>
+
+            <div class="mt-6 space-y-8">
+                <div>
+                    <p class="mb-2 text-sm font-semibold text-neutral-700">CTA banner — default</p>
+                    <x-sections.cta-banner
+                        heading="Ready to get started?"
+                        body="Tell us what you need and we will come back with a written quote."
+                        :button-label="__('common.cta.get_quote')"
+                        :button-href="route('contact')"
+                        class="rounded-lg"
+                    />
+                </div>
+
+                <div>
+                    <p class="mb-2 text-sm font-semibold text-neutral-700">CTA banner — emergency</p>
+                    <x-sections.cta-banner
+                        variant="emergency"
+                        :heading="__('home.emergency.heading')"
+                        :body="__('home.emergency.body')"
+                        :button-label="__('home.emergency.button')"
+                        :button-href="route('contact')"
+                        class="rounded-lg"
+                    />
+                </div>
+
+                <div>
+                    <p class="mb-2 text-sm font-semibold text-neutral-700">Hero — empty state (no slides published)</p>
+                    <div class="overflow-hidden rounded-lg">
+                        <x-sections.hero :slides="collect()" />
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        {{-- Error panel --}}
+        <section aria-labelledby="sg-errors">
+            <h2 id="sg-errors" class="text-2xl font-bold text-neutral-900">Error pages</h2>
+            <div class="mt-6 overflow-hidden rounded-lg border border-neutral-200">
+                <x-sections.error-panel
+                    :code="__('errors.404.code')"
+                    :title="__('errors.404.title')"
+                    :body="__('errors.404.body')"
+                />
+            </div>
+        </section>
+
     </div>
 </x-layouts.app>

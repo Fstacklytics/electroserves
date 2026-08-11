@@ -25,7 +25,13 @@
      * aria-describedby, and aria-invalid is set so the error is announced.
      */
     $id = $id ?? 'input-'.\Illuminate\Support\Str::slug($name).'-'.\Illuminate\Support\Str::random(4);
-    $error = $error ?? $errors->first($name);
+    // $errors is only shared by the session middleware, so a component
+    // rendered outside a request context (tests, a mail view) must not assume
+    // it exists. An explicitly passed `error` prop always wins.
+    $bag = $errors ?? session('errors');
+    $error = $error ?? ($bag instanceof \Illuminate\Support\ViewErrorBag || $bag instanceof \Illuminate\Support\MessageBag
+        ? $bag->first($name)
+        : null);
     $hasError = filled($error);
 
     $describedBy = array_filter([

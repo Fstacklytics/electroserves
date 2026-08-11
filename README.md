@@ -265,7 +265,8 @@ docs/
 - [x] Phase 0 — Decisions (all deliverables complete)
 - [x] Phase 1 — Foundation (Laravel 11 app, ContentService, DataObjects, all routes,
       security headers, env validation, Decap admin, sample content, CI, 153 tests)
-- [ ] Phase 2 — Design System
+- [x] Phase 2 — Design System (full component library with all states, layout shells,
+      section components, `/styleguide`, component + accessibility tests, 359 tests)
 - [ ] Phase 3 — Dev Layer
 - [ ] Phase 4 — Build
 - [ ] Phase 5 — Gate

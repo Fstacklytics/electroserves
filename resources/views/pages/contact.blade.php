@@ -167,33 +167,18 @@
                             </div>
 
                             {{-- Consent (Tanzania PDPA / GDPR: purpose limitation) --}}
-                            <div>
-                                <div class="flex items-start gap-3">
-                                    <input
-                                        type="checkbox"
-                                        id="consent"
-                                        name="consent"
-                                        value="1"
-                                        @checked(old('consent'))
-                                        required
-                                        aria-describedby="consent-help @error('consent') consent-error @enderror"
-                                        @error('consent') aria-invalid="true" @enderror
-                                        class="mt-1 h-5 w-5 shrink-0 rounded border-neutral-300 text-primary-700 focus:ring-2 focus:ring-primary-500"
-                                    >
-                                    <label for="consent" class="text-sm text-neutral-700">
-                                        {{ __('contact.fields.consent') }}
-                                        <span class="text-danger-600" aria-hidden="true">*</span>
-                                    </label>
-                                </div>
-                                <p id="consent-help" class="mt-1.5 pl-8 text-sm text-neutral-500">
-                                    <a href="{{ route('privacy') }}" class="text-primary-800 underline underline-offset-2">
-                                        {{ __('contact.fields.consent_link') }}
-                                    </a>
-                                </p>
-                                @error('consent')
-                                    <p id="consent-error" class="mt-1.5 pl-8 text-sm font-medium text-danger-700">{{ $message }}</p>
-                                @enderror
-                            </div>
+                            <x-ui.checkbox
+                                name="consent"
+                                :label="__('contact.fields.consent')"
+                                id="consent"
+                                required
+                            >
+                            </x-ui.checkbox>
+                            <p class="-mt-3 pl-8 text-sm text-neutral-500">
+                                <a href="{{ route('privacy') }}" class="text-primary-800 underline underline-offset-2">
+                                    {{ __('contact.fields.consent_link') }}
+                                </a>
+                            </p>
 
                             <div class="pt-2">
                                 {{--

@@ -66,7 +66,7 @@
                     >
                 @else
                     <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-800" aria-hidden="true">
-                        <svg class="h-6 w-6 text-secondary-400" viewBox="0 0 24 24" fill="currentColor" focusable="false">
+                        <svg class="h-6 w-6 text-secondary-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
                             <path d="M13.2 2 6 12h4.5l-1.2 10L18 10h-5.2z" />
                         </svg>
                     </span>
@@ -123,60 +123,8 @@
             </div>
         </div>
 
-        {{-- Mobile panel: focus is trapped while open and restored on close. --}}
-        <div
-            id="mobile-menu"
-            x-show="mobileOpen"
-            x-cloak
-            x-trap.noscroll="mobileOpen"
-            x-transition:enter="transition ease-out duration-200"
-            x-transition:enter-start="opacity-0 -translate-y-2"
-            x-transition:enter-end="opacity-100 translate-y-0"
-            x-transition:leave="transition ease-in duration-150"
-            x-transition:leave-start="opacity-100"
-            x-transition:leave-end="opacity-0"
-            class="border-t border-neutral-200 pb-4 lg:hidden"
-            aria-label="{{ __('common.nav.mobile_menu_label') }}"
-        >
-            <ul class="flex flex-col py-2">
-                @foreach ($links as $link)
-                    @php $isActive = request()->is($link['pattern']) || ($link['pattern'] === '/' && request()->is('/')); @endphp
-                    <li>
-                        <a
-                            href="{{ route($link['route']) }}"
-                            @class([
-                                'flex min-h-touch items-center rounded-md px-3 text-base font-medium',
-                                'bg-primary-50 text-primary-800' => $isActive,
-                                'text-neutral-700 hover:bg-neutral-100' => ! $isActive,
-                            ])
-                            @if ($isActive) aria-current="page" @endif
-                            x-on:click="mobileOpen = false"
-                        >
-                            {{ $link['label'] }}
-                        </a>
-                    </li>
-                @endforeach
-            </ul>
+        {{-- Mobile panel. Shares this Alpine scope so the hamburger owns the state. --}}
+        <x-common.mobile-menu :links="$links" :settings="$settings" />
 
-            <div class="px-3 pt-2">
-                <x-ui.button :href="route('contact')" variant="primary" size="md" class="w-full">
-                    {{ __('common.cta.get_quote') }}
-                </x-ui.button>
-            </div>
-
-            @if ($settings->phoneHref())
-                <div class="px-3 pt-3">
-                    <a
-                        href="{{ $settings->phoneHref() }}"
-                        class="flex min-h-touch items-center gap-2 rounded-md px-1 text-sm font-medium text-neutral-700 hover:text-primary-800"
-                    >
-                        <svg class="h-5 w-5 text-primary-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                            <path d="M2 3.5A1.5 1.5 0 0 1 3.5 2h1.148a1.5 1.5 0 0 1 1.465 1.175l.716 3.223a1.5 1.5 0 0 1-1.052 1.767l-.933.267c-.41.117-.643.555-.48.95a11.5 11.5 0 0 0 6.254 6.254c.395.163.833-.07.95-.48l.267-.933a1.5 1.5 0 0 1 1.767-1.052l3.223.716A1.5 1.5 0 0 1 18 15.352V16.5a1.5 1.5 0 0 1-1.5 1.5H15c-7.18 0-13-5.82-13-13V3.5Z" />
-                        </svg>
-                        {{ $settings->phone }}
-                    </a>
-                </div>
-            @endif
-        </div>
     </nav>
 </header>
