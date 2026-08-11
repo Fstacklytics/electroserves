@@ -7,14 +7,14 @@
 
     <section class="section-spacing">
         <div class="container-page">
-            @if ($posts->isEmpty())
+            @if ($posts->total() === 0)
                 <x-ui.empty-state
                     :message="__('blog.index.empty_global')"
                     :action-label="__('common.cta.contact_us')"
                     :action-href="route('contact')"
                 />
             @else
-                <div x-data="tabs({ initial: 'all' })">
+                <div x-data="tabs({ initial: @js($activeCategory), queryParam: 'category' })">
                     @if (count($categories) > 1)
                         <div role="tablist" aria-label="{{ __('blog.index.filter_label') }}" class="flex flex-wrap gap-2">
                             <button
@@ -52,6 +52,7 @@
                     <p class="mt-5 text-sm text-neutral-500" aria-live="polite">
                         <span x-text="visibleCount(@js($posts->pluck('category')->all()))">{{ $posts->count() }}</span>
                         / {{ $posts->count() }}
+                        <span class="ml-2">{{ __('blog.index.filter_scope') }}</span>
                     </p>
 
                     <ul role="list" class="mt-4 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
@@ -71,6 +72,8 @@
                             </div>
                         </x-ui.empty-state>
                     </div>
+
+                    {{ $posts->links() }}
                 </div>
             @endif
         </div>

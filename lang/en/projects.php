@@ -11,8 +11,9 @@ return [
         'meta_description' => 'Browse completed electrical and electronics projects by ElectroServes across residential, commercial and industrial sites in Tanzania.',
         'filter_label' => 'Filter projects by category',
         'filter_all' => 'All projects',
+        'filter_scope' => 'Filters apply to this page.',
         'empty_global' => 'We are preparing our project gallery. Please contact us to ask about work similar to yours.',
-        'empty_filtered' => 'No projects in this category yet.',
+        'empty_filtered' => 'No projects in this category on this page.',
         'clear_filter' => 'Show all projects',
     ],
 

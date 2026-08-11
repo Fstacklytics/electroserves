@@ -11,6 +11,7 @@ use App\Services\ContentService;
 use App\Services\SeoService;
 use Illuminate\Contracts\View\View;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Mail;
 use Throwable;
@@ -22,9 +23,14 @@ class ContactController extends Controller
         private readonly SeoService $seo,
     ) {}
 
-    public function index(): View
+    public function index(Request $request): View
     {
         $settings = $this->content->siteSettings();
+        $serviceTypes = $this->serviceTypeOptions();
+        $selectedServiceType = $this->resolveSelectedServiceType(
+            $request->query('service'),
+            $serviceTypes,
+        );
 
         // Record when the form was rendered so the request class can reject
         // submissions that arrive faster than a human could type.
@@ -37,7 +43,8 @@ class ContactController extends Controller
 
         return view('pages.contact', [
             'settings' => $settings,
-            'serviceTypes' => $this->serviceTypeOptions(),
+            'serviceTypes' => $serviceTypes,
+            'selectedServiceType' => $selectedServiceType,
             'honeypotField' => (string) config('electroserves.contact.honeypot_field', 'website_url'),
             'breadcrumbs' => $crumbs,
             'seo' => $this->seo->forPage([
@@ -126,6 +133,30 @@ class ContactController extends Controller
             ->route('contact')
             ->withInput($request->safe()->except([$request->honeypotField()]))
             ->with('contact_status', 'error');
+    }
+
+    /**
+     * Resolve either a category key or a service-detail slug to a valid option.
+     * Unknown and non-scalar query values deliberately leave the form blank.
+     *
+     * @param  mixed  $requested
+     * @param  array<string, string>  $serviceTypes
+     */
+    private function resolveSelectedServiceType(mixed $requested, array $serviceTypes): ?string
+    {
+        if (! is_string($requested) || $requested === '') {
+            return null;
+        }
+
+        if (array_key_exists($requested, $serviceTypes)) {
+            return $requested;
+        }
+
+        $service = $this->content->findService($requested);
+
+        return $service !== null && array_key_exists($service->category, $serviceTypes)
+            ? $service->category
+            : null;
     }
 
     /**
