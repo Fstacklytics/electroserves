@@ -41,4 +41,24 @@ const schema = organizationSchema();
         secondaryLabel={t('home.cta.secondary')}
         secondaryHref="/services"
     />
+
+    {/*
+        Netlify Identity invite/confirmation emails link to the site root (not
+        /admin), e.g. https://site/#invite_token=... Only the identity widget
+        can process that token, and it must be present on the page the link
+        lands on. We load it here on the homepage (the root) and bounce the
+        user to /admin once the token is processed and login completes.
+    */}
+    <script is:inline src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+    <script>
+        if (window.netlifyIdentity) {
+            window.netlifyIdentity.on('init', (user) => {
+                if (!user) {
+                    window.netlifyIdentity.on('login', () => {
+                        document.location.href = '/admin/';
+                    });
+                }
+            });
+        }
+    </script>
 </Base>
