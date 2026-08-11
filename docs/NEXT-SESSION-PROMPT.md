@@ -1,93 +1,86 @@
-# Next session — Phase 4 prompt
+# Next session — Phase 5 prompt
 
-Copy everything below the line into a new Arena chat to continue with Phase 4.
+Copy everything below the line into a new Arena chat to continue with Phase 5.
 
 ---
 
-Continue the **ElectroServes** build in `Fstacklytics/electroserves`. **Phases 0–3 are complete.** Read the existing implementation before changing it, then execute only Phase 4, **“Polish & Hardening,”** from `docs/IMPLEMENTATION-PROMPT.md`.
+Continue the **ElectroServes** build in `Fstacklytics/electroserves`. **Phases 0–4 are complete.** Read the existing implementation before changing it, then execute only Phase 5 from `docs/IMPLEMENTATION-PROMPT.md`.
 
 ## First, read these
 
-1. `docs/IMPLEMENTATION-PROMPT.md`, especially sections 4.1–4.6.
-2. `docs/phase-0/*` for the architecture, scope boundary, threat model, SLOs, and CMS decisions.
-3. `docs/PHASE-1-SUMMARY.md`, `docs/PHASE-2-SUMMARY.md`, and the Phase 3 notes below.
-4. The current middleware, layouts, image component/service, Alpine components, CSS, content, tests, and any deployment files before proposing replacements.
+1. `docs/IMPLEMENTATION-PROMPT.md` — the Phase 5 section. **Repository phase numbering wins** over any generic checklist you may also be given; use a generic checklist only as an applicability rubric.
+2. `docs/PHASE-4-GAP-MATRIX.md` — the Phase 4 audit, every decision with its reasoning, the measured numbers, the defects found, and the precise list of checks that **could not** be run in the sandbox.
+3. `docs/phase-0/*` for architecture, scope boundary, threat model, SLOs and CMS decisions.
+4. `deploy/README.md` and `deploy/nginx.conf` before touching anything deployment-related.
+5. The middleware, layouts, image component/service, Alpine components, CSS, content and tests — before proposing replacements.
 
-## Phase 3 completion state
+## Phase 4 completion state
 
-Phase 3 was completed by extending the existing pages rather than rebuilding them:
+Phase 4 extended the existing architecture rather than rebuilding it. Landed on `arena/019ff099-electroserves` as commit `b3e3be5`.
 
-- The Phase 3 checklist was audited across the home, services, projects, blog, about, contact, FAQ, testimonials, legal, and custom error surfaces.
-- `/projects` now uses a manual `LengthAwarePaginator` at `config('electroserves.pagination.projects')` (12 items per page).
-- `/blog` now uses a manual `LengthAwarePaginator` at `config('electroserves.pagination.blog')` (6 items per page).
-- Positive pages beyond the last page return the custom 404 instead of duplicating page 1 or rendering a misleading empty index.
-- Pagination links retain recognized category queries, and Alpine updates those links when visitors change filters.
-- **Deliberate filter decision:** project and blog category filtering applies only to the server-rendered current page. The interface states this explicitly; filtering is progressive enhancement, so all current-page cards remain available without JavaScript.
-- Page 2 has its own canonical URL, while category-only views canonicalize to the underlying index page.
-- Blog posts retain generated, uniquely anchored h2/h3 tables of contents plus X, Facebook, LinkedIn, and Clipboard API sharing states.
-- Project lightboxes retain Escape, ArrowLeft/ArrowRight, focus trapping/restoration, body-scroll locking, and wrapping navigation.
-- Service-detail quote links continue to send `?service=<service-slug>`; the contact controller now resolves a recognized slug to its configured service category. Direct category queries remain supported and unknown values leave the dropdown blank.
-- `PagesTest` and `ContactFormTest` cover page 2, configured page sizes, canonical URLs, out-of-range pages, category-query persistence, TOC/share markup, lightbox keyboard bindings, quote-link slug flow, and safe unknown service queries.
+**Response caching (4.1).** `app/Services/ResponseCacheService.php` and `app/Http/Middleware/ResponseCacheMiddleware.php`, configured by the `response_cache` block in `config/electroserves.php`. GET/HEAD only; per-route TTLs (home 600s, services/projects 1800s, blog 600s, static 3600s, legal 86400s, sitemap 3600s, default 600s); responses carry `X-Response-Cache: HIT|MISS|BYPASS`. Built on Laravel's own `Cache` facade — no `spatie/laravel-responsecache`.
 
-Validated at the end of Phase 3:
+- **Invalidation is implicit.** The cache key embeds a content fingerprint, so editing any file under `content/` changes every key and stale entries become unreachable. There is no purge step to forget. `content:flush` and `responsecache:clear` exist in `routes/console.php`.
+- **Two non-obvious details worth knowing before you touch this.** Every `web` response carries Symfony's synthesised `Cache-Control: no-cache, private` plus `XSRF-TOKEN`/`electroserves_session` cookies. The service skips exactly that default string and exactly those two cookies, while still refusing any *other* `no-store`/`private` or any additional cookie. Loosen that and you will start caching personalised responses. The middleware also sits *inside* the `web` group on purpose, so the session is still readable — see the defect note below for what happens outside it.
+- Contact page and submission are excluded by name, with a CSRF-token backstop so a future route cannot become cacheable by accident.
 
-- `369` PHPUnit tests passed with `1,297` assertions on PHP 8.3.
-- PHP syntax checks passed.
-- Blade compilation passed.
-- `npm run build` passed.
-- The production CSS + JS bundle was `148,144` bytes, below the 500 KB budget.
-- `git diff --check` passed.
+**Accessibility (4.2).** `tests/Unit/ColourContrastTest.php` computes WCAG relative-luminance ratios arithmetically for the token pairs actually used. It found **neutral-500 on neutral-100 at 4.34, below AA**; the test pins muted text to a white background so that pairing cannot be reintroduced. `tests/Feature/FormAccessibilityTest.php` follows a real rejected POST through the redirect and asserts the error wiring end-to-end.
 
-## Scope — Phase 4 only
+Note one deliberate trade-off it pins down: `bootstrap/app.php` declares `dontFlash(['name','email','phone','message'])`, so contact PII is **never** repopulated after a validation failure. Empty fields there are a privacy decision, not a bug. Do not "fix" them without reading that test.
 
-Work through every Phase 4 acceptance point rather than assuming it is absent. Several foundations already exist and should be verified and improved, not duplicated:
+**Progressive enhancement (4.3).** Every server-sent control either works without JavaScript or is marked `data-js-only` and hidden by a rule inlined in the existing `<noscript>` block. Filtering stays client-side and current-page-only by design (`lang/en/projects.php` `filter_scope` documents this).
 
-### 4.1 Performance optimization
+**Deployment (4.4/4.5).** `deploy/nginx.conf` and a 16-section `deploy/README.md`. Two deliberate **non**-duplications: security headers are set only by `SecurityHeadersMiddleware`, because a single `add_header` inside a `location` silently drops every inherited header; and there is **no `fastcgi_cache`**, because page caching belongs in the app, which knows which routes carry CSRF and session state. Nginx rate-limit zones are deliberately looser than the app limiter (5/hour per IP) so Laravel returns its own translated 429.
 
-- Add configurable per-page response caching with safe exclusions/invalidation. Inspect `SecurityHeadersMiddleware` first: it currently sets restrictive cache headers, so response caching and privacy must be reconciled deliberately.
-- Audit all images for explicit dimensions, lazy/eager loading, and async decoding. `x-ui.media` already centralizes most of this behavior; the navbar logo is a separate `<img>`.
-- Verify preconnects, font loading, critical CSS strategy, bundle composition, and production compression. Preconnect hints and reduced-motion support already exist.
-- Measure before and after; do not add a heavy caching or analysis package without demonstrating the need.
+**Content (4.6).** `tests/Feature/ContentIntegrityTest.php` runs against the **real** `content/` directory, not fixtures. Counts verified: 6 services, 6 projects, 4 blog posts, 6 testimonials, 5 team, 10 FAQs, 3 hero slides. No filler, no remote images (the CSP is `img-src 'self' data:`, so a remote image would be blocked outright), consistent contact details, no future-dated posts.
 
-### 4.2 Accessibility audit
+**A real defect was found and fixed.** The `Cache-Control: no-store` branch in `SecurityHeadersMiddleware` was dead code. That middleware is registered globally, so it unwinds *outside* the `web` group; by the time it ran, `StartSession` had already saved the session and `Store::save()` → `ageFlashData()` had forgotten the `errors` key. Pages rendering validation errors — which also carry a CSRF token — were served with `no-cache` instead of `no-store`, meaning a shared cache was permitted to store them. It now reads the error bag `ShareErrorsFromSession` shares with the view factory, which nothing ages.
 
-- Perform keyboard-only checks across every page and interactive component.
-- Verify focus visibility, ARIA, contrast, target sizes, skip link, modal/lightbox focus trapping and restoration, and reduced-motion behavior.
-- Existing `AccessibilityTest`, component tests, `x-trap`, and `prefers-reduced-motion` rules are a baseline, not a substitute for the requested audit.
-- Fix regressions and add targeted assertions rather than duplicating broad existing coverage.
+## Measured state at the end of Phase 4
 
-### 4.3 Browser compatibility
+| Metric | End of Phase 3 | End of Phase 4 |
+|---|---|---|
+| Tests / assertions | 369 / 1,297 | **498 / 2,786** |
+| Production CSS+JS, pre-gzip | 148,144 B | **148,989 B** (+845 B; 29.8% of the 500 KB budget) |
 
-- Verify Chrome 90+, Firefox 90+, Safari 14+, and Edge 90+ compatibility.
-- Preserve progressive enhancement and provide fallbacks for unsupported browser APIs or CSS.
-- Pay particular attention to Clipboard API sharing, dialog-like interactions, media queries, and generated production assets.
+`npm run lint:js`, `npm run lint:css`, `npm run build`, PHP syntax across 68 files, Blade compilation and `git diff --check` all pass. `npm audit` reports 0 vulnerabilities. Both lint scripts were **broken** before Phase 4 (no config file existed); enabling stylelint surfaced two real CSS defects, fixed at source.
 
-### 4.4 Nginx configuration
+**Do not let these regress.** Treat the test count, assertion count, content counts and bundle budget as floors.
 
-Create `deploy/nginx.conf` with the full brief: modern TLS, security headers, gzip, immutable caching for hashed assets, PHP-FPM routing, disabled directory listing, and contact-endpoint rate limiting. Keep application and proxy security headers compatible rather than contradictory.
+## Checks that could NOT be run — do not report these as passing
 
-### 4.5 Deployment documentation
+- **`nginx -t`** — nginx is not installed in the sandbox. `deploy/nginx.conf` has 27 config assertions behind it, but its syntax has never been validated by nginx itself. Validate on a real host before activation.
+- **`composer audit` / `composer install`** — Packagist is unreachable from the sandbox.
+- **`php artisan test`** — not a registered command in this repository. The suite runs via `vendor/bin/phpunit`.
+- **Real browser and screen-reader testing** — no browser in the environment. Everything accessibility- and compatibility-related in Phase 4 is an automated assertion or a source audit, and is labelled as such. Do not upgrade those claims.
 
-Create `deploy/README.md` covering requirements, deployment steps, environment variables, Let’s Encrypt, Decap CMS GitHub OAuth, backups, permissions, cache warming/clearing, rollback, and validation. Commands must match this repository rather than a generic Laravel template.
+## Scope — Phase 5 only
 
-### 4.6 Content population
+Execute only the Phase 5 section of `docs/IMPLEMENTATION-PROMPT.md`. Start by writing a gap matrix for it, in the style of `docs/PHASE-4-GAP-MATRIX.md`, then implement every applicable missing item. Do not stop after the audit, and do not begin Phase 6.
 
-Audit the existing realistic sample content against every minimum in the brief before adding anything. At the Phase 3 handoff there were 6 services, 6 projects, 4 blog posts, 6 testimonials, 5 team members, 10 FAQs, and 3 hero slides. Preserve graceful placeholders and do not introduce external placeholder-image dependencies.
+## Standing constraints
 
-## Validation and delivery
+Carried forward and still in force:
 
-- Keep all existing functionality, empty/error/loading states, SEO, validation boundaries, accessibility, and responsive behavior intact.
-- Run the complete PHPUnit suite, PHP syntax checks, Blade compilation, the production frontend build, asset-budget check, and all applicable repository audits.
-- Update or add tests for Phase 4 behavior, especially response-cache safety and deployment configuration.
-- Do not begin an unrequested Phase 5.
-- Rewrite this file with the final project handoff when Phase 4 is complete.
-- Commit and push only the Arena-bound branch for that session, then open the Phase 4 PR against `main`.
+- Work only on the Arena-assigned branch for your session. Do not invent a branch name.
+- Do **not** introduce: authentication/authorization, a database or migrations, MSW, role switching, TypeScript, OpenAPI, feature-flag infrastructure, admin dashboards, payments, jQuery or a heavy frontend framework, external placeholder-image services, or heavy caching/analysis dependencies without a measured need.
+- Phase 0 scope is a public, file-backed Laravel website. Mark non-applicable checklist items with a concise, scope-tied reason.
+- Validate all external input server-side; never `$request->all()`; no unsafe raw Blade output of user-controlled content; no hardcoded user-facing strings (use `lang/en/*.php`); no hardcoded internal URLs (use named routes/config); no suppressed errors or empty catch blocks; never silently weaken CSP, CSRF, cache privacy or rate limiting.
+- Test behaviour, not implementation strings. Fix root causes instead of weakening tests.
+- Never report an unexecuted check as passing. State precisely why it could not run.
+- No feature may be left incomplete or hidden behind a flag.
 
-## Environment and carried-over repository issues
+## Environment notes
 
-A normal environment needs PHP 8.3, Composer 2, Node 20, an application key, Composer dependencies, and frontend dependencies. Do not assume ignored local `vendor/`, `node_modules/`, `.env`, or toolchain caches are part of the clone.
+The sandbox has **no system PHP and no Composer**, and Packagist, Sury and the Debian mirrors are unreachable. Vendor bootstrap uses a local shim; the runtime is **PHP 8.5.8** while `composer.json` requires `^8.3`, so be aware of that drift when reading test output. `composer.lock` is deliberately **absent** and must never be hand-written — generate it where Packagist is reachable.
 
-Two issues still require privileged or network-capable human follow-up and must be re-flagged in the Phase 4 PR if unresolved:
+Two runtime gotchas that will cost you a session if you rediscover them the hard way:
 
-1. **Move `.github/ci/ci.yml` to `.github/workflows/ci.yml`.** This needs a GitHub identity/token with workflow-writing permission; until moved, GitHub Actions will not discover it.
-2. **Regenerate and commit `composer.lock` where Packagist is reachable.** Packagist was unreachable in the Phase 3 sandbox, so its local GitHub-sourced compatibility lock was only an ignored installation aid and was not delivered.
+- **`$this->artisan(...)` hard-crashes the php-wasm runtime** and kills the whole PHPUnit run. Use `Artisan::call($name, $args, new BufferedOutput())` instead. `ResponseCacheTest::runCommand()` shows the pattern.
+- **`public/build/` must exist** before running the suite, or 184 tests fail. Run `npm run build` first.
+
+## Carried-over repository issue — needs a human
+
+`.github/ci/ci.yml` is still in the wrong place. GitHub only reads workflows from `.github/workflows/`, so **CI is not running on this repository at all.**
+
+This was attempted in Phase 4 and the push was rejected: `refusing to allow a GitHub App to create or update workflow .github/workflows/ci.yml without workflows permission`. The agent token lacks the `workflows` scope, so this cannot be fixed by an agent session. **A human with write access needs to run `git mv .github/ci/ci.yml .github/workflows/ci.yml`.** Re-flag this in every PR until it is done.
