@@ -2,6 +2,7 @@
 
 declare(strict_types=1);
 
+use App\Http\Middleware\ResponseCacheMiddleware;
 use App\Http\Middleware\SecurityHeadersMiddleware;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -21,6 +22,13 @@ return Application::configure(basePath: dirname(__DIR__))
         // Security headers are applied to every response, including error
         // pages and redirects.
         $middleware->append(SecurityHeadersMiddleware::class);
+
+        // Full-page cache for anonymous visitors. Appended to the `web` group
+        // rather than globally so it runs *inside* the security headers
+        // middleware and *after* the session has started: a cached page can
+        // therefore never replay a stale CSP or Cache-Control, and the cache
+        // can see whether the session holds visitor-specific state.
+        $middleware->appendToGroup('web', ResponseCacheMiddleware::class);
 
         // Respect the reverse proxy so isSecure(), the canonical URL, and the
         // per-IP rate limiter all see the real visitor scheme and address.

@@ -16,7 +16,7 @@
             @else
                 <div x-data="tabs({ initial: 'all' })">
                     @if (count($filters) > 1)
-                        <div role="tablist" aria-label="{{ __('testimonials.filter_label') }}" class="flex flex-wrap gap-2">
+                        <div role="tablist" data-js-only aria-label="{{ __('testimonials.filter_label') }}" class="flex flex-wrap gap-2">
                             <button
                                 type="button"
                                 role="tab"

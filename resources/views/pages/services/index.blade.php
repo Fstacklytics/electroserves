@@ -17,8 +17,7 @@
                 <div x-data="tabs({ initial: 'all' })">
                     {{-- Category filter. Works as a tab list; without JS every card stays visible. --}}
                     @if (count($categories) > 1)
-                        <div
-                            role="tablist"
+                        <div role="tablist" data-js-only
                             aria-label="{{ __('services.index.filter_label') }}"
                             class="flex flex-wrap gap-2"
                         >
@@ -59,7 +58,7 @@
                     @endif
 
                     {{-- Result count, announced when the filter changes. --}}
-                    <p class="mt-5 text-sm text-neutral-500" aria-live="polite">
+                    <p class="mt-5 text-sm text-neutral-500" data-js-only aria-live="polite">
                         <span x-text="visibleCount(@js($services->pluck('category')->all()))">{{ $services->count() }}</span>
                         / {{ $services->count() }}
                     </p>

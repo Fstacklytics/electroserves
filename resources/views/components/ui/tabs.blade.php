@@ -16,7 +16,9 @@
      *
      * Manual activation (WAI-ARIA): Arrow keys move focus, Enter/Space
      * activates. Without JavaScript every panel remains visible, so content is
-     * never hidden from a non-JS visitor.
+     * never hidden from a non-JS visitor; the tab strip itself carries
+     * `data-js-only` and is removed in that case, because a tab that cannot
+     * switch anything is a dead control.
      */
     $tabs = collect($tabs);
     $initial = $initial ?? $tabs->keys()->first();
@@ -25,6 +27,7 @@
 <div x-data="tabs({ initial: {{ \Illuminate\Support\Js::from($initial) }} })" {{ $attributes }}>
     <div
         role="tablist"
+        data-js-only
         aria-label="{{ $label ?? __('common.tabs.label') }}"
         class="flex flex-wrap gap-2"
     >

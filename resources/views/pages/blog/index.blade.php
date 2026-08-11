@@ -16,7 +16,7 @@
             @else
                 <div x-data="tabs({ initial: @js($activeCategory), queryParam: 'category' })">
                     @if (count($categories) > 1)
-                        <div role="tablist" aria-label="{{ __('blog.index.filter_label') }}" class="flex flex-wrap gap-2">
+                        <div role="tablist" data-js-only aria-label="{{ __('blog.index.filter_label') }}" class="flex flex-wrap gap-2">
                             <button
                                 type="button"
                                 role="tab"
@@ -49,7 +49,7 @@
                         </div>
                     @endif
 
-                    <p class="mt-5 text-sm text-neutral-500" aria-live="polite">
+                    <p class="mt-5 text-sm text-neutral-500" data-js-only aria-live="polite">
                         <span x-text="visibleCount(@js($posts->pluck('category')->all()))">{{ $posts->count() }}</span>
                         / {{ $posts->count() }}
                         <span class="ml-2">{{ __('blog.index.filter_scope') }}</span>

@@ -6,6 +6,8 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\View as ViewFacade;
+use Illuminate\Support\ViewErrorBag;
 use Symfony\Component\HttpFoundation\Response;
 
 /**
@@ -53,9 +55,38 @@ class SecurityHeadersMiddleware
 
         // Never let a proxy or browser cache a page that carries a CSRF token
         // alongside validation errors for a specific visitor.
-        if ($response->isRedirection() === false && $request->hasSession() && $request->session()->has('errors')) {
+        //
+        // This middleware is global, so it unwinds *outside* the `web` group:
+        // by the time we get here StartSession has already saved the session,
+        // and saving ages the flash data, which forgets the `errors` key. Asking
+        // the session directly therefore always answered "no" and this header
+        // was never sent. ShareErrorsFromSession copies the bag into the view
+        // factory during the request and nothing ages that copy, so it is the
+        // signal that is still readable at this point.
+        if ($response->isRedirection() === false && $request->hasSession() && $this->hasValidationErrors()) {
             $response->headers->set('Cache-Control', 'no-store, private');
         }
+
+        return $response;
+    }
+
+    /**
+     * Whether this request rendered validation errors.
+     *
+     * Reads the bag shared with the view layer rather than the session, for the
+     * flash-ageing reason described above. Requests that never reached the
+     * `web` group have no shared bag and no validation errors, so returning
+     * false for them is correct.
+     */
+    private function hasValidationErrors(): bool
+    {
+        $shared = ViewFacade::shared('errors');
+
+        if ($shared instanceof ViewErrorBag) {
+            return $shared->any();
+        }
+
+        return false;
 
         return $response;
     }

@@ -8,10 +8,21 @@ import typography from '@tailwindcss/typography';
  * Colours, type scale and spacing come from the design system section of
  * README.md and docs/phase-0/06-architecture-decisions.md (ADR-004).
  *
- * Contrast note: `primary-700` on white is 8.6:1 and white on `primary-700` is
- * 8.6:1, so both directions clear the 4.5:1 WCAG AA requirement. The amber
- * secondary is only ever used as a background behind `neutral-900` text, or as
- * `secondary-700` text on white (5.1:1) — never as light amber text on white.
+ * Contrast note (measured, not estimated — see tests/Unit/ColourContrastTest.php,
+ * which recomputes every figure below from these hex values on each run):
+ *
+ *   primary-700 on white / white on primary-700   6.70:1
+ *   primary-800 on white                          8.72:1
+ *   neutral-700 body text on white               10.35:1
+ *   neutral-500 muted text on white               4.76:1  <- passes AA, but has
+ *       almost no headroom: on a neutral-100 panel it drops to 4.34:1, which
+ *       fails. Muted text stays on white; use neutral-600 or darker on tints.
+ *   secondary-700 on white                        5.02:1
+ *   neutral-900 on secondary-400                 10.69:1
+ *
+ * The amber secondary is only ever used as a background behind `neutral-900`
+ * text, or as `secondary-700` text on white — never as light amber text on
+ * white.
  *
  * @type {import('tailwindcss').Config}
  */

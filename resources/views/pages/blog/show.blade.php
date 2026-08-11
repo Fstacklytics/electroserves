@@ -141,8 +141,16 @@
                                     <x-icons.social network="linkedin" class="h-4 w-4" />
                                 </a>
 
+                                {{--
+                                    Copying needs both Alpine and the Clipboard
+                                    API (or the execCommand fallback), so this
+                                    control is hidden when scripting is off.
+                                    The three share links above and the address
+                                    bar still cover sharing the article.
+                                --}}
                                 <button
                                     type="button"
+                                    data-js-only
                                     x-on:click="copy()"
                                     :aria-busy="status === 'loading' ? 'true' : 'false'"
                                     class="inline-flex min-h-touch items-center gap-2 rounded-md border border-neutral-300 px-3 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
