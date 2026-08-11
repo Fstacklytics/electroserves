@@ -1,0 +1,120 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t } from '../../lib/i18n';
+import { projects, PROJECT_CATEGORIES } from '../../lib/content';
+import { resolveSeo, breadcrumbSchema } from '../../lib/seo';
+import PageHeader from '../../components/sections/PageHeader.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import ProjectCard from '../../components/sections/ProjectCard.astro';
+import CtaBanner from '../../components/sections/CtaBanner.astro';
+
+const allProjects = projects();
+const url = Astro.url;
+const categories = PROJECT_CATEGORIES.filter((c) => allProjects.some((p) => p.category === c.key));
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: t('projects.index.title') },
+];
+
+const schema = breadcrumbSchema([
+    { label: t('common.nav.home'), url: `${url.origin}/` },
+    { label: t('projects.index.title') },
+]);
+
+const seo = resolveSeo(url, {
+    title: t('projects.index.title'),
+    description: t('projects.index.meta_description'),
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <PageHeader
+        title={t('projects.index.heading')}
+        subtitle={t('projects.index.subheading')}
+        breadcrumbs={breadcrumbs}
+    />
+
+    <section class="section-spacing">
+        <div class="container-page">
+            {
+                allProjects.length === 0 ? (
+                    <EmptyState message={t('projects.index.empty_global')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" />
+                ) : (
+                    <div x-data="tabs({ initial: 'all' })">
+                        {
+                            categories.length > 1 && (
+                                <div role="tablist" data-js-only aria-label={t('projects.index.filter_label')} class="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        x-on:click="select('all')"
+                                        x-on:keydown.arrow-right.prevent="moveFocus(1, $event.target)"
+                                        x-on:keydown.arrow-left.prevent="moveFocus(-1, $event.target)"
+                                        x-on:keydown.home.prevent="focusFirst()"
+                                        x-on:keydown.end.prevent="focusLast()"
+                                        :aria-selected="isActive('all') ? 'true' : 'false'"
+                                        :tabindex="isActive('all') ? 0 : -1"
+                                        :class="isActive('all') ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100'"
+                                        class="min-h-touch rounded-full border px-4 text-sm font-medium transition-colors"
+                                    >{t('projects.index.filter_all')}</button>
+
+                                    {
+                                        categories.map((c) => (
+                                            <button
+                                                type="button"
+                                                role="tab"
+                                                x-on:click={`select('${c.key}')`}
+                                                x-on:keydown.arrow-right.prevent="moveFocus(1, $event.target)"
+                                                x-on:keydown.arrow-left.prevent="moveFocus(-1, $event.target)"
+                                                x-on:keydown.home.prevent="focusFirst()"
+                                                x-on:keydown.end.prevent="focusLast()"
+                                                :aria-selected={`isActive('${c.key}') ? 'true' : 'false'`}
+                                                :tabindex={`isActive('${c.key}') ? 0 : -1`}
+                                                :class="`isActive('${c.key}') ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100'`"
+                                                class="min-h-touch rounded-full border px-4 text-sm font-medium transition-colors"
+                                            >{c.label}</button>
+                                        ))
+                                    }
+                                </div>
+                            )
+                        }
+
+                        <ul role="list" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                            {
+                                allProjects.map((project) => (
+                                    <li class="h-full" x-show={`matches('${project.category}')`}>
+                                        <ProjectCard project={project} />
+                                    </li>
+                                ))
+                            }
+                        </ul>
+
+                        <div
+                            x-show={`visibleCount(${JSON.stringify(allProjects.map((p) => p.category))}) === 0`}
+                            x-cloak
+                            class="mt-6"
+                        >
+                            <EmptyState message={t('projects.index.empty_filtered')}>
+                                <div class="mt-6">
+                                    <button
+                                        type="button"
+                                        x-on:click="select('all')"
+                                        class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+                                    >{t('projects.index.clear_filter')}</button>
+                                </div>
+                            </EmptyState>
+                        </div>
+                    </div>
+                )
+            }
+        </div>
+    </section>
+
+    <CtaBanner
+        heading={t('projects.show.cta_heading')}
+        body={t('projects.show.cta_body')}
+        buttonLabel={t('home.cta.button')}
+        buttonHref="/contact"
+    />
+</Base>

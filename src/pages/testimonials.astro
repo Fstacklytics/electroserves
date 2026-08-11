@@ -1,0 +1,125 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../lib/i18n';
+import { testimonials, services } from '../lib/content';
+import { resolveSeo, breadcrumbSchema } from '../lib/seo';
+import PageHeader from '../components/sections/PageHeader.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import TestimonialCard from '../components/sections/TestimonialCard.astro';
+import CtaBanner from '../components/sections/CtaBanner.astro';
+
+const url = Astro.url;
+const allTestimonials = testimonials();
+const allServices = services();
+
+const filters = new Map<string, string>();
+for (const testimonial of allTestimonials) {
+    if (testimonial.serviceUsed) {
+        const service = allServices.find((s) => s.slug === testimonial.serviceUsed);
+        filters.set(testimonial.serviceUsed, service?.title ?? testimonial.serviceUsed);
+    }
+}
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: t('testimonials.title') },
+];
+
+const schema = breadcrumbSchema([
+    { label: t('common.nav.home'), url: `${url.origin}/` },
+    { label: t('testimonials.title') },
+]);
+
+const seo = resolveSeo(url, {
+    title: t('testimonials.title'),
+    description: t('testimonials.meta_description'),
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <PageHeader title={t('testimonials.heading')} subtitle={t('testimonials.subheading')} breadcrumbs={breadcrumbs} />
+
+    <section class="section-spacing">
+        <div class="container-page">
+            {
+                allTestimonials.length === 0 ? (
+                    <EmptyState message={t('testimonials.empty')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" />
+                ) : (
+                    <div x-data="tabs({ initial: 'all' })">
+                        {
+                            filters.size > 1 && (
+                                <div role="tablist" data-js-only aria-label={t('testimonials.filter_label')} class="flex flex-wrap gap-2">
+                                    <button
+                                        type="button"
+                                        role="tab"
+                                        x-on:click="select('all')"
+                                        x-on:keydown.arrow-right.prevent="moveFocus(1, $event.target)"
+                                        x-on:keydown.arrow-left.prevent="moveFocus(-1, $event.target)"
+                                        x-on:keydown.home.prevent="focusFirst()"
+                                        x-on:keydown.end.prevent="focusLast()"
+                                        :aria-selected="isActive('all') ? 'true' : 'false'"
+                                        :tabindex="isActive('all') ? 0 : -1"
+                                        :class="isActive('all') ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100'"
+                                        class="min-h-touch rounded-full border px-4 text-sm font-medium transition-colors"
+                                    >{t('testimonials.filter_all')}</button>
+                                    {
+                                        Array.from(filters.entries()).map(([slug, label]) => (
+                                            <button
+                                                type="button"
+                                                role="tab"
+                                                x-on:click={`select(${JSON.stringify(slug)})`}
+                                                x-on:keydown.arrow-right.prevent="moveFocus(1, $event.target)"
+                                                x-on:keydown.arrow-left.prevent="moveFocus(-1, $event.target)"
+                                                x-on:keydown.home.prevent="focusFirst()"
+                                                x-on:keydown.end.prevent="focusLast()"
+                                                :aria-selected={`isActive(${JSON.stringify(slug)}) ? 'true' : 'false'`}
+                                                :tabindex={`isActive(${JSON.stringify(slug)}) ? 0 : -1`}
+                                                :class="`isActive(${JSON.stringify(slug)}) ? 'bg-primary-800 text-white border-primary-800' : 'bg-white text-neutral-700 border-neutral-300 hover:bg-neutral-100'`"
+                                                class="min-h-touch rounded-full border px-4 text-sm font-medium transition-colors"
+                                            >{label}</button>
+                                        ))
+                                    }
+                                </div>
+                            )
+                        }
+
+                        <div class="mt-8 gap-6 sm:columns-2 lg:columns-3">
+                            {
+                                allTestimonials.map((testimonial) => (
+                                    <div
+                                        class="mb-6 break-inside-avoid"
+                                        x-show={`matches(${JSON.stringify(testimonial.serviceUsed ?? 'none')})`}
+                                    >
+                                        <TestimonialCard testimonial={testimonial} />
+                                    </div>
+                                ))
+                            }
+                        </div>
+
+                        <div
+                            x-show={`visibleCount(${JSON.stringify(allTestimonials.map((t2) => t2.serviceUsed ?? 'none'))}) === 0`}
+                            x-cloak
+                        >
+                            <EmptyState message={t('testimonials.empty_filtered')}>
+                                <div class="mt-6">
+                                    <button
+                                        type="button"
+                                        x-on:click="select('all')"
+                                        class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2"
+                                    >{t('testimonials.clear_filter')}</button>
+                                </div>
+                            </EmptyState>
+                        </div>
+                    </div>
+                )
+            }
+        </div>
+    </section>
+
+    <CtaBanner
+        heading={t('testimonials.cta.heading')}
+        body={t('testimonials.cta.body')}
+        buttonLabel={t('testimonials.cta.button')}
+        buttonHref="/contact"
+    />
+</Base>

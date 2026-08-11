@@ -1,0 +1,25 @@
+---
+import { t } from '../../lib/i18n';
+
+interface Props {
+    width?: string;
+    height?: string;
+    rounded?: string;
+    lines?: number;
+    class?: string;
+}
+
+const { width = 'w-full', height = 'h-4', rounded = 'rounded', lines = 1, class: className = '' } = Astro.props;
+const n = Math.max(1, lines);
+---
+<div class:list={['space-y-2', className]} role="status" aria-busy="true">
+    {
+        Array.from({ length: n }).map((_, i) => (
+            <div
+                class:list={['animate-pulse bg-neutral-200', height, rounded, n > 1 && i === n - 1 ? 'w-2/3' : width]}
+                aria-hidden="true"
+            ></div>
+        ))
+    }
+    <span class="sr-only">{t('common.states.loading')}</span>
+</div>

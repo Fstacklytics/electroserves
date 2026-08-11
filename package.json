@@ -1,36 +1,43 @@
 {
-    "private": true,
-    "type": "module",
-    "engines": {
-        "node": ">=18.0.0"
-    },
-    "browserslist": [
-        "Chrome >= 90",
-        "Firefox >= 90",
-        "Safari >= 14",
-        "Edge >= 90"
-    ],
-    "scripts": {
-        "dev": "vite",
-        "build": "vite build",
-        "lint:css": "stylelint \"resources/css/**/*.css\"",
-        "lint:js": "eslint resources/js --ext .js"
-    },
-    "devDependencies": {
-        "@tailwindcss/forms": "^0.5.7",
-        "@tailwindcss/typography": "^0.5.13",
-        "autoprefixer": "^10.4.19",
-        "eslint": "^8.57.0",
-        "laravel-vite-plugin": "^2.1.0",
-        "postcss": "^8.4.38",
-        "stylelint": "^16.6.1",
-        "stylelint-config-standard": "^36.0.1",
-        "tailwindcss": "^3.4.4",
-        "vite": "^7.3.6"
-    },
-    "dependencies": {
-        "@alpinejs/collapse": "^3.14.0",
-        "@alpinejs/focus": "^3.14.0",
-        "alpinejs": "^3.14.0"
-    }
+  "name": "electroserves-website",
+  "private": true,
+  "version": "2.0.0",
+  "type": "module",
+  "description": "ElectroServes — electronics and electrical services website (Astro static, Tailwind + Alpine, Decap CMS, Netlify).",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "browserslist": [
+    "Chrome >= 90",
+    "Firefox >= 90",
+    "Safari >= 14",
+    "Edge >= 90"
+  ],
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "lint:css": "stylelint \"resources/css/**/*.css\"",
+    "lint:js": "eslint resources/js --ext .js"
+  },
+  "dependencies": {
+    "@alpinejs/collapse": "^3.14.0",
+    "@alpinejs/focus": "^3.14.0",
+    "alpinejs": "^3.14.0",
+    "astro": "^4.16.0",
+    "gray-matter": "^4.0.3",
+    "rehype-sanitize": "^6.0.0",
+    "yaml": "^2.5.0",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.7",
+    "@tailwindcss/typography": "^0.5.13",
+    "autoprefixer": "^10.4.19",
+    "eslint": "^8.57.0",
+    "postcss": "^8.4.38",
+    "stylelint": "^16.6.1",
+    "stylelint-config-standard": "^36.0.1",
+    "tailwindcss": "^3.4.4"
+  }
 }

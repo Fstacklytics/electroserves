@@ -1,0 +1,10 @@
+{
+  "extends": "astro/tsconfigs/base",
+  "compilerOptions": {
+    "strict": true,
+    "types": ["astro/client"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
+  }
+}

@@ -1,0 +1,160 @@
+---
+import Base from '../../layouts/Base.astro';
+import { t } from '../../lib/i18n';
+import { services, projects, getService, type Service } from '../../lib/content';
+import { renderMarkdown } from '../../lib/markdown';
+import { resolveSeo, breadcrumbSchema, toJsonLd, organizationSchema } from '../../lib/seo';
+import Breadcrumb from '../../components/common/Breadcrumb.astro';
+import Badge from '../../components/ui/Badge.astro';
+import Card from '../../components/ui/Card.astro';
+import EmptyState from '../../components/ui/EmptyState.astro';
+import Media from '../../components/ui/Media.astro';
+import ProjectCard from '../../components/sections/ProjectCard.astro';
+import CtaBanner from '../../components/sections/CtaBanner.astro';
+
+export async function getStaticPaths() {
+    return services().map((service) => ({ params: { slug: service.slug } }));
+}
+
+const { slug } = Astro.params;
+const service = getService(slug ?? '');
+const url = Astro.url;
+
+if (!service) {
+    return Astro.redirect('/404');
+}
+
+const { html: bodyHtml, headings } = await renderMarkdown(service.body, `service ${service.slug}`);
+const allProjects = projects();
+const relatedProjects = allProjects.filter((p) => p.servicesUsed.includes(service.slug)).slice(0, 3);
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: t('services.index.title'), url: '/services' },
+    { label: service.title },
+];
+
+const schema = [
+    organizationSchema(),
+    breadcrumbSchema([
+        { label: t('common.nav.home'), url: `${url.origin}/` },
+        { label: t('services.index.title'), url: `${url.origin}/services` },
+        { label: service.title },
+    ]),
+];
+
+const seo = resolveSeo(url, {
+    title: service.title,
+    description: service.metaDescription ?? service.shortDescription,
+    image: service.image,
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <div class="border-b border-neutral-200 bg-neutral-50">
+        <div class="container-page">
+            <Breadcrumb crumbs={breadcrumbs} />
+        </div>
+    </div>
+
+    <article>
+        <header class="bg-neutral-50 pb-12">
+            <div class="container-page">
+                <div class="grid items-center gap-10 lg:grid-cols-2">
+                    <div>
+                        <Badge variant="primary">{service.categoryLabel}</Badge>
+                        <h1 class="mt-3 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">{service.title}</h1>
+                        <p class="mt-4 text-lg leading-relaxed text-neutral-600">{service.shortDescription}</p>
+
+                        {
+                            service.priceRange && (
+                                <p class="mt-5 text-sm">
+                                    <span class="font-semibold text-neutral-900">{t('services.show.price_from')}:</span>
+                                    <span class="text-neutral-700">{service.priceRange}</span>
+                                </p>
+                            )
+                        }
+
+                        <div class="mt-7 flex flex-col gap-3 sm:flex-row">
+                            <a href={`/contact?service=${service.slug}`} class="inline-flex min-h-[3rem] items-center justify-center gap-2 rounded-md bg-primary-800 px-6 py-3 text-base font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                                {t('services.show.request_quote', { service: service.title })}
+                            </a>
+                        </div>
+                    </div>
+
+                    <div>
+                        <Media src={service.image} alt={service.title} width={720} height={540} eager class="w-full rounded-lg object-cover shadow-md" />
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="section-spacing">
+            <div class="container-page">
+                <div class="grid gap-12 lg:grid-cols-3">
+                    <div class="lg:col-span-2">
+                        {
+                            bodyHtml !== '' ? (
+                                <div class="prose prose-neutral max-w-none" set:html={bodyHtml} />
+                            ) : (
+                                <EmptyState message={t('services.show.no_description')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" icon={false} />
+                            )
+                        }
+                    </div>
+
+                    <aside class="lg:col-span-1">
+                        {
+                            service.hasFeatures() && (
+                                <Card padding="md" class="lg:sticky lg:top-28">
+                                    <h2 class="text-lg font-semibold text-neutral-900">{t('services.show.whats_included')}</h2>
+                                    <ul role="list" class="mt-4 space-y-3">
+                                        {
+                                            service.features.map((feature) => (
+                                                <li class="flex items-start gap-2.5 text-sm text-neutral-700">
+                                                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-success-600" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                                                        <path fill-rule="evenodd" d="M10 18a8 8 0 1 0 0-16 8 8 0 0 0 0 16Zm3.857-9.809a.75.75 0 0 0-1.214-.882l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <span>{feature}</span>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+
+                                    <div class="mt-6">
+                                        <a href={`/contact?service=${service.slug}`} class="inline-flex min-h-touch w-full items-center justify-center gap-2 rounded-md bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                                            {t('common.cta.get_quote')}
+                                        </a>
+                                    </div>
+                                </Card>
+                            )
+                        }
+                    </aside>
+                </div>
+            </div>
+        </div>
+    </article>
+
+    {
+        relatedProjects.length > 0 && (
+            <section class="section-spacing bg-neutral-50" aria-labelledby="related-projects-heading">
+                <div class="container-page">
+                    <h2 id="related-projects-heading" class="text-2xl font-bold tracking-tight text-neutral-900">{t('services.show.related_projects')}</h2>
+                    <ul role="list" class="mt-6 grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                        {
+                            relatedProjects.map((project) => (
+                                <li class="h-full"><ProjectCard project={project} /></li>
+                            ))
+                        }
+                    </ul>
+                </div>
+            </section>
+        )
+    }
+
+    <CtaBanner
+        heading={t('home.cta.heading')}
+        body={t('services.show.cta_body')}
+        buttonLabel={t('home.cta.button')}
+        buttonHref={`/contact?service=${service.slug}`}
+    />
+</Base>

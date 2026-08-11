@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../lib/i18n';
+import { faqs } from '../lib/content';
+import { renderMarkdown } from '../lib/markdown';
+import { resolveSeo, breadcrumbSchema } from '../lib/seo';
+import PageHeader from '../components/sections/PageHeader.astro';
+import EmptyState from '../components/ui/EmptyState.astro';
+import Accordion, { type AccordionItem } from '../components/ui/Accordion.astro';
+import CtaBanner from '../components/sections/CtaBanner.astro';
+
+const url = Astro.url;
+const allFaqs = faqs();
+
+const slugify = (text: string): string =>
+    text.toLowerCase().replace(/['’`]/g, '').replace(/[^\p{L}\p{N}]+/gu, '-').replace(/^-+|-+$/g, '') || 'faq';
+
+const grouped = new Map<string, AccordionItem[]>();
+const answers = new Map<string, string>();
+
+for (const faq of allFaqs) {
+    const id = slugify(faq.question);
+    const { html } = await renderMarkdown(faq.answer, `faq ${id}`);
+    answers.set(id, html);
+    const category = faq.category || 'General';
+    if (!grouped.has(category)) grouped.set(category, []);
+    grouped.get(category)!.push({ id, heading: faq.question, content: html });
+}
+
+const breadcrumbs = [
+    { label: t('common.nav.home'), url: '/' },
+    { label: t('faq.title') },
+];
+
+const schema = breadcrumbSchema([
+    { label: t('common.nav.home'), url: `${url.origin}/` },
+    { label: t('faq.title') },
+]);
+
+const seo = resolveSeo(url, {
+    title: t('faq.title'),
+    description: t('faq.meta_description'),
+    type: 'website',
+});
+---
+<Base resolved={seo} schema={schema}>
+    <PageHeader title={t('faq.heading')} subtitle={t('faq.subheading')} breadcrumbs={breadcrumbs} />
+
+    <section class="section-spacing">
+        <div class="container-page">
+            {
+                allFaqs.length === 0 ? (
+                    <EmptyState message={t('faq.empty')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" />
+                ) : (
+                    <div class="mx-auto max-w-3xl space-y-10">
+                        {
+                            Array.from(grouped.entries()).map(([category, items]) => (
+                                <section aria-labelledby={`faq-group-${slugify(category)}`}>
+                                    <h2 id={`faq-group-${slugify(category)}`} class="text-xl font-bold text-neutral-900">{category}</h2>
+                                    <Accordion class="mt-4" items={items} multiple={false} />
+                                </section>
+                            ))
+                        }
+                    </div>
+                )
+            }
+        </div>
+    </section>
+
+    <CtaBanner
+        heading={t('faq.cta.heading')}
+        body={t('faq.cta.body')}
+        buttonLabel={t('faq.cta.button')}
+        buttonHref="/contact"
+    />
+</Base>

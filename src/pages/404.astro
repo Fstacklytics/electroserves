@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../lib/i18n';
+import { siteSettings } from '../lib/content';
+import { resolveSeo } from '../lib/seo';
+
+const settings = siteSettings();
+const seo = resolveSeo(Astro.url, {
+    title: t('errors.404.title'),
+    description: t('errors.404.body'),
+    robots: 'noindex, nofollow',
+});
+const phoneHref = settings.phoneHref();
+---
+<Base resolved={seo}>
+    <div class="container-page py-16 sm:py-24">
+        <div class="mx-auto max-w-xl text-center">
+            <p class="text-6xl font-bold tracking-tight text-primary-200 sm:text-7xl" aria-hidden="true">{t('errors.404.code')}</p>
+            <h1 class="mt-4 text-2xl font-bold tracking-tight text-neutral-900 sm:text-3xl">{t('errors.404.title')}</h1>
+            <p class="mt-4 text-base leading-relaxed text-neutral-600">{t('errors.404.body')}</p>
+
+            <div class="mt-8 flex flex-col justify-center gap-3 sm:flex-row">
+                <a href="/" class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md bg-primary-800 px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                    {t('errors.actions.home')}
+                </a>
+                <a href="/services" class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                    {t('errors.actions.services')}
+                </a>
+                <a href="/contact" class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                    {t('errors.actions.contact')}
+                </a>
+            </div>
+
+            {
+                settings.phone && (
+                    <p class="mt-8 text-sm text-neutral-500">
+                        {t('errors.help', { phone: '' })}
+                        <a href={phoneHref ?? '#'} class="font-semibold text-primary-800 hover:underline">{settings.phone}</a>
+                    </p>
+                )
+            }
+        </div>
+    </div>
+</Base>

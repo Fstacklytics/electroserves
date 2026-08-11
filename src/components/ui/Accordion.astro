@@ -1,0 +1,71 @@
+---
+import { t } from '../../lib/i18n';
+
+export interface AccordionItem {
+    id: string;
+    heading: string;
+    /** Pre-sanitised HTML (e.g. rendered Markdown). */
+    content: string;
+}
+
+interface Props {
+    items?: AccordionItem[];
+    multiple?: boolean;
+    initial?: string | null;
+    class?: string;
+}
+
+const { items = [], multiple = true, initial = null, class: className = '' } = Astro.props;
+---
+<div
+    x-data={`accordion({ multiple: ${multiple ? 'true' : 'false'}, initial: ${initial ? JSON.stringify(initial) : 'null'} })`}
+    class:list={['divide-y divide-neutral-200 overflow-hidden rounded-lg border border-neutral-200 bg-white', className]}
+>
+    {
+        items.length === 0 ? (
+            <p class="px-5 py-6 text-center text-sm text-neutral-500">{t('common.states.empty')}</p>
+        ) : (
+            items.map((item) => (
+                <div>
+                    <h3>
+                        <button
+                            type="button"
+                            data-accordion-header
+                            id={`${item.id}-header`}
+                            aria-controls={`${item.id}-panel`}
+                            :aria-expanded={`isOpen(${JSON.stringify(item.id)}) ? 'true' : 'false'`}
+                            x-on:click={`toggle(${JSON.stringify(item.id)})`}
+                            x-on:keydown.arrow-down.prevent="moveFocus(1, $event.target)"
+                            x-on:keydown.arrow-up.prevent="moveFocus(-1, $event.target)"
+                            x-on:keydown.home.prevent="focusFirst()"
+                            x-on:keydown.end.prevent="focusLast()"
+                            class="flex min-h-touch w-full items-center justify-between gap-4 px-5 py-4 text-left transition-colors hover:bg-neutral-50"
+                        >
+                            <span class="text-base font-medium text-neutral-900">{item.heading}</span>
+                            <svg
+                                class="h-5 w-5 shrink-0 text-neutral-500 transition-transform duration-200"
+                                :class={`isOpen(${JSON.stringify(item.id)}) ? 'rotate-180' : ''`}
+                                viewBox="0 0 20 20"
+                                fill="currentColor"
+                                aria-hidden="true"
+                                focusable="false"
+                            >
+                                <path fill-rule="evenodd" d="M5.22 8.22a.75.75 0 0 1 1.06 0L10 11.94l3.72-3.72a.75.75 0 1 1 1.06 1.06l-4.25 4.25a.75.75 0 0 1-1.06 0L5.22 9.28a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </h3>
+                    <div
+                        id={`${item.id}-panel`}
+                        role="region"
+                        aria-labelledby={`${item.id}-header`}
+                        x-show={`isOpen(${JSON.stringify(item.id)})`}
+                        x-cloak
+                        x-collapse
+                    >
+                        <div class="prose prose-sm prose-neutral max-w-none px-5 pb-5" set:html={item.content}></div>
+                    </div>
+                </div>
+            ))
+        )
+    }
+</div>

@@ -1,0 +1,33 @@
+---
+import { t } from '../../lib/i18n';
+
+interface Props {
+    title?: string;
+    message: string;
+    actionLabel?: string;
+    actionHref?: string;
+    icon?: boolean;
+    class?: string;
+}
+
+const { title, message, actionLabel, actionHref, icon = true, class: className = '' } = Astro.props;
+---
+<div class:list={['rounded-lg border border-dashed border-neutral-300 bg-neutral-50 px-6 py-12 text-center', className]}>
+    {
+        icon && (
+            <svg class="mx-auto h-10 w-10 text-neutral-400" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true" focusable="false">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 7.5 12 12m0 0-8.25-4.5M12 12v9.75m8.25-14.25v9l-8.25 4.5-8.25-4.5v-9L12 3l8.25 4.5Z" />
+            </svg>
+        )
+    }
+    {title && <p class="mt-4 text-base font-semibold text-neutral-900">{title}</p>}
+    <p class:list={['mx-auto max-w-md text-sm text-neutral-600', title ? 'mt-2' : icon ? 'mt-4' : '']}>{message}</p>
+    {actionLabel && actionHref && (
+        <div class="mt-6">
+            <a href={actionHref} class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                {actionLabel}
+            </a>
+        </div>
+    )}
+    <slot />
+</div>

@@ -1,0 +1,45 @@
+---
+interface Props {
+    src?: string;
+    alt?: string;
+    width?: number;
+    height?: number;
+    eager?: boolean;
+    label?: string;
+    rounded?: string;
+    class?: string;
+    [key: string]: any;
+}
+
+const { src, alt = '', width = 800, height = 600, eager = false, label, rounded = '', class: className = '', children, ...rest } = Astro.props;
+const hasImage = Boolean(src && src.trim() !== '');
+const boxClasses = `${className} ${rounded}`.trim();
+---
+{
+    hasImage ? (
+        <img
+            src={src}
+            alt={alt}
+            width={width}
+            height={height}
+            loading={eager ? 'eager' : 'lazy'}
+            fetchpriority={eager ? 'high' : undefined}
+            decoding="async"
+            class={boxClasses}
+            {...rest}
+        />
+    ) : (
+        <div
+            class:list={['image-placeholder', boxClasses]}
+            style={`aspect-ratio: ${width} / ${height};`}
+            role={label ? 'img' : undefined}
+            aria-label={label || undefined}
+            aria-hidden={label ? undefined : 'true'}
+            {...rest}
+        >
+            <svg class="h-1/4 max-h-16 w-auto opacity-40" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
+                <path d="M13.2 2 6 12h4.5l-1.2 10L18 10h-5.2z" />
+            </svg>
+        </div>
+    )
+}

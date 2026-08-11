@@ -1,0 +1,48 @@
+---
+import { t } from '../../lib/i18n';
+import type { Service } from '../../lib/content';
+import SectionHeading from './SectionHeading.astro';
+import EmptyState from '../ui/EmptyState.astro';
+import ServiceCard from './ServiceCard.astro';
+
+interface Props {
+    services: Service[];
+    showViewAll?: boolean;
+    total?: number;
+}
+
+const { services, showViewAll = true, total } = Astro.props;
+const count = total ?? services.length;
+---
+<section class="section-spacing" aria-labelledby="services-heading">
+    <div class="container-page">
+        <SectionHeading id="services-heading" title={t('home.services.heading')} subtitle={t('home.services.subheading')} />
+
+        {
+            services.length === 0 ? (
+                <div class="mt-10">
+                    <EmptyState message={t('home.services.empty')} actionLabel={t('common.cta.contact_us')} actionHref="/contact" />
+                </div>
+            ) : (
+                <>
+                    <ul role="list" class="mt-10 grid gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                        {
+                            services.map((service) => (
+                                <li class="h-full"><ServiceCard service={service} /></li>
+                            ))
+                        }
+                    </ul>
+                    {
+                        showViewAll && count > services.length && (
+                            <div class="mt-10 text-center">
+                                <a href="/services" class="inline-flex min-h-touch items-center justify-center gap-2 rounded-md border-2 border-primary-800 bg-transparent px-5 py-2.5 text-sm font-semibold text-primary-800 transition-colors hover:bg-primary-50 active:bg-primary-100 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+                                    {t('common.cta.view_all')} ({count})
+                                </a>
+                            </div>
+                        )
+                    }
+                </>
+            )
+        }
+    </div>
+</section>

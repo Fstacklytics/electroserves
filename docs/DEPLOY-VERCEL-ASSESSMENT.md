@@ -1,5 +1,14 @@
 # Vercel Deployment Assessment — ElectroServes
 
+> **Superseded by Path B (2026-08-11).** The codebase this assessment was written
+> against no longer exists: the Laravel / Nginx + PHP-FPM runtime was replaced by
+> a **fully static Astro build deployed to Netlify** (`docs/DEPLOY-NETLIFY-PATH-B.md`).
+> Every blocker below is eliminated because there is no server runtime — no file
+> sessions, no file cache, no request-time Markdown parsing, no Nginx hardening to
+> lose, no ephemeral logs, and the contact rate limiter is replaced by Netlify Forms
+> + honeypot. This document is retained as the historical record of the Vercel
+> analysis and why Netlify was chosen instead.
+
 **Status:** Assessed 2026-08-11. **Verdict: Vercel is not supported and not recommended for this codebase in its current form.** A Vercel deployment would require a re-architecture of session, cache, content and hardening layers that are currently file-backed and Nginx-specific.
 
 This document resolves a previously dangling reference to a Vercel assessment. It exists to record the analysis so future sessions do not re-investigate the same target.

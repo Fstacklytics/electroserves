@@ -1,11 +1,12 @@
-# Decap CMS Configuration — ElectroServes
-# This file defines all content collections managed through the CMS admin interface
-
+# Decap CMS — Path B (Netlify Identity + Git Gateway)
+#
+# Unlike the old GitHub-OAuth backend, this uses Netlify Identity + Git Gateway
+# so editors authenticate against Netlify rather than a server-side OAuth
+# broker. Enable Identity -> Enable Git Gateway in the Netlify UI, then invite
+# editors (free for <5 editors) from the Identity tab.
 backend:
-  name: github
-  repo: Fstacklytics/electroserves
+  name: git-gateway
   branch: main
-  squash_merges: true
   commit_messages:
     create: "content(create): {{collection}} — {{slug}}"
     update: "content(update): {{collection}} — {{slug}}"
@@ -13,36 +14,26 @@ backend:
     uploadMedia: "media(upload): {{path}}"
     deleteMedia: "media(delete): {{path}}"
 
-# Enable editorial workflow (creates PRs for review)
+# Editorial workflow: unpublished edits live on a branch and open a PR for review.
 publish_mode: editorial_workflow
 
-# Local development
+# Local development uses the local backend proxy (run `netlify dev`).
 local_backend: true
 
-# Media configuration
-media_folder: "content/uploads"
+# Media is committed under public/uploads so Netlify serves it at /uploads/*.
+media_folder: "public/uploads"
 public_folder: "/uploads"
 
-# Site URL
 site_url: https://electroserves.co.tz
 display_url: https://electroserves.co.tz
 
-# Logo
-logo_url: /images/logo.svg
-
-# Editor settings
 editor:
   preview: false
 
-# Slug configuration
 slug:
   encoding: "ascii"
   clean_accents: true
   sanitize_replacement: "-"
-
-# ============================================================
-# COLLECTIONS
-# ============================================================
 
 collections:
 
@@ -82,12 +73,12 @@ collections:
               - { label: "YouTube", name: "youtube", widget: "string", required: false }
               - { label: "WhatsApp", name: "whatsapp", widget: "string", required: false }
           - { label: "Copyright Text", name: "copyright", widget: "string" }
-          - { label: "Years in Business", name: "years_in_business", widget: "number", default: 0, required: false }
-          - { label: "Projects Completed", name: "projects_completed", widget: "number", default: 0, required: false }
-          - { label: "Happy Clients", name: "happy_clients", widget: "number", default: 0, required: false }
-          - { label: "Team Size", name: "team_size", widget: "number", default: 0, required: false }
           - { label: "Logo", name: "logo", widget: "image", required: false }
           - { label: "Favicon", name: "favicon", widget: "image", required: false }
+          - { label: "Years in Business", name: "years_in_business", widget: "number", required: false }
+          - { label: "Projects Completed", name: "projects_completed", widget: "number", required: false }
+          - { label: "Happy Clients", name: "happy_clients", widget: "number", required: false }
+          - { label: "Team Size", name: "team_size", widget: "number", required: false }
 
       - label: "SEO Defaults"
         name: "seo_defaults"
@@ -95,13 +86,12 @@ collections:
         fields:
           - { label: "Default Meta Title", name: "default_title", widget: "string" }
           - { label: "Default Meta Description", name: "default_description", widget: "text" }
-          - { label: "Default OG Image", name: "default_og_image", widget: "image" }
-          - { label: "Twitter/X Handle", name: "twitter_handle", widget: "string", required: false }
-          - { label: "Google Analytics ID", name: "ga_id", widget: "string", required: false }
+          - { label: "Default OG Image", name: "default_og_image", widget: "image", required: false }
+          - { label: "Twitter Handle", name: "twitter_handle", widget: "string", required: false }
           - { label: "Google Site Verification", name: "google_verification", widget: "string", required: false }
 
   # ----------------------------------------------------------
-  # Hero Slides (Homepage carousel)
+  # Hero Slides
   # ----------------------------------------------------------
   - name: "hero_slides"
     label: "Hero Slides"
@@ -112,7 +102,7 @@ collections:
     fields:
       - { label: "Heading", name: "heading", widget: "string" }
       - { label: "Subheading", name: "subheading", widget: "text" }
-      - { label: "Background Image", name: "image", widget: "image" }
+      - { label: "Background Image", name: "image", widget: "image", required: false }
       - { label: "CTA Button Text", name: "cta_text", widget: "string", default: "Get a Quote" }
       - { label: "CTA Button Link", name: "cta_link", widget: "string", default: "/contact" }
       - { label: "Secondary CTA Text", name: "cta_secondary_text", widget: "string", required: false }
@@ -132,16 +122,16 @@ collections:
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
-      - { label: "Icon Name", name: "icon", widget: "string", hint: "Heroicon or Lucide icon name" }
+      - { label: "Icon Name", name: "icon", widget: "string", hint: "home, building, cpu, wrench, shield, lightbulb, battery or bolt" }
       - { label: "Short Description", name: "short_description", widget: "text", hint: "Used on services overview page" }
       - { label: "Full Description", name: "body", widget: "markdown" }
-      - { label: "Featured Image", name: "image", widget: "image" }
+      - { label: "Featured Image", name: "image", widget: "image", required: false }
       - label: "Features / What's Included"
         name: "features"
         widget: "list"
         fields:
           - { label: "Feature", name: "feature", widget: "string" }
-      - { label: "Price Range", name: "price_range", widget: "string", required: false, hint: "e.g., 'From TZS 50,000'" }
+      - { label: "Price Range", name: "price_range", widget: "string", required: false }
       - { label: "Category", name: "category", widget: "select", options: ["residential", "commercial", "electronics", "emergency", "installation"] }
       - { label: "Order (display position)", name: "order", widget: "number", default: 1 }
       - { label: "Published", name: "published", widget: "boolean", default: true }
@@ -162,12 +152,12 @@ collections:
       - { label: "Category", name: "category", widget: "select", options: ["residential", "commercial", "industrial", "electronics", "installation"] }
       - { label: "Short Description", name: "short_description", widget: "text" }
       - { label: "Full Description", name: "body", widget: "markdown" }
-      - { label: "Featured Image", name: "featured_image", widget: "image" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
       - label: "Image Gallery"
         name: "gallery"
         widget: "list"
         fields:
-          - { label: "Image", name: "image", widget: "image" }
+          - { label: "Image", name: "image", widget: "image", required: false }
           - { label: "Caption", name: "caption", widget: "string", required: false }
       - { label: "Client Name", name: "client_name", widget: "string", required: false }
       - { label: "Location", name: "location", widget: "string" }
@@ -201,8 +191,8 @@ collections:
       - { label: "Publish Date", name: "date", widget: "datetime", default: "{{now}}", format: "YYYY-MM-DD" }
       - { label: "Category", name: "category", widget: "select", options: ["Tips & Advice", "Industry News", "Company Updates", "Project Spotlights", "Safety"] }
       - { label: "Tags", name: "tags", widget: "list", required: false }
-      - { label: "Excerpt", name: "excerpt", widget: "text", hint: "Short summary for blog listing" }
-      - { label: "Featured Image", name: "featured_image", widget: "image" }
+      - { label: "Excerpt", name: "excerpt", widget: "text" }
+      - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
       - { label: "Published", name: "published", widget: "boolean", default: true }
       - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
@@ -239,7 +229,7 @@ collections:
       - { label: "Full Name", name: "name", widget: "string" }
       - { label: "Role / Title", name: "role", widget: "string" }
       - { label: "Bio", name: "bio", widget: "markdown" }
-      - { label: "Photo", name: "photo", widget: "image" }
+      - { label: "Photo", name: "photo", widget: "image", required: false }
       - label: "Certifications"
         name: "certifications"
         widget: "list"

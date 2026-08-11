@@ -28,10 +28,11 @@ import typography from '@tailwindcss/typography';
  */
 export default {
     content: [
-        './resources/**/*.blade.php',
-        './resources/**/*.js',
-        './app/**/*.php',
-        './lang/**/*.php',
+        // Path B (Astro): scan the Astro templates and the Alpine component
+        // sources. Class names inside Alpine templates are generated from the
+        // markup in the .astro files, which is scanned here.
+        './src/**/*.{astro,html,js,ts,tsx}',
+        './resources/js/**/*.js',
     ],
 
     darkMode: 'class',

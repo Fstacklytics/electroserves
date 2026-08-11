@@ -1,0 +1,44 @@
+---
+import Base from '../layouts/Base.astro';
+import { t } from '../lib/i18n';
+import { heroSlides, services, projects, testimonials, siteSettings, seoDefaults } from '../lib/content';
+import { organizationSchema } from '../lib/seo';
+import Hero from '../components/sections/Hero.astro';
+import ServicesGrid from '../components/sections/ServicesGrid.astro';
+import FeaturedProjects from '../components/sections/FeaturedProjects.astro';
+import Stats from '../components/sections/Stats.astro';
+import TestimonialsCarousel from '../components/sections/TestimonialsCarousel.astro';
+import CtaBanner from '../components/sections/CtaBanner.astro';
+
+const settings = siteSettings();
+const defaults = seoDefaults();
+const slides = heroSlides();
+const allServices = services();
+const allProjects = projects();
+const featuredProjects = allProjects.filter((p) => p.featured).slice(0, 6);
+const allTestimonials = testimonials();
+const schema = organizationSchema();
+---
+<Base
+    seo={{
+        title: defaults.defaultTitle,
+        description: defaults.defaultDescription,
+        image: defaults.defaultOgImage,
+        type: 'website',
+    }}
+    schema={schema}
+>
+    <Hero slides={slides} />
+    <ServicesGrid services={allServices} total={allServices.length} />
+    <FeaturedProjects projects={featuredProjects} />
+    <Stats />
+    <TestimonialsCarousel testimonials={allTestimonials} />
+    <CtaBanner
+        heading={t('home.cta.heading')}
+        body={t('home.cta.body')}
+        buttonLabel={t('home.cta.button')}
+        buttonHref="/contact"
+        secondaryLabel={t('home.cta.secondary')}
+        secondaryHref="/services"
+    />
+</Base>
