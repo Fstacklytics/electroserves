@@ -11,6 +11,7 @@
                 @else
                     <a
                         href="{{ $paginator->previousPageUrl() }}"
+                        data-pagination-link
                         rel="prev"
                         class="flex min-h-touch items-center rounded-md px-3 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                     >{{ __('common.pagination.previous') }}</a>
@@ -38,6 +39,7 @@
                             @else
                                 <a
                                     href="{{ $url }}"
+                                    data-pagination-link
                                     class="flex min-h-touch min-w-touch items-center justify-center rounded-md px-3 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                                 >
                                     <span class="sr-only">{{ __('common.pagination.go_to_page', ['page' => $page]) }}</span>
@@ -54,6 +56,7 @@
                 @if ($paginator->hasMorePages())
                     <a
                         href="{{ $paginator->nextPageUrl() }}"
+                        data-pagination-link
                         rel="next"
                         class="flex min-h-touch items-center rounded-md px-3 text-sm font-medium text-neutral-700 hover:bg-neutral-100"
                     >{{ __('common.pagination.next') }}</a>

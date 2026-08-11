@@ -1,12 +1,5 @@
 <x-layouts.app :seo="$seo" :schema="$schema">
-    @php
-        $status = session('contact_status');
-        // Pre-select the service when arriving from a service detail CTA.
-        $preselectedService = request()->query('service');
-        $preselectedService = is_string($preselectedService) && array_key_exists($preselectedService, $serviceTypes)
-            ? $preselectedService
-            : null;
-    @endphp
+    @php($status = session('contact_status'))
 
     <x-sections.page-header
         :title="__('contact.heading')"
@@ -140,7 +133,7 @@
                                     name="service_type"
                                     :label="__('contact.fields.service_type')"
                                     :options="$serviceTypes"
-                                    :value="$preselectedService"
+                                    :value="$selectedServiceType"
                                     :placeholder="__('contact.fields.service_placeholder')"
                                     required
                                     x-on:change="markTouched('service_type'); validateField('service_type', $event.target.value)"

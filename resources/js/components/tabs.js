@@ -6,12 +6,17 @@
  *   Home / End       first / last tab
  *   Enter / Space    activate the focused tab
  *
- * @param {{ initial?: string, tabs?: string[] }} options
+ * When `queryParam` is provided, filter changes are reflected in the current
+ * URL and in paginator links. Filtering remains deliberately scoped to the
+ * items rendered on the current server-paginated page.
+ *
+ * @param {{ initial?: string, tabs?: string[], queryParam?: string }} options
  */
 export default function tabs(options = {}) {
     return {
         active: options.initial ?? 'all',
         tabList: options.tabs ?? [],
+        queryParam: options.queryParam ?? null,
 
         isActive(id) {
             return this.active === id;
@@ -19,6 +24,37 @@ export default function tabs(options = {}) {
 
         select(id) {
             this.active = id;
+            this.syncFilterQuery();
+        },
+
+        /**
+         * Persist the active category without a navigation, then apply it to
+         * every available page link so the filter survives pagination.
+         */
+        syncFilterQuery() {
+            if (!this.queryParam || typeof window === 'undefined') {
+                return;
+            }
+
+            const pageUrl = new URL(window.location.href);
+            this.setFilterQuery(pageUrl);
+            window.history.replaceState({}, '', pageUrl.toString());
+
+            this.$root.querySelectorAll('[data-pagination-link]').forEach((link) => {
+                const linkUrl = new URL(link.href, window.location.origin);
+                this.setFilterQuery(linkUrl);
+                link.href = linkUrl.toString();
+            });
+        },
+
+        setFilterQuery(url) {
+            if (this.active === 'all') {
+                url.searchParams.delete(this.queryParam);
+
+                return;
+            }
+
+            url.searchParams.set(this.queryParam, this.active);
         },
 
         get tabElements() {

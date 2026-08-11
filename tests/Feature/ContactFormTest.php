@@ -287,10 +287,25 @@ class ContactFormTest extends TestCase
             ->assertSee(__('contact.validation.summary_heading'));
     }
 
-    public function test_the_service_query_parameter_preselects_the_dropdown(): void
+    public function test_a_service_detail_slug_preselects_its_category_in_the_dropdown(): void
+    {
+        $this->get(route('contact', ['service' => 'residential-electrical']))
+            ->assertOk()
+            ->assertSee('value="residential" selected', false);
+    }
+
+    public function test_a_direct_category_query_still_preselects_the_dropdown(): void
     {
         $this->get(route('contact', ['service' => 'residential']))
             ->assertOk()
             ->assertSee('value="residential" selected', false);
+    }
+
+    public function test_an_unknown_service_query_leaves_the_dropdown_unselected(): void
+    {
+        $this->get(route('contact', ['service' => 'unknown-service']))
+            ->assertOk()
+            ->assertDontSee('value="residential" selected', false)
+            ->assertSee('<option value="" selected', false);
     }
 }
