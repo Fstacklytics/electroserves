@@ -1,9 +1,13 @@
 # Path B — Netlify Static Deployment (Astro + Tailwind + Alpine + Decap CMS)
 
-**Status:** Path B is the canonical deployment path as of this PR. It **replaces**
+**Status:** Path B is the canonical deployment path. It **replaces**
 the Nginx + PHP-FPM + Ubuntu runtime described in `deploy/README.md` and
 `deploy/nginx.conf` (both removed) and supersedes the "supported deployment"
 section of `docs/DEPLOY-VERCEL-ASSESSMENT.md` for this repository.
+
+> For the full current-architecture reference (rendering, content collections,
+> Decap CMS / Netlify Identity flow, CSP details, and the repo-vs-dashboard
+> split), see **[`docs/ARCHITECTURE.md`](ARCHITECTURE.md)**.
 
 ---
 
@@ -72,8 +76,11 @@ What you give up:
   `RESPONSE_CACHE_*` env vars and `content:flush` / `responsecache:clear`
   commands are removed. Cache behaviour is governed by `netlify.toml`.
 - **CMS auth moved from GitHub OAuth to Netlify Identity + Git Gateway.**
-  Enabling it is a Netlify UI step (below), not a repo change. Free for fewer
-  than 5 editors; beyond that Netlify charges per seat.
+  Enabling it is a Netlify UI step (below), not a repo change. The site runs on
+  Netlify's **free Starter plan**, which is sufficient for the normal CMS
+  workflow: Identity supports up to 5 registered users, Git Gateway and Netlify
+  Forms are included within Starter usage quotas, and no plan upgrade is
+  currently required. Beyond 5 editors Netlify charges per seat.
 
 What you gain:
 

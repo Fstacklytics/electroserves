@@ -1,8 +1,9 @@
 /**
  * Client-side enhancement for the contact form.
  *
- * This is UX only: every rule here is also enforced server-side by
- * ContactFormRequest. If JavaScript is unavailable the form still submits and
+ * This is UX only: the required-field and message-length constraints are also
+ * enforced by native HTML5 validation, and the submission is handled by
+ * Netlify Forms. If JavaScript is unavailable the form still submits and
  * validates normally.
  *
  * @param {{ messages?: Record<string, string>, maxMessage?: number }} options

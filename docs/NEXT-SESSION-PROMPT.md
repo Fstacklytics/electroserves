@@ -1,5 +1,18 @@
 # ElectroServes — Completion handoff (all 4 phases merged)
 
+> ⚠️ **Historical / superseded — not current operating documentation.**
+> This document records the retired **Laravel 11 / Nginx + PHP-FPM 8.3 / Ubuntu**
+> design and its implementation phases. That runtime has been replaced by a
+> **fully static Astro site deployed to Netlify (Path B)** — the code,
+> directories, build/test commands, env vars, caches, middleware and
+> deployment runbooks described below **no longer exist and must not be used**.
+> For the current system see **[`docs/ARCHITECTURE.md`](ARCHITECTURE.md)** and
+> [`docs/DEPLOY-NETLIFY-PATH-B.md`](DEPLOY-NETLIFY-PATH-B.md). This file is
+> retained only as a historical design record.
+
+---
+
+
 > **This repository's implementation is complete.** Do not start a new phase unless `docs/IMPLEMENTATION-PROMPT.md` is amended. The old version of this file told the next session to run a "Phase 5" that does not exist — `docs/IMPLEMENTATION-PROMPT.md` has exactly four phases and all four are merged to `main` via PRs #1, #8 and #9. This version corrects that and becomes the canonical completion handoff.
 
 ---

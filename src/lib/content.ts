@@ -35,7 +35,7 @@ export interface ServiceCategory {
     label: string;
 }
 
-/** Human-readable category labels (mirrors config/electroserves.php). */
+/** Human-readable category labels; source of truth is this list and the zod enums in content/config.ts. */
 export const SERVICE_CATEGORIES: ServiceCategory[] = [
     { key: 'residential', label: 'Residential' },
     { key: 'commercial', label: 'Commercial' },

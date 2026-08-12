@@ -8,8 +8,8 @@ import typography from '@tailwindcss/typography';
  * Colours, type scale and spacing come from the design system section of
  * README.md and docs/phase-0/06-architecture-decisions.md (ADR-004).
  *
- * Contrast note (measured, not estimated — see tests/Unit/ColourContrastTest.php,
- * which recomputes every figure below from these hex values on each run):
+ * Contrast note (WCAG relative-luminance ratios, measured against the hex
+ * values below):
  *
  *   primary-700 on white / white on primary-700   6.70:1
  *   primary-800 on white                          8.72:1

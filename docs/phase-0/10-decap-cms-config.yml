@@ -1,4 +1,15 @@
 # Decap CMS Configuration — ElectroServes
+
+# ⚠️ Historical / superseded — not current operating documentation.
+# This file records the Decap CMS collection design from the retired
+# Laravel / Nginx + PHP-FPM phase. The LIVE Decap configuration is now
+# public/admin/config.yml (git-gateway backend, Netlify Identity, media in
+# public/uploads). Do not apply this file as the running CMS config. See
+# docs/ARCHITECTURE.md and docs/DEPLOY-NETLIFY-PATH-B.md.
+
+---
+
+
 # This file defines all content collections managed through the CMS admin interface
 #
 # NOTE (Path B): the deployed configuration lives in public/admin/config.yml and
