@@ -96,23 +96,24 @@ const total = hasSlides ? slides.length : 1;
 
                 {
                     total > 1 && (
-                        <div class="container-page relative pb-6">
-                            <div class="flex items-center gap-3">
-                                <button type="button" x-on:click="manualPrevious()" class="touch-target rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-primary-900">
+                        <>
+                            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-primary-950/85 to-transparent" aria-hidden="true"></div>
+                            <div class="container-page relative z-10 flex items-center gap-2 pb-6 sm:gap-3">
+                                <button type="button" x-on:click="manualPrevious()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
                                     <span class="sr-only">{t('home.hero.previous_slide')}</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
                                         <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
 
-                                <button type="button" x-on:click="manualNext()" class="touch-target rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-primary-900">
+                                <button type="button" x-on:click="manualNext()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
                                     <span class="sr-only">{t('home.hero.next_slide')}</span>
                                     <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
                                         <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
                                     </svg>
                                 </button>
 
-                                <button type="button" x-on:click="toggle()" class="touch-target rounded-full bg-white/10 text-white backdrop-blur transition-colors hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-primary-900">
+                                <button type="button" x-on:click="toggle()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
                                     <span class="sr-only" x-text={`playing ? '${t('home.hero.pause')}' : '${t('home.hero.play')}'`}>{t('home.hero.pause')}</span>
                                     <svg x-show="playing" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
                                         <path d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5Zm7 0a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z" />
@@ -133,7 +134,7 @@ const total = hasSlides ? slides.length : 1;
                                     }
                                 </div>
                             </div>
-                        </div>
+                        </>
                     )
                 }
             </>

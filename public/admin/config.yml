@@ -14,8 +14,12 @@ backend:
     uploadMedia: "media(upload): {{path}}"
     deleteMedia: "media(delete): {{path}}"
 
-# Editorial workflow: unpublished edits live on a branch and open a PR for review.
-publish_mode: editorial_workflow
+# Simple (direct) mode: every Save commits straight to `main`, which triggers
+# the Netlify Production build. There is no editorial-workflow "Ready / Publish
+# / Unpublish" menu — that menu was the source of the "API_ERROR: Update is not
+# a fast forward" failures (it tried to update a stale cms/* branch). Hiding an
+# entry is done with the Published toggle, not an Unpublish action.
+publish_mode: simple
 
 # Local development uses the local backend proxy (run `netlify dev`).
 local_backend: true
@@ -44,10 +48,12 @@ slug:
 collections:
 
   # ----------------------------------------------------------
-  # Site Settings (single file)
+  # Site Settings (single file) — never deletable
   # ----------------------------------------------------------
   - name: "settings"
     label: "Site Settings"
+    # Protect the site + SEO config: do not let an editor delete these files.
+    delete: false
     files:
       - label: "General Settings"
         name: "site_settings"
@@ -110,16 +116,25 @@ collections:
     format: "yml"
     slug: "{{slug}}"
     identifier_field: "heading"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Heading", name: "heading", widget: "string" }
       - { label: "Subheading", name: "subheading", widget: "text" }
-      - { label: "Background Image", name: "image", widget: "image", required: false }
+      - { label: "Background Image", name: "image", widget: "image", required: false, hint: "One background photo for this homepage slide. To show several images in the rotating homepage carousel, add more **Hero Slides** (each with its own photo) and use **Order** to set the sequence — lower numbers appear first." }
       - { label: "CTA Button Text", name: "cta_text", widget: "string", default: "Get a Quote" }
       - { label: "CTA Button Link", name: "cta_link", widget: "string", default: "/contact" }
       - { label: "Secondary CTA Text", name: "cta_secondary_text", widget: "string", required: false }
       - { label: "Secondary CTA Link", name: "cta_secondary_link", widget: "string", required: false }
       - { label: "Order", name: "order", widget: "number", default: 1 }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
 
   # ----------------------------------------------------------
   # Services
@@ -133,6 +148,11 @@ collections:
     preview_path: "services/{{fields.slug}}"
     slug: "{{slug}}"
     identifier_field: "title"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -148,7 +168,11 @@ collections:
       - { label: "Price Range", name: "price_range", widget: "string", required: false }
       - { label: "Category", name: "category", widget: "select", options: ["residential", "commercial", "electronics", "emergency", "installation"] }
       - { label: "Order (display position)", name: "order", widget: "number", default: 1 }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
       - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
 
   # ----------------------------------------------------------
@@ -163,6 +187,11 @@ collections:
     preview_path: "projects/{{fields.slug}}"
     slug: "{{slug}}"
     identifier_field: "title"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -174,7 +203,7 @@ collections:
         name: "gallery"
         widget: "list"
         fields:
-          - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "Image", name: "image", widget: "image", required: false, hint: "One photo per row. Add as many rows as you like — they appear in the project's image gallery. Add a caption for context, or leave the caption blank to list it as a 'Project highlight'." }
           - { label: "Caption", name: "caption", widget: "string", required: false }
       - { label: "Client Name", name: "client_name", widget: "string", required: false }
       - { label: "Location", name: "location", widget: "string" }
@@ -189,7 +218,11 @@ collections:
         multiple: true
         required: false
       - { label: "Featured Project", name: "featured", widget: "boolean", default: false }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
       - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
 
   # ----------------------------------------------------------
@@ -204,6 +237,11 @@ collections:
     preview_path: "blog/{{fields.slug}}"
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     identifier_field: "title"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -214,7 +252,11 @@ collections:
       - { label: "Excerpt", name: "excerpt", widget: "text" }
       - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
       - { label: "Body", name: "body", widget: "markdown" }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
       - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
 
   # ----------------------------------------------------------
@@ -228,6 +270,11 @@ collections:
     format: "yml"
     slug: "{{slug}}"
     identifier_field: "client_name"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Client Name", name: "client_name", widget: "string" }
       - { label: "Company / Organization", name: "company", widget: "string", required: false }
@@ -236,7 +283,11 @@ collections:
       - { label: "Client Photo", name: "photo", widget: "image", required: false }
       - { label: "Service Used", name: "service_used", widget: "string", required: false }
       - { label: "Order", name: "order", widget: "number", default: 1 }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
 
   # ----------------------------------------------------------
   # Team Members
@@ -249,6 +300,11 @@ collections:
     format: "yml"
     slug: "{{slug}}"
     identifier_field: "name"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Full Name", name: "name", widget: "string" }
       - { label: "Role / Title", name: "role", widget: "string" }
@@ -264,7 +320,11 @@ collections:
           - { label: "Year", name: "year", widget: "number", required: false }
       - { label: "Email (public)", name: "email", widget: "string", required: false }
       - { label: "Order", name: "order", widget: "number", default: 1 }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
 
   # ----------------------------------------------------------
   # FAQs
@@ -277,15 +337,24 @@ collections:
     format: "yml"
     slug: "{{slug}}"
     identifier_field: "question"
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Question", name: "question", widget: "string" }
       - { label: "Answer", name: "answer", widget: "markdown" }
       - { label: "Category", name: "category", widget: "select", options: ["General", "Services", "Pricing", "Emergency", "Warranty"] }
       - { label: "Order", name: "order", widget: "number", default: 1 }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."
 
   # ----------------------------------------------------------
-  # Static Pages
+  # Static Pages — never deletable (about / privacy / terms)
   # ----------------------------------------------------------
   - name: "pages"
     label: "Pages"
@@ -297,6 +366,13 @@ collections:
     slug: "{{slug}}"
     identifier_field: "title"
     filter: { field: "layout", value: "page" }
+    # Protect the legal/structural pages: do not let an editor delete them.
+    delete: false
+    view_filters:
+      - label: "Visible"
+        field: { name: "published", value: true }
+      - label: "Hidden"
+        field: { name: "published", value: false }
     fields:
       - { label: "Layout", name: "layout", widget: "hidden", default: "page" }
       - { label: "Title", name: "title", widget: "string" }
@@ -305,4 +381,8 @@ collections:
       - { label: "Featured Image", name: "featured_image", widget: "image", required: false }
       - { label: "Meta Description", name: "meta_description", widget: "text", required: false }
       - { label: "Last Updated", name: "updated_at", widget: "datetime", format: "YYYY-MM-DD", time_format: false, required: false }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - label: "Published"
+        name: "published"
+        widget: "boolean"
+        default: true
+        hint: "Visible = included in the next Production build. Hidden (Off) = skipped from the public site on the next deploy. Toggle this to show/hide — there is no separate Unpublish button."

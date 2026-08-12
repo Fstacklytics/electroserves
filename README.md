@@ -76,16 +76,22 @@ Netlify Identity (up to 5 editors on the free Starter plan). Invitation and
 confirmation emails link to the homepage, where the Identity widget processes
 the token and redirects to `/admin/`.
 
-### Publishing (Save → Ready → Publish → deploy)
+### Publishing (Save → Production deploy)
 
 The public HTML is built **once per deploy** from `content/`. Decap does not
-update the live page by itself.
+update the live page by itself — there is no database and no instant update.
 
-1. **Save** — writes a draft on a `cms/*` branch (editorial workflow).
-2. **Ready** — editorial status only; still not on `main`.
-3. **Publish** — merges the PR to `main`.
-4. **Wait for Netlify Production** — Site → Deploys → the commit SHA must be
-   **Published** (green). Then hard-refresh the **primary** URL.
+1. **Save** — commits the change straight to `main` (simple/publish mode, no
+   editorial-workflow branch).
+2. **Wait for Netlify Production** — Site → Deploys → the commit SHA must be
+   **Published** (green). Then hard-refresh the **primary** URL (Cmd/Ctrl+Shift+R)
+   to bypass the CDN cache.
+
+**Show / Hide** an entry with the **Published** toggle (On = include in the
+next build, Off = skip it). There is no separate Publish / Unpublish menu —
+that menu caused `API_ERROR: Update is not a fast forward` because it tried to
+update a stale `cms/*` branch. See [`docs/CMS.md`](docs/CMS.md) for the full
+editor runbook (Create / Edit / Show / Hide / Delete / View live / wait-for-green).
 
 Decap **View live** always opens `site_url` / `display_url` in
 `public/admin/config.yml`. It is not “whatever host you opened `/admin` on”.
@@ -96,10 +102,10 @@ as primary with TLS issued.
 
 YAML collections (hero, testimonials, team, FAQs) must stay `*.yml`. The CMS
 config sets `extension: yml` / `format: yml` so Publish cannot write a
-`.md` file the build will ignore.
-
-Full checklist and the 2026-08-12 incident write-up:
-[`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md`](docs/NEXT-SESSION-CONTENT-NOT-LIVE.md).
+`.md` file the build will ignore. Markdown collections (services, projects,
+blog, pages) use `extension: md` / `format: frontmatter`; the loader also
+accepts a `*.md` frontmatter fallback for YAML collections and logs
+`[content:warn]`.
 
 ---
 
@@ -180,6 +186,13 @@ fallback empty state rather than failing — see `src/lib/content.ts`.
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical description of
   the current Path B stack (rendering, content collections, CMS/Identity,
   forms, CSP, deployment, what lives in the repo vs. the Netlify dashboard).
+- [`docs/CMS.md`](docs/CMS.md) — editor runbook: Sign in, Create/Edit, Show
+  (Published = On), Hide (Published = Off), Delete (except Settings/legal
+  Pages), Upload image, View live host, and wait-for-green Production deploy.
+- [`docs/CMS-USER-GUIDE.md`](docs/CMS-USER-GUIDE.md) — **plain-language guide
+  for non-technical editors**: collections overview, adding/editing content,
+  the Published show/hide switch, uploading many images (hero carousel +
+  project gallery), deleting, and when changes appear.
 - [`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md`](docs/NEXT-SESSION-CONTENT-NOT-LIVE.md)
   — Save vs Publish vs production deploy, View live / `site_url`, custom
   domain vs `*.netlify.app`, and why a YAML entry saved as `.md` never renders.

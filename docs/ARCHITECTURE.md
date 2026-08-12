@@ -110,7 +110,9 @@ netlify dev                  # http://localhost:8888 → open /admin
 The local backend proxy writes edits directly to `content/` and `public/uploads/`
 without going through Git Gateway or Identity. On the deployed site the CMS
 uses the `git-gateway` backend against `main` with
-`publish_mode: editorial_workflow` (unpublished edits become pull requests).
+`publish_mode: simple` (every **Save** commits straight to `main` and triggers
+the Production build; hiding an entry is the **Published** toggle, not an
+Unpublish action — see below).
 
 ---
 
@@ -195,7 +197,10 @@ Uploaded media is committed to `public/uploads/` (`media_folder`) and served at
   bundle `https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js` and the Identity
   widget, with a visible fallback message if the CDN bundle fails to load.
 - Backend in `public/admin/config.yml`: `name: git-gateway`, `branch: main`,
-  `publish_mode: editorial_workflow`.
+  `publish_mode: simple`. Every **Save** commits directly to `main`; there is
+  no editorial-workflow branch, so the **Ready / Publish / Unpublish** menu no
+  longer appears. Hiding an entry is the `Published` boolean (Off = skipped by
+  `src/lib/content.ts`), not an Unpublish action that rewrites a `cms/*` branch.
 - YAML folder collections set `extension: yml` and `format: yml` so new
   entries match `src/lib/content.ts` (`*.yml` globs). Markdown collections
   set `extension: md` and `format: frontmatter`.
@@ -205,11 +210,22 @@ Uploaded media is committed to `public/uploads/` (`media_folder`) and served at
   They must match the Netlify primary domain that actually serves this site.
   They are **not** inferred from the `/admin` tab’s hostname. See
   [`NEXT-SESSION-CONTENT-NOT-LIVE.md`](NEXT-SESSION-CONTENT-NOT-LIVE.md).
-- An editor **Save**s a change to a `cms/*` branch and a pull request
-  (custom commit messages: `content(create|update|delete): …`). **Ready** is
-  editorial status only. **Publish** merges to `main`. Merging triggers the
-  Netlify **Production** build; the live site updates when that build is
-  **Published** (content is static, so edits are not instant at request time).
+- An editor **Save**s a change directly to `main` (custom commit messages:
+  `content(create|update|delete): …`). **Show / Hide** is the `Published`
+  boolean on every folder collection — On includes the entry in the next build,
+  Off skips it (`src/lib/content.ts` filters `published: false`). Saving
+  triggers the Netlify **Production** build; the live site updates when that
+  build is **Published** (content is static, so edits are not instant at request
+  time). There is no **Ready / Publish / Unpublish** menu — that menu produced
+  `API_ERROR: Update is not a fast forward` because it tried to update a stale
+  `cms/*` branch. Leftover `cms/*` branches are pruned automatically by
+  `.github/workflows/prune-cms-branches.yml` on every push to `main`.
+- **Delete** is disabled (`delete: false`) on the Settings (single-file)
+  collection and on the Pages collection (About / Privacy / Terms), so those
+  structural and legal files cannot be removed. Other folder collections allow
+  delete. Each folder collection also exposes **Visible / Hidden** `view_filters`
+  built on the `published` field so editors can see what the next build will
+  include.
 - Production for this repo is Netlify site `zippy-kitten-7cad33`. The custom
   domain `electroserves.co.tz` is the intended primary host once DNS + TLS
   are connected in Domain management; until then `SITE_URL` and Decap
