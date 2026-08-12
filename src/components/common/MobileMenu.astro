@@ -44,7 +44,7 @@ const phoneHref = settings.phoneHref();
                                     : 'text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900',
                             ]}
                             aria-current={link.active ? 'page' : undefined}
-                            x-on:click="mobileOpen = false"
+                            x-on:click="closeMobileMenu()"
                         >{link.label}</a>
                     </li>
                 ))
@@ -53,7 +53,7 @@ const phoneHref = settings.phoneHref();
     </nav>
 
     <div class="px-3 pt-2">
-        <a href="/contact" class="inline-flex min-h-touch w-full items-center justify-center gap-2 rounded-md bg-primary-800 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
+        <a href="/contact" x-on:click="closeMobileMenu()" class="inline-flex min-h-touch w-full items-center justify-center gap-2 rounded-md bg-primary-800 px-6 py-2.5 text-sm font-semibold text-white shadow-sm transition-colors hover:bg-primary-900 active:bg-primary-950 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary-600 focus-visible:ring-offset-2">
             {t('common.cta.get_quote')}
         </a>
     </div>
@@ -63,6 +63,7 @@ const phoneHref = settings.phoneHref();
             <div class="px-3 pt-3">
                 <a
                     href={phoneHref}
+                    x-on:click="closeMobileMenu()"
                     class="flex min-h-touch items-center gap-2 rounded-md px-1 text-sm font-medium text-neutral-700 hover:text-primary-800"
                 >
                     <svg class="h-5 w-5 shrink-0 text-primary-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">

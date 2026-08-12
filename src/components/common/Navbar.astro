@@ -30,9 +30,32 @@ const homeActive = isActive('/');
 const logo = settings.logo;
 ---
 <header
-    x-data="{ scrolled: false, mobileOpen: false }"
+    x-data="{
+        scrolled: false,
+        mobileOpen: false,
+        closeMobileMenu() {
+            this.mobileOpen = false;
+            // x-trap.noscroll normally restores this, but release it before an
+            // MPA navigation and when a page is restored from bfcache.
+            document.body.style.overflow = '';
+        },
+        resetMobileMenu() {
+            this.closeMobileMenu();
+        },
+        closeOnLargeScreen() {
+            if (window.innerWidth >= 1024) this.closeMobileMenu();
+        },
+        init() {
+            // Alpine can be restored with the DOM by the browser's bfcache.
+            // Never carry the old menu/scroll-lock state into a page view.
+            this.resetMobileMenu();
+        },
+    }"
     x-on:scroll.window="scrolled = window.scrollY > 8"
-    x-on:keydown.escape.window="mobileOpen = false"
+    x-on:keydown.escape.window="closeMobileMenu()"
+    x-on:resize.window="closeOnLargeScreen()"
+    x-on:orientationchange.window="closeOnLargeScreen()"
+    x-on:pageshow.window="resetMobileMenu()"
     class="sticky top-0 z-50 bg-white transition-shadow duration-200"
     :class="scrolled ? 'shadow-md' : 'shadow-sm'"
 >
