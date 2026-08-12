@@ -146,6 +146,25 @@ function toFeatureStrings(features: Array<{ feature?: string } | string>): strin
     return features.map((f) => (typeof f === 'string' ? f : f.feature || '')).filter(Boolean);
 }
 
+/** True when CMS/media frontmatter holds a real path (not "" / whitespace). */
+export function hasMediaSrc(src?: string): boolean {
+    return Boolean(src && src.trim() !== '');
+}
+
+export interface GalleryItem {
+    image?: string;
+    caption?: string;
+}
+
+function toGalleryItems(gallery: Array<{ image?: string; caption?: string }>): GalleryItem[] {
+    return gallery
+        .map((item) => ({
+            image: hasMediaSrc(item?.image) ? item.image : undefined,
+            caption: item?.caption?.trim() ? item.caption.trim() : undefined,
+        }))
+        .filter((item) => item.image || item.caption);
+}
+
 // ---------------------------------------------------------------------------
 // Public content types
 // ---------------------------------------------------------------------------
@@ -218,7 +237,7 @@ export interface Project {
     categoryLabel: string;
     shortDescription: string;
     featuredImage?: string;
-    gallery: Array<{ image?: string; caption?: string }>;
+    gallery: GalleryItem[];
     clientName?: string;
     location?: string;
     completionDate: Date | null;
@@ -561,8 +580,8 @@ export function projects(): Project[] {
             category: categoryKey,
             categoryLabel: label,
             shortDescription: d.short_description,
-            featuredImage: d.featured_image || undefined,
-            gallery: d.gallery || [],
+            featuredImage: hasMediaSrc(d.featured_image) ? d.featured_image : undefined,
+            gallery: toGalleryItems(d.gallery || []),
             clientName: d.client_name || undefined,
             location: d.location || undefined,
             completionDate,

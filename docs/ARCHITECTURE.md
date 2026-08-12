@@ -200,6 +200,8 @@ Uploaded media is committed to `public/uploads/` (`media_folder`) and served at
   entries match `src/lib/content.ts` (`*.yml` globs). Markdown collections
   set `extension: md` and `format: frontmatter`.
 - `site_url` / `display_url` are the **only** hosts Decap “View live” opens.
+  Collection `preview_path` values (e.g. `projects/{{fields.slug}}`) build the
+  per-entry View URL on that host — HTTPS, no trailing slash.
   They must match the Netlify primary domain that actually serves this site.
   They are **not** inferred from the `/admin` tab’s hostname. See
   [`NEXT-SESSION-CONTENT-NOT-LIVE.md`](NEXT-SESSION-CONTENT-NOT-LIVE.md).

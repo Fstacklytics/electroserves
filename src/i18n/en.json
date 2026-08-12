@@ -307,6 +307,7 @@
       "services_used": "Services used",
       "gallery": "Project gallery",
       "gallery_empty": "No additional photographs were published for this project.",
+      "highlights": "Project highlights",
       "related": "Similar projects",
       "no_description": "A written case study for this project is on its way.",
       "view_image": "View larger image: {caption}",

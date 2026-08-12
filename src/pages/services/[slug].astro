@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { t } from '../../lib/i18n';
-import { services, projects, getService, type Service } from '../../lib/content';
+import { services, projects, getService, hasMediaSrc } from '../../lib/content';
 import { renderMarkdown } from '../../lib/markdown';
 import { resolveSeo, breadcrumbSchema, toJsonLd, organizationSchema } from '../../lib/seo';
 import Breadcrumb from '../../components/common/Breadcrumb.astro';
@@ -60,7 +60,7 @@ const seo = resolveSeo(url, {
     <article>
         <header class="bg-neutral-50 pb-12">
             <div class="container-page">
-                <div class="grid items-center gap-10 lg:grid-cols-2">
+                <div class:list={['grid items-center gap-10', hasMediaSrc(service.image) && 'lg:grid-cols-2']}>
                     <div>
                         <Badge variant="primary">{service.categoryLabel}</Badge>
                         <h1 class="mt-3 text-3xl font-bold tracking-tight text-neutral-900 sm:text-4xl">{service.title}</h1>
@@ -82,9 +82,13 @@ const seo = resolveSeo(url, {
                         </div>
                     </div>
 
-                    <div>
-                        <Media src={service.image} alt={service.title} width={720} height={540} eager class="w-full rounded-lg object-cover shadow-md" />
-                    </div>
+                    {
+                        hasMediaSrc(service.image) && (
+                            <div>
+                                <Media src={service.image} alt={service.title} width={720} height={540} eager class="w-full rounded-lg object-cover shadow-md" />
+                            </div>
+                        )
+                    }
                 </div>
             </div>
         </header>

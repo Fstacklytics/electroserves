@@ -38,6 +38,12 @@ In `public/admin/config.yml`, Decap’s **View live** / site link uses
 `site_url` and `display_url`. It does **not** use the browser’s current host
 and does **not** use “whatever `*.netlify.app` you opened `/admin` on”.
 
+Per-entry **View** (a published project, service, blog post, or page) appends
+that collection’s `preview_path` — for example
+`projects/{{fields.slug}}` →
+`https://zippy-kitten-7cad33.netlify.app/projects/kariakoo-retail-fitout`
+(HTTPS, no trailing slash). Use that URL, not `http://…/projects/…/`.
+
 | Host | Role (2026-08-12) |
 |---|---|
 | `https://zippy-kitten-7cad33.netlify.app` | Working production host for this repo (Netlify site `zippy-kitten-7cad33`) |
@@ -155,6 +161,8 @@ in the CMS.
 | `extension: md` + `format: frontmatter` on services, projects, blog, pages | Explicit; prevents the inverse mistake |
 | YAML loaders also accept `*.md` frontmatter as a fallback (with a `[content:warn]`) | In-flight editorial `.md` files still render |
 | Decap `site_url` / `display_url` + `SITE_URL` + robots sitemap → Netlify subdomain | View live and canonicals match a host that exists |
+| Collection `preview_path` (e.g. `projects/{{fields.slug}}`) | Per-entry View is HTTPS and has no trailing slash |
+| Empty featured/gallery images no longer render photo frames | Caption-only items (e.g. “Roof-mounted array…”) show as highlights |
 
 Unchanged on purpose: `publish_mode: editorial_workflow`, `media_folder` /
 `public_folder`, public CSP, admin `blob:` allowlist (PR #17).

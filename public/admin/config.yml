@@ -103,6 +103,7 @@ collections:
     label: "Hero Slides"
     folder: "content/hero"
     create: true
+    preview_path: ""
     # Required: the build only loads content/hero/*.yml. Without these Decap
     # defaults to Markdown and publishes *.md files the loader never sees.
     extension: "yml"
@@ -129,6 +130,7 @@ collections:
     create: true
     extension: "md"
     format: "frontmatter"
+    preview_path: "services/{{fields.slug}}"
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
@@ -158,6 +160,7 @@ collections:
     create: true
     extension: "md"
     format: "frontmatter"
+    preview_path: "projects/{{fields.slug}}"
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
@@ -198,6 +201,7 @@ collections:
     create: true
     extension: "md"
     format: "frontmatter"
+    preview_path: "blog/{{fields.slug}}"
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     identifier_field: "title"
     fields:
@@ -289,6 +293,7 @@ collections:
     create: true
     extension: "md"
     format: "frontmatter"
+    preview_path: "{{fields.slug}}"
     slug: "{{slug}}"
     identifier_field: "title"
     filter: { field: "layout", value: "page" }
