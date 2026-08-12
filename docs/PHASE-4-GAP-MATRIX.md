@@ -1,5 +1,18 @@
 # Phase 4 — Gap Matrix (audit before implementation)
 
+> ⚠️ **Historical / superseded — not current operating documentation.**
+> This document records the retired **Laravel 11 / Nginx + PHP-FPM 8.3 / Ubuntu**
+> design and its implementation phases. That runtime has been replaced by a
+> **fully static Astro site deployed to Netlify (Path B)** — the code,
+> directories, build/test commands, env vars, caches, middleware and
+> deployment runbooks described below **no longer exist and must not be used**.
+> For the current system see **[`docs/ARCHITECTURE.md`](ARCHITECTURE.md)** and
+> [`docs/DEPLOY-NETLIFY-PATH-B.md`](DEPLOY-NETLIFY-PATH-B.md). This file is
+> retained only as a historical design record.
+
+---
+
+
 Audit performed against the repository as it stood at the end of Phase 3
 (369 tests / 1,297 assertions, production CSS+JS 148,144 bytes pre-gzip).
 

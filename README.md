@@ -18,14 +18,16 @@
 | Content Storage | Markdown + YAML files in Git (`content/`) |
 | Content validation | zod at the build-time boundary (`src/content/config.ts`) |
 | Forms | Netlify Forms + honeypot |
-| Build Tool | Astro / Vite (`astro.config.mjs`, `postcss.config.mjs`) |
-| CI/CD | GitHub Actions → Netlify |
-| Deployment | Netlify static (`netlify.toml`) |
+| Build Tool | Astro / Vite (`astro.config.mjs`, `postcss.config.mjs`) — assets in `dist/_assets/` |
+| CI | GitHub Actions (`.github/workflows/ci.yml`: `npm ci`, lint CSS/JS, build) |
+| Deployment | Netlify static (free **Starter** plan; `netlify.toml`) |
 | Database | None (file-based content) |
 
 > This is **Path B** — the previous Laravel / Nginx + PHP-FPM runtime is removed.
-> See `docs/DEPLOY-NETLIFY-PATH-B.md` for the trade-offs and
-> `docs/DEPLOY-VERCEL-ASSESSMENT.md` for why Vercel was assessed and not chosen.
+> **Start with [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** for the canonical
+> description of the deployed stack. See `docs/DEPLOY-NETLIFY-PATH-B.md` for the
+> migration trade-offs and `docs/DEPLOY-VERCEL-ASSESSMENT.md` (historical) for
+> why Vercel was assessed against the old codebase and not chosen.
 
 ---
 
@@ -59,12 +61,21 @@ npm run preview    # preview the built site
 
 ### Decap CMS locally
 
+`public/admin/config.yml` sets `local_backend: true`, so the CMS can write to
+the local filesystem through the Netlify CLI proxy:
+
 ```bash
-npx netlify dev    # serves the site + the /admin local backend proxy
+npm install -g netlify-cli   # one-time
+npm run build
+netlify dev                  # http://localhost:8888 → open /admin
 ```
 
-Open `http://localhost:8888/admin`. On the deployed site, enable **Identity →
-Git Gateway** in Netlify and invite editors; they log in at `/admin`.
+On the deployed site, an administrator enables **Identity → Git Gateway** in
+the Netlify dashboard and invites editors; editors sign in at `/admin` with
+Netlify Identity (up to 5 editors on the free Starter plan). Invitation and
+confirmation emails link to the homepage, where the Identity widget processes
+the token and redirects to `/admin/`. Saving content in the CMS opens a PR
+(editorial workflow); merging to `main` triggers the Netlify build.
 
 ---
 
@@ -142,7 +153,19 @@ fallback empty state rather than failing — see `src/lib/content.ts`.
 
 ## Documentation
 
-See `docs/` — in particular `docs/DEPLOY-NETLIFY-PATH-B.md` (deployment /
-trade-offs) and `docs/phase-0/07-technology-decision-log.md` (decision record).
+- **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical description of
+  the current Path B stack (rendering, content collections, CMS/Identity,
+  forms, CSP, deployment, what lives in the repo vs. the Netlify dashboard).
+- [`docs/DEPLOY-NETLIFY-PATH-B.md`](docs/DEPLOY-NETLIFY-PATH-B.md) — migration
+  to Netlify and the trade-offs versus the retired VPS deployment.
+- [`docs/phase-0/07-technology-decision-log.md`](docs/phase-0/07-technology-decision-log.md)
+  — current technology decision record (revised for Path B).
 
-*Last updated: 2026-08-11*
+Files under `docs/PHASE-*.md`, `docs/IMPLEMENTATION-PROMPT.md`,
+`docs/NEXT-SESSION-PROMPT.md`, most of `docs/phase-0/`, and
+`docs/architecture-diagram.svg` are **historical records of the retired
+Laravel/Nginx design** and are marked as superseded. Do not follow their
+commands as current instructions; see the "Historical documents" section of
+`docs/ARCHITECTURE.md`.
+
+*Last updated: 2026-08-12*
