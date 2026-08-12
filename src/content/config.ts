@@ -10,8 +10,9 @@ import { z } from 'zod';
  * never a 500 in the browser).
  *
  * Fields follow the Decap CMS collection definitions in
- * docs/phase-0/10-decap-cms-config.yml so that what the CMS writes always
- * round-trips through these schemas.
+ * public/admin/config.yml so that what the CMS writes always
+ * round-trips through these schemas. YAML folder collections there must
+ * set extension: yml / format: yml (see docs/NEXT-SESSION-CONTENT-NOT-LIVE.md).
  */
 
 /** An empty string means "not set" (the CMS writes "" for absent images). */

@@ -74,8 +74,32 @@ On the deployed site, an administrator enables **Identity → Git Gateway** in
 the Netlify dashboard and invites editors; editors sign in at `/admin` with
 Netlify Identity (up to 5 editors on the free Starter plan). Invitation and
 confirmation emails link to the homepage, where the Identity widget processes
-the token and redirects to `/admin/`. Saving content in the CMS opens a PR
-(editorial workflow); merging to `main` triggers the Netlify build.
+the token and redirects to `/admin/`.
+
+### Publishing (Save → Ready → Publish → deploy)
+
+The public HTML is built **once per deploy** from `content/`. Decap does not
+update the live page by itself.
+
+1. **Save** — writes a draft on a `cms/*` branch (editorial workflow).
+2. **Ready** — editorial status only; still not on `main`.
+3. **Publish** — merges the PR to `main`.
+4. **Wait for Netlify Production** — Site → Deploys → the commit SHA must be
+   **Published** (green). Then hard-refresh the **primary** URL.
+
+Decap **View live** always opens `site_url` / `display_url` in
+`public/admin/config.yml`. It is not “whatever host you opened `/admin` on”.
+Today those point at `https://zippy-kitten-7cad33.netlify.app` because
+`electroserves.co.tz` has no public DNS yet. Switch them (and `SITE_URL`)
+to the custom domain only after Netlify Domain management shows the domain
+as primary with TLS issued.
+
+YAML collections (hero, testimonials, team, FAQs) must stay `*.yml`. The CMS
+config sets `extension: yml` / `format: yml` so Publish cannot write a
+`.md` file the build will ignore.
+
+Full checklist and the 2026-08-12 incident write-up:
+[`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md`](docs/NEXT-SESSION-CONTENT-NOT-LIVE.md).
 
 ---
 
@@ -156,6 +180,9 @@ fallback empty state rather than failing — see `src/lib/content.ts`.
 - **[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md)** — canonical description of
   the current Path B stack (rendering, content collections, CMS/Identity,
   forms, CSP, deployment, what lives in the repo vs. the Netlify dashboard).
+- [`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md`](docs/NEXT-SESSION-CONTENT-NOT-LIVE.md)
+  — Save vs Publish vs production deploy, View live / `site_url`, custom
+  domain vs `*.netlify.app`, and why a YAML entry saved as `.md` never renders.
 - [`docs/DEPLOY-NETLIFY-PATH-B.md`](docs/DEPLOY-NETLIFY-PATH-B.md) — migration
   to Netlify and the trade-offs versus the retired VPS deployment.
 - [`docs/phase-0/07-technology-decision-log.md`](docs/phase-0/07-technology-decision-log.md)

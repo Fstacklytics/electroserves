@@ -146,6 +146,25 @@ function toFeatureStrings(features: Array<{ feature?: string } | string>): strin
     return features.map((f) => (typeof f === 'string' ? f : f.feature || '')).filter(Boolean);
 }
 
+/** True when CMS/media frontmatter holds a real path (not "" / whitespace). */
+export function hasMediaSrc(src?: string): boolean {
+    return Boolean(src && src.trim() !== '');
+}
+
+export interface GalleryItem {
+    image?: string;
+    caption?: string;
+}
+
+function toGalleryItems(gallery: Array<{ image?: string; caption?: string }>): GalleryItem[] {
+    return gallery
+        .map((item) => ({
+            image: hasMediaSrc(item?.image) ? item.image : undefined,
+            caption: item?.caption?.trim() ? item.caption.trim() : undefined,
+        }))
+        .filter((item) => item.image || item.caption);
+}
+
 // ---------------------------------------------------------------------------
 // Public content types
 // ---------------------------------------------------------------------------
@@ -218,7 +237,7 @@ export interface Project {
     categoryLabel: string;
     shortDescription: string;
     featuredImage?: string;
-    gallery: Array<{ image?: string; caption?: string }>;
+    gallery: GalleryItem[];
     clientName?: string;
     location?: string;
     completionDate: Date | null;
@@ -420,6 +439,45 @@ function loadMarkdownCollection<T>(files: Record<string, string>, schema: any, m
     return items;
 }
 
+/**
+ * YAML collections are authored as `*.yml`. Decap defaults to Markdown when
+ * `extension` / `format` are omitted, so a published entry can land as `*.md`
+ * with YAML frontmatter and never match the `*.yml` glob (PR #18 did exactly
+ * that for hero slides). Merge both; convert Markdown frontmatter into a YAML
+ * document so the existing parser / schema path stays single.
+ */
+function yamlCollectionSources(
+    ymlFiles: Record<string, string>,
+    mdFiles: Record<string, string>,
+    name: string,
+): Record<string, string> {
+    const files: Record<string, string> = { ...ymlFiles };
+
+    for (const [path, raw] of Object.entries(mdFiles)) {
+        const sibling = path.replace(/\.md$/i, '.yml');
+        if (Object.prototype.hasOwnProperty.call(files, sibling)) {
+            log('warn', `${name}: skipping ${path} because ${sibling} already exists`);
+            continue;
+        }
+
+        log(
+            'warn',
+            `${name}: ${path} is Markdown; this collection is YAML. ` +
+                'Set extension: yml and format: yml in public/admin/config.yml. ' +
+                'Parsing frontmatter as a fallback.',
+        );
+
+        try {
+            const parsed = matter(raw as string);
+            files[path] = YAML.stringify(parsed.data ?? {});
+        } catch (error) {
+            log('error', `${name}: could not parse ${path} — ${String(error)}`);
+        }
+    }
+
+    return files;
+}
+
 function loadYamlCollection<T>(files: Record<string, string>, schema: any, map: (data: any) => T, sort?: (a: T, b: T) => number, name: string): T[] {
     const items: T[] = [];
 
@@ -449,11 +507,19 @@ function loadYamlCollection<T>(files: Record<string, string>, schema: any, map: 
 const byOrder = (a: any, b: any) => (a.order ?? 0) - (b.order ?? 0);
 
 export function heroSlides(): HeroSlide[] {
-    const files = import.meta.glob('../../content/hero/*.yml', {
-        query: '?raw',
-        import: 'default',
-        eager: true,
-    });
+    const files = yamlCollectionSources(
+        import.meta.glob('../../content/hero/*.yml', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        import.meta.glob('../../content/hero/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        'hero',
+    );
 
     return loadYamlCollection<HeroSlide>(files, heroSlideSchema, (d) => {
         const slide: HeroSlide = {
@@ -514,8 +580,8 @@ export function projects(): Project[] {
             category: categoryKey,
             categoryLabel: label,
             shortDescription: d.short_description,
-            featuredImage: d.featured_image || undefined,
-            gallery: d.gallery || [],
+            featuredImage: hasMediaSrc(d.featured_image) ? d.featured_image : undefined,
+            gallery: toGalleryItems(d.gallery || []),
             clientName: d.client_name || undefined,
             location: d.location || undefined,
             completionDate,
@@ -558,11 +624,19 @@ export function blogPosts(): BlogPost[] {
 }
 
 export function testimonials(): Testimonial[] {
-    const files = import.meta.glob('../../content/testimonials/*.yml', {
-        query: '?raw',
-        import: 'default',
-        eager: true,
-    });
+    const files = yamlCollectionSources(
+        import.meta.glob('../../content/testimonials/*.yml', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        import.meta.glob('../../content/testimonials/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        'testimonials',
+    );
 
     return loadYamlCollection<Testimonial>(files, testimonialSchema, (d) => ({
         clientName: d.client_name,
@@ -578,11 +652,19 @@ export function testimonials(): Testimonial[] {
 }
 
 export function teamMembers(): TeamMember[] {
-    const files = import.meta.glob('../../content/team/*.yml', {
-        query: '?raw',
-        import: 'default',
-        eager: true,
-    });
+    const files = yamlCollectionSources(
+        import.meta.glob('../../content/team/*.yml', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        import.meta.glob('../../content/team/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        'team',
+    );
 
     return loadYamlCollection<TeamMember>(files, teamMemberSchema, (d) => ({
         name: d.name,
@@ -596,11 +678,19 @@ export function teamMembers(): TeamMember[] {
 }
 
 export function faqs(): Faq[] {
-    const files = import.meta.glob('../../content/faqs/*.yml', {
-        query: '?raw',
-        import: 'default',
-        eager: true,
-    });
+    const files = yamlCollectionSources(
+        import.meta.glob('../../content/faqs/*.yml', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        import.meta.glob('../../content/faqs/*.md', {
+            query: '?raw',
+            import: 'default',
+            eager: true,
+        }) as Record<string, string>,
+        'faqs',
+    );
 
     return loadYamlCollection<Faq>(files, faqSchema, (d) => ({
         question: d.question,

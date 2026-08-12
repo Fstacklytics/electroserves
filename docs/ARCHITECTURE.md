@@ -123,6 +123,12 @@ uses the `git-gateway` backend against `main` with
   each file against the zod schemas in `src/content/config.ts`, and supplies
   typed collections to pages. A malformed/missing-required-field file is logged
   and skipped — it produces an empty state, never a build failure or a 500.
+  YAML collections (`hero`, `testimonials`, `team`, `faqs`) are globbed as
+  `*.yml`. Decap must set `extension: yml` and `format: yml` on those folders
+  or it will publish `*.md` files the loader never sees (that is what happened
+  to the first CMS hero in PR #18). The loader also accepts a `*.md`
+  frontmatter fallback and logs `[content:warn]`. See
+  [`NEXT-SESSION-CONTENT-NOT-LIVE.md`](NEXT-SESSION-CONTENT-NOT-LIVE.md).
 - Markdown bodies are rendered by Astro's markdown pipeline with
   `rehype-sanitize`, so raw HTML in content is stripped rather than executed.
 - Client JS is Alpine only. `src/layouts/Base.astro` loads it through a hoisted
@@ -144,12 +150,12 @@ shape is defined twice (deliberately): for editors in
 | Collection | Path | Format | Used by |
 |---|---|---|---|
 | Settings (site + SEO) | `content/settings/{site,seo}.yml` | YAML, single-file | layout/head, contact, footer |
-| Hero slides | `content/hero/*.yml` | YAML | homepage |
+| Hero slides | `content/hero/*.yml` | YAML (`extension: yml`) | homepage |
 | Services | `content/services/*.md` | Markdown + frontmatter | `/services`, `/services/[slug]` |
 | Projects | `content/projects/*.md` | Markdown + frontmatter | `/projects`, `/projects/[slug]` |
 | Blog posts | `content/blog/YYYY-MM-DD-slug.md` | Markdown + frontmatter | `/blog`, `/blog/[slug]` |
-| Testimonials | `content/testimonials/*.yml` | YAML | homepage, `/testimonials` |
-| Team | `content/team/*.yml` | YAML | `/about` |
+| Testimonials | `content/testimonials/*.yml` | YAML (`extension: yml`) | homepage, `/testimonials` |
+| Team | `content/team/*.yml` | YAML (`extension: yml`) | `/about` |
 | FAQs | `content/faqs/*.yml` | YAML (answer is Markdown) | `/faq` |
 | Static pages | `content/pages/{about,privacy-policy,terms}.md` | Markdown + frontmatter | `/about`, legal pages |
 
@@ -190,10 +196,24 @@ Uploaded media is committed to `public/uploads/` (`media_folder`) and served at
   widget, with a visible fallback message if the CDN bundle fails to load.
 - Backend in `public/admin/config.yml`: `name: git-gateway`, `branch: main`,
   `publish_mode: editorial_workflow`.
-- An editor saving a change commits it to a branch and opens a pull request
-  (custom commit messages: `content(create|update|delete): …`). Merging to
-  `main` triggers the Netlify build; the live site updates when that build
-  completes (content is static, so edits are not instant at request time).
+- YAML folder collections set `extension: yml` and `format: yml` so new
+  entries match `src/lib/content.ts` (`*.yml` globs). Markdown collections
+  set `extension: md` and `format: frontmatter`.
+- `site_url` / `display_url` are the **only** hosts Decap “View live” opens.
+  Collection `preview_path` values (e.g. `projects/{{fields.slug}}`) build the
+  per-entry View URL on that host — HTTPS, no trailing slash.
+  They must match the Netlify primary domain that actually serves this site.
+  They are **not** inferred from the `/admin` tab’s hostname. See
+  [`NEXT-SESSION-CONTENT-NOT-LIVE.md`](NEXT-SESSION-CONTENT-NOT-LIVE.md).
+- An editor **Save**s a change to a `cms/*` branch and a pull request
+  (custom commit messages: `content(create|update|delete): …`). **Ready** is
+  editorial status only. **Publish** merges to `main`. Merging triggers the
+  Netlify **Production** build; the live site updates when that build is
+  **Published** (content is static, so edits are not instant at request time).
+- Production for this repo is Netlify site `zippy-kitten-7cad33`. The custom
+  domain `electroserves.co.tz` is the intended primary host once DNS + TLS
+  are connected in Domain management; until then `SITE_URL` and Decap
+  `site_url` point at `https://zippy-kitten-7cad33.netlify.app`.
 
 ---
 
@@ -284,7 +304,7 @@ Immutable hashed assets under `/_assets/*` get the one-year cache header.
 | Enable/disable Identity, invite/remove editors, reset passwords | Netlify dashboard |
 | Enable Git Gateway, connect the repository | Netlify dashboard (one-time) |
 | Form notification email address, spam settings | Netlify dashboard |
-| Custom domain, TLS, deploy context / split testing | Netlify dashboard |
+| Custom domain, TLS, primary domain, visitor access / team protection | Netlify dashboard |
 | Identity email templates | Netlify dashboard (out of scope for repo changes) |
 | Billing / plan selection | Netlify dashboard (do not change — remains Starter) |
 
@@ -311,3 +331,5 @@ follow their commands as current instructions:
 `docs/phase-0/07-technology-decision-log.md` has been revised to describe Path B
 and should be treated as current for stack decisions. `docs/DEPLOY-NETLIFY-PATH-B.md`
 is the current deployment/trade-off record alongside this file.
+`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md` is the current CMS publishing /
+domain / View-live runbook.

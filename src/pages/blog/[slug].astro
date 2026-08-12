@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { t } from '../../lib/i18n';
-import { blogPosts, getBlogPost } from '../../lib/content';
+import { blogPosts, getBlogPost, hasMediaSrc } from '../../lib/content';
 import { renderMarkdown } from '../../lib/markdown';
 import { resolveSeo, breadcrumbSchema, organizationSchema } from '../../lib/seo';
 import Breadcrumb from '../../components/common/Breadcrumb.astro';
@@ -79,9 +79,13 @@ const seo = resolveSeo(url, {
                 </p>
             </header>
 
-            <div class="mx-auto mt-8 max-w-4xl">
-                <Media src={post.featuredImage} alt={post.title} width={1280} height={720} eager class="aspect-[16/9] w-full rounded-lg object-cover shadow-md" />
-            </div>
+            {
+                hasMediaSrc(post.featuredImage) && (
+                    <div class="mx-auto mt-8 max-w-4xl">
+                        <Media src={post.featuredImage} alt={post.title} width={1280} height={720} eager class="aspect-[16/9] w-full rounded-lg object-cover shadow-md" />
+                    </div>
+                )
+            }
 
             <div class="mt-10 grid gap-10 lg:grid-cols-4">
                 {

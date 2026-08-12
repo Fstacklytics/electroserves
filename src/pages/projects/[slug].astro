@@ -1,7 +1,7 @@
 ---
 import Base from '../../layouts/Base.astro';
 import { t } from '../../lib/i18n';
-import { projects, getProject, services } from '../../lib/content';
+import { projects, getProject, services, hasMediaSrc } from '../../lib/content';
 import { renderMarkdown } from '../../lib/markdown';
 import { resolveSeo, breadcrumbSchema, organizationSchema } from '../../lib/seo';
 import Breadcrumb from '../../components/common/Breadcrumb.astro';
@@ -29,7 +29,8 @@ const allProjects = projects();
 const allServices = services();
 const linkedServices = allServices.filter((s) => project.servicesUsed.includes(s.slug));
 const relatedProjects = allProjects.filter((p) => p.slug !== project.slug && p.category === project.category).slice(0, 3);
-const gallery = project.gallery;
+const galleryPhotos = project.gallery.filter((item) => hasMediaSrc(item.image));
+const galleryNotes = project.gallery.filter((item) => !hasMediaSrc(item.image) && item.caption);
 
 const breadcrumbs = [
     { label: t('common.nav.home'), url: '/' },
@@ -69,9 +70,13 @@ const seo = resolveSeo(url, {
             </div>
         </header>
 
-        <div class="container-page -mt-2">
-            <Media src={project.featuredImage} alt={project.title} width={1280} height={720} eager class="aspect-[16/9] w-full rounded-lg object-cover shadow-md" />
-        </div>
+        {
+            hasMediaSrc(project.featuredImage) && (
+                <div class="container-page -mt-2">
+                    <Media src={project.featuredImage} alt={project.title} width={1280} height={720} eager class="aspect-[16/9] w-full rounded-lg object-cover shadow-md" />
+                </div>
+            )
+        }
 
         <div class="section-spacing">
             <div class="container-page">
@@ -85,25 +90,21 @@ const seo = resolveSeo(url, {
                             )
                         }
 
-                        <section class="mt-12" aria-labelledby="gallery-heading">
-                            <h2 id="gallery-heading" class="text-xl font-bold text-neutral-900">{t('projects.show.gallery')}</h2>
+                        {
+                            galleryPhotos.length > 0 && (
+                                <section class="mt-12" aria-labelledby="gallery-heading">
+                                    <h2 id="gallery-heading" class="text-xl font-bold text-neutral-900">{t('projects.show.gallery')}</h2>
 
-                            {
-                                gallery.length === 0 ? (
-                                    <div class="mt-4">
-                                        <EmptyState message={t('projects.show.gallery_empty')} icon={false} />
-                                    </div>
-                                ) : (
-                                    <div x-data={`lightbox({ total: ${gallery.length} })`} class="mt-4">
+                                    <div x-data={`lightbox({ total: ${galleryPhotos.length} })`} class="mt-4">
                                         <ul role="list" class="grid grid-cols-2 gap-4 sm:grid-cols-3">
                                             {
-                                                gallery.map((item, index) => (
+                                                galleryPhotos.map((item, index) => (
                                                     <li>
                                                         <button type="button" x-on:click={`show(${index})`} class="group block w-full overflow-hidden rounded-lg border border-neutral-200">
                                                             <span class="sr-only">{t('projects.show.view_image', { caption: item.caption ?? project.title })}</span>
                                                             <Media src={item.image} alt="" width={480} height={360} class="aspect-[4/3] w-full object-cover transition-transform duration-200 group-hover:scale-105" />
                                                         </button>
-                                                        {item.caption && <p class="mt-1.5 text-xs text-neutral-500">{item.caption}</p>}
+                                                        {item.caption && <p class="mt-1.5 text-xs leading-relaxed text-neutral-600">{item.caption}</p>}
                                                     </li>
                                                 ))
                                             }
@@ -129,7 +130,7 @@ const seo = resolveSeo(url, {
                                             </button>
 
                                             {
-                                                gallery.length > 1 && (
+                                                galleryPhotos.length > 1 && (
                                                     <>
                                                         <button type="button" x-on:click="previous()" class="absolute left-2 touch-target rounded-full bg-white/10 text-white hover:bg-white/20 focus-visible:ring-white focus-visible:ring-offset-neutral-950 sm:left-6">
                                                             <span class="sr-only">{t('projects.show.previous_image')}</span>
@@ -149,7 +150,7 @@ const seo = resolveSeo(url, {
 
                                             <figure class="max-h-full w-full max-w-4xl">
                                                 {
-                                                    gallery.map((item, index) => (
+                                                    galleryPhotos.map((item, index) => (
                                                         <div x-show={`isActive(${index})`} x-cloak={index > 0 ? true : undefined}>
                                                             <Media src={item.image} alt={item.caption ?? project.title} width={1280} height={960} class="mx-auto max-h-[75vh] w-auto rounded-lg object-contain" />
                                                             {item.caption && <figcaption class="mt-3 text-center text-sm text-neutral-300">{item.caption}</figcaption>}
@@ -157,14 +158,34 @@ const seo = resolveSeo(url, {
                                                     ))
                                                 }
                                                 <p class="mt-2 text-center text-xs text-neutral-400" aria-live="polite">
-                                                    <span x-text="current + 1"></span> / {gallery.length}
+                                                    <span x-text="current + 1"></span> / {galleryPhotos.length}
                                                 </p>
                                             </figure>
                                         </div>
                                     </div>
-                                )
-                            }
-                        </section>
+                                </section>
+                            )
+                        }
+
+                        {
+                            galleryNotes.length > 0 && (
+                                <section class="mt-12" aria-labelledby="highlights-heading">
+                                    <h2 id="highlights-heading" class="text-xl font-bold text-neutral-900">{t('projects.show.highlights')}</h2>
+                                    <ul role="list" class="mt-4 space-y-3">
+                                        {
+                                            galleryNotes.map((item) => (
+                                                <li class="flex items-start gap-3 rounded-lg border border-neutral-200 bg-neutral-50 px-4 py-3">
+                                                    <svg class="mt-0.5 h-5 w-5 shrink-0 text-primary-700" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
+                                                        <path fill-rule="evenodd" d="M16.403 12.652a3 3 0 0 0 0-5.304 3 3 0 0 0-3.75-3.751 3 3 0 0 0-5.305 0 3 3 0 0 0-3.751 3.75 3 3 0 0 0 0 5.305 3 3 0 0 0 3.75 3.751 3 3 0 0 0 5.305 0 3 3 0 0 0 3.751-3.75Zm-2.546-4.46a.75.75 0 0 0-1.214-.883l-3.483 4.79-1.88-1.88a.75.75 0 1 0-1.06 1.061l2.5 2.5a.75.75 0 0 0 1.137-.089l4-5.5Z" clip-rule="evenodd" />
+                                                    </svg>
+                                                    <p class="text-sm leading-relaxed text-neutral-700">{item.caption}</p>
+                                                </li>
+                                            ))
+                                        }
+                                    </ul>
+                                </section>
+                            )
+                        }
                     </div>
 
                     <aside class="lg:col-span-1">
