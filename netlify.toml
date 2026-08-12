@@ -40,11 +40,18 @@
 # reports "Error loading the CMS configuration / EvalError". The public-site
 # CSP above stays without 'unsafe-eval'.
 #
+# blob: is required on img-src and connect-src so Decap can preview and process
+# local file selections before the Git Gateway media upload. Without it the
+# admin UI fails with "Failed to persist entry: TypeError: Failed to fetch"
+# and CSP violations on blob: image/fetch URLs — before any upload request is
+# sent. connect-src also allows unpkg (source maps for the pinned Decap
+# bundle) and www.netlifystatus.com (Netlify Identity status checks).
+#
 # Cover both /admin (trailingSlash: never) and /admin/* (index.html, config.yml).
 [[headers]]
   for = "/admin"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://identity.netlify.com https://unpkg.com https://www.netlifystatus.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
@@ -52,7 +59,7 @@
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self' https://identity.netlify.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://identity.netlify.com https://unpkg.com https://www.netlifystatus.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
