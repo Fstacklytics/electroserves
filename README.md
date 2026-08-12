@@ -189,6 +189,10 @@ fallback empty state rather than failing — see `src/lib/content.ts`.
 - [`docs/CMS.md`](docs/CMS.md) — editor runbook: Sign in, Create/Edit, Show
   (Published = On), Hide (Published = Off), Delete (except Settings/legal
   Pages), Upload image, View live host, and wait-for-green Production deploy.
+- [`docs/CMS-USER-GUIDE.md`](docs/CMS-USER-GUIDE.md) — **plain-language guide
+  for non-technical editors**: collections overview, adding/editing content,
+  the Published show/hide switch, uploading many images (hero carousel +
+  project gallery), deleting, and when changes appear.
 - [`docs/NEXT-SESSION-CONTENT-NOT-LIVE.md`](docs/NEXT-SESSION-CONTENT-NOT-LIVE.md)
   — Save vs Publish vs production deploy, View live / `site_url`, custom
   domain vs `*.netlify.app`, and why a YAML entry saved as `.md` never renders.

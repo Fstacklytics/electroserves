@@ -124,7 +124,7 @@ collections:
     fields:
       - { label: "Heading", name: "heading", widget: "string" }
       - { label: "Subheading", name: "subheading", widget: "text" }
-      - { label: "Background Image", name: "image", widget: "image", required: false }
+      - { label: "Background Image", name: "image", widget: "image", required: false, hint: "One background photo for this homepage slide. To show several images in the rotating homepage carousel, add more **Hero Slides** (each with its own photo) and use **Order** to set the sequence — lower numbers appear first." }
       - { label: "CTA Button Text", name: "cta_text", widget: "string", default: "Get a Quote" }
       - { label: "CTA Button Link", name: "cta_link", widget: "string", default: "/contact" }
       - { label: "Secondary CTA Text", name: "cta_secondary_text", widget: "string", required: false }
@@ -203,7 +203,7 @@ collections:
         name: "gallery"
         widget: "list"
         fields:
-          - { label: "Image", name: "image", widget: "image", required: false }
+          - { label: "Image", name: "image", widget: "image", required: false, hint: "One photo per row. Add as many rows as you like — they appear in the project's image gallery. Add a caption for context, or leave the caption blank to list it as a 'Project highlight'." }
           - { label: "Caption", name: "caption", widget: "string", required: false }
       - { label: "Client Name", name: "client_name", widget: "string", required: false }
       - { label: "Location", name: "location", widget: "string" }
