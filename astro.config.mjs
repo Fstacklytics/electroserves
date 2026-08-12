@@ -8,9 +8,10 @@ import { defineConfig } from 'astro/config';
 // for the trade-offs versus the old Nginx + PHP-FPM deployment.
 export default defineConfig({
     output: 'static',
-    // Canonical host. Override at build time with the SITE_URL env var if the
-    // production domain differs (e.g. a Netlify preview URL must not be used
-    // for canonical links).
+    // Canonical host. Production builds set SITE_URL in netlify.toml (or the
+    // Netlify UI). The fallback is the intended custom domain; Decap
+    // site_url / display_url must match whichever host actually serves the
+    // site — see docs/NEXT-SESSION-CONTENT-NOT-LIVE.md.
     site: process.env.SITE_URL || 'https://electroserves.co.tz',
     trailingSlash: 'never',
     build: {

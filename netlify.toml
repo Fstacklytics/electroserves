@@ -10,6 +10,14 @@
   command = "npm run build"
   publish = "dist"
 
+# Canonical origin used by astro.config.mjs / sitemap / JSON-LD.
+# Temporary: electroserves.co.tz has no public DNS (verified 2026-08-12).
+# After the custom domain is added in Netlify → Domain management, resolves,
+# and is set as the primary domain, change this (or override it in the
+# Netlify UI environment variables) to https://electroserves.co.tz.
+[build.environment]
+  SITE_URL = "https://zippy-kitten-7cad33.netlify.app"
+
 # Immutable hashed assets get a long cache. Astro writes build assets to
 # dist/_assets/ with content hashes in the filename.
 [[headers]]

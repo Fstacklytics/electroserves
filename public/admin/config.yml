@@ -24,8 +24,14 @@ local_backend: true
 media_folder: "public/uploads"
 public_folder: "/uploads"
 
-site_url: https://electroserves.co.tz
-display_url: https://electroserves.co.tz
+# Decap "View live" / the CMS site link use these values — not the host the
+# editor opened /admin on. Keep them on the host that actually serves this
+# Netlify site. electroserves.co.tz has no public DNS yet (2026-08-12), so
+# the working production URL is the Netlify subdomain. Switch both back to
+# https://electroserves.co.tz (and set SITE_URL the same way) once that
+# domain is added in Netlify → Domain management and resolves.
+site_url: https://zippy-kitten-7cad33.netlify.app
+display_url: https://zippy-kitten-7cad33.netlify.app
 
 editor:
   preview: false
@@ -97,6 +103,10 @@ collections:
     label: "Hero Slides"
     folder: "content/hero"
     create: true
+    # Required: the build only loads content/hero/*.yml. Without these Decap
+    # defaults to Markdown and publishes *.md files the loader never sees.
+    extension: "yml"
+    format: "yml"
     slug: "{{slug}}"
     identifier_field: "heading"
     fields:
@@ -117,6 +127,8 @@ collections:
     label: "Services"
     folder: "content/services"
     create: true
+    extension: "md"
+    format: "frontmatter"
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
@@ -144,6 +156,8 @@ collections:
     label: "Projects"
     folder: "content/projects"
     create: true
+    extension: "md"
+    format: "frontmatter"
     slug: "{{slug}}"
     identifier_field: "title"
     fields:
@@ -182,6 +196,8 @@ collections:
     label: "Blog"
     folder: "content/blog"
     create: true
+    extension: "md"
+    format: "frontmatter"
     slug: "{{year}}-{{month}}-{{day}}-{{slug}}"
     identifier_field: "title"
     fields:
@@ -204,6 +220,8 @@ collections:
     label: "Testimonials"
     folder: "content/testimonials"
     create: true
+    extension: "yml"
+    format: "yml"
     slug: "{{slug}}"
     identifier_field: "client_name"
     fields:
@@ -223,6 +241,8 @@ collections:
     label: "Team Members"
     folder: "content/team"
     create: true
+    extension: "yml"
+    format: "yml"
     slug: "{{slug}}"
     identifier_field: "name"
     fields:
@@ -249,6 +269,8 @@ collections:
     label: "FAQs"
     folder: "content/faqs"
     create: true
+    extension: "yml"
+    format: "yml"
     slug: "{{slug}}"
     identifier_field: "question"
     fields:
@@ -265,6 +287,8 @@ collections:
     label: "Pages"
     folder: "content/pages"
     create: true
+    extension: "md"
+    format: "frontmatter"
     slug: "{{slug}}"
     identifier_field: "title"
     filter: { field: "layout", value: "page" }
