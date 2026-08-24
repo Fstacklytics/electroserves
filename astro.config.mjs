@@ -20,6 +20,11 @@ export default defineConfig({
     // Allow any Host header on the preview server so the live-preview host is
     // accepted during local/sandbox preview. Netlify serves production.
     vite: {
+        // Astro dev runs Vite's server, so configure the allowlist here as
+        // well as preview. This keeps Arena's proxied host from being rejected.
+        server: {
+            allowedHosts: true,
+        },
         preview: {
             allowedHosts: true,
         },

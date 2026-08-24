@@ -26,7 +26,7 @@
     }
 
     body {
-        @apply bg-white text-neutral-700 antialiased;
+        @apply min-w-0 overflow-x-hidden bg-white text-neutral-700 antialiased;
         text-rendering: optimizelegibility;
     }
 
@@ -96,6 +96,31 @@
     /* Placeholder used instead of an external image service. */
     .image-placeholder {
         @apply flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800;
+    }
+
+    /* Keep long CMS-authored content from widening the page on phones. */
+    .prose {
+        @apply min-w-0 max-w-full;
+    }
+
+    .prose pre,
+    .prose table {
+        @apply max-w-full overflow-x-auto;
+    }
+
+    .prose table {
+        display: block;
+        width: max-content;
+        min-width: 100%;
+    }
+
+    .prose pre {
+        white-space: pre;
+    }
+
+    .prose a,
+    .prose code {
+        overflow-wrap: anywhere;
     }
 }
 

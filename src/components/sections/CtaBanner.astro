@@ -29,7 +29,7 @@ const showActions = (buttonLabel && buttonHref) || (secondaryLabel && secondaryH
                                 <a
                                     href={buttonHref}
                                     class:list={[
-                                        'inline-flex min-h-[3rem] items-center justify-center gap-2 rounded-md px-6 py-3 text-base font-semibold shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2',
+                                        'inline-flex min-h-[3rem] w-full items-center justify-center gap-2 rounded-md px-6 py-3 text-base font-semibold shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 sm:w-auto',
                                         isEmergency
                                             ? 'bg-white text-primary-900 hover:bg-neutral-100 active:bg-neutral-200 focus-visible:ring-white'
                                             : 'bg-secondary-500 text-neutral-900 hover:bg-secondary-400 active:bg-secondary-600 focus-visible:ring-secondary-600',
@@ -42,7 +42,7 @@ const showActions = (buttonLabel && buttonHref) || (secondaryLabel && secondaryH
                                 <a
                                     href={secondaryHref}
                                     class:list={[
-                                        'inline-flex min-h-touch items-center justify-center rounded-md border-2 border-white/70 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-white/10 focus-visible:ring-white',
+                                        'inline-flex min-h-touch w-full items-center justify-center rounded-md border-2 border-white/70 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-white/10 focus-visible:ring-white sm:w-auto',
                                         isEmergency ? 'focus-visible:ring-offset-danger-700' : 'focus-visible:ring-offset-primary-700',
                                     ]}
                                 >{secondaryLabel}</a>
