@@ -77,17 +77,17 @@ const logo = settings.logo;
     }
 
     <nav class="container-page" aria-label={t('common.nav.label')}>
-        <div class="flex h-18 items-center justify-between gap-4 py-3">
+        <div class="flex min-h-[4.5rem] items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3">
             <a
                 href="/"
-                class="flex shrink-0 items-center gap-2.5 rounded-md py-1 text-lg font-bold text-neutral-900 hover:text-primary-800"
+                class="flex min-w-0 shrink items-center gap-2 rounded-md py-1 text-base font-bold text-neutral-900 hover:text-primary-800 sm:gap-2.5 sm:text-lg"
                 aria-current={homeActive ? 'page' : undefined}
             >
                 {
                     logo ? (
                         <img src={logo} alt={settings.siteName} width="40" height="40" class="h-10 w-auto" loading="eager" decoding="async" />
                     ) : (
-                        <span class="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-800" aria-hidden="true">
+                        <span class="flex h-9 w-9 shrink-0 items-center justify-center rounded-lg bg-primary-800 sm:h-10 sm:w-10" aria-hidden="true">
                             <svg class="h-6 w-6 text-secondary-400" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true" focusable="false">
                                 <path d="M13.2 2 6 12h4.5l-1.2 10L18 10h-5.2z" />
                             </svg>
