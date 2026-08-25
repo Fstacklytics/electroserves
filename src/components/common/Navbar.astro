@@ -95,11 +95,6 @@ const logo = settings.logo;
             this.closeMobileMenu();
         },
         init() {
-            // Mark Alpine as ready so the CSS backstop (.mobile-menu-js /
-            // .mobile-nav-close) switches from "hidden until JS works" to its
-            // normal display state. Without this class, a slow/broken Alpine
-            // bundle can never leave the whole menu or both icons on screen.
-            this.$el.classList.add('alpine-ready');
             // Alpine can be restored with the DOM by the browser's bfcache.
             // Never carry the old menu/scroll-lock state into a page view.
             this.resetMobileMenu();
@@ -189,12 +184,12 @@ const logo = settings.logo;
                     class="mobile-toggle touch-target rounded-md text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
                 >
                     <span class="sr-only" x-text="mobileOpen ? 'Close main menu' : 'Open main menu'">{t('common.nav.open_menu')}</span>
-                    <!-- Hamburger must be visible before Alpine boots (and when JS is disabled);
-                         the close icon stays x-cloak'd so it never flashes while closed. -->
-                    <svg x-show="! mobileOpen" :class="{ 'hidden': mobileOpen }" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
+                    <!-- The hamburger is visible before Alpine boots (and if JS fails).
+                         Native hidden keeps the close icon invisible until Alpine opens the menu. -->
+                    <svg x-show="! mobileOpen" x-bind:hidden="mobileOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
-                    <svg x-show="mobileOpen" x-cloak :class="{ 'hidden': ! mobileOpen }" class="mobile-nav-close h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
+                    <svg hidden x-show="mobileOpen" x-bind:hidden="! mobileOpen" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                 </button>
@@ -207,16 +202,11 @@ const logo = settings.logo;
             JavaScript-free fallback for the primary mobile navigation.
             Astro renders this <noscript> block normally; browsers only
             display its contents when scripting is disabled. The hamburger
-            button cannot toggle anything without JS, so it is hidden here and
-            the plain link list is shown instead on small screens. On desktop
-            the existing CSS navigation is already fully functional without JS.
+            remains visible to preserve the header layout, while this plain link
+            list provides working navigation on small screens. On desktop the
+            existing CSS navigation is already fully functional without JS.
         */}
         <noscript>
-            <style>
-                .mobile-toggle {
-                    display: none !important;
-                }
-            </style>
             <div class="border-t border-neutral-200 bg-white pb-2 shadow-sm lg:hidden">
                 <ul role="list" class="flex flex-col py-2">
                     {

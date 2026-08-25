@@ -9,9 +9,9 @@
  *   back/forward cache while the menu is open (or an interrupted transition
  *   leaves the lock behind), the restored page can be unscrollable. We release
  *   the lock on pagehide and again on every pageshow.
- * - When Alpine never initialises, the x-cloak'd mobile menu would stay hidden
- *   anyway, but we force the panel shut (and keep it shut) so raw menu content
- *   can never sit over the page.
+ * - When Alpine never initialises, the mobile menu's native `hidden` attribute
+ *   keeps it out of view. We also force the panel shut (and keep it shut) so
+ *   raw menu content can never sit over the page if that attribute is changed.
  *
  * This runs in the browser only; the `typeof window` guard keeps it safe if
  * the module is ever evaluated in a non-DOM context (SSR/build tooling).
