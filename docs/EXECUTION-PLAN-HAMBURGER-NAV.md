@@ -132,8 +132,8 @@ Test in a narrow viewport (360px, 390px, 768px) and desktop (1280px+).
 ### Phase 8 — Commit and verify
 1. `git diff` review.
 2. `npm run build` in CI loop.
-3. Commit to current branch only: `arena/01a03786-electroserves`.
-4. Push only to `origin arena/01a03786-electroserves`.
+3. Commit to current branch only: `arena/01a037b4-electroserves`.
+4. Push only to `origin arena/01a037b4-electroserves`.
 
 ## 5. Files That Will Be Touched (if a fix is needed)
 
@@ -153,6 +153,8 @@ Test in a narrow viewport (360px, 390px, 768px) and desktop (1280px+).
 - [ ] Body scroll is locked while open and restored after close/navigation.
 - [ ] Menu closes on resize to desktop, orientation change, and back/forward cache restore.
 - [ ] The site still navigates with links when JS fails/loads slowly.
+- [ ] The production CSP lets Alpine initialize (no `Refused to evaluate` CSP error).
+- [ ] The mobile panel can never render open before Alpine initializes.
 - [ ] Build succeeds with no errors.
 
 ## 7. Execution Log — Completed (2026-08-25)
@@ -182,7 +184,38 @@ Test in a narrow viewport (360px, 390px, 768px) and desktop (1280px+).
 - Active-state assertion on `/about`, `/blog`, `/services`, `/contact`, `/faq`, `/projects` all pass (desktop + mobile).
 - **Note:** a real Chromium browser could not be installed in the sandbox (Playwright and apt Chromium downloads are blocked by the network), so click-through was verified by generated markup assertions plus the manual matrix in section 6. Run that matrix in a real phone/tablet preview for final confirmation.
 
-## 8. Risks / Decisions
+
+## 8. Root cause — Netlify deploy showed all menu controls at once
+
+The Netlify deploy appeared to render the hamburger button/panel contents all at
+once and non-functional. Investigation found the cause was **not** the markup
+(build artifacts were correct) but the **production Content Security Policy**.
+
+- Standard Alpine.js evaluates its template expressions (`x-show`, `:class`,
+  `x-on`, `x-text`) using `new Function()` at runtime, so it requires
+  `script-src 'unsafe-eval'`.
+- `netlify.toml` previously omitted `'unsafe-eval'` from the public-site CSP
+  (it was allowed only under `/admin*`).
+- On the deployed site the scripts could load, but Chrome refused Alpine's
+  `new Function()` calls. Alpine could remove `x-cloak` attributes before the
+  binding failure, leaving both icons / the mobile menu visible while taps did
+  nothing.
+
+### Fix applied
+
+1. `netlify.toml` public-site CSP now includes `'unsafe-eval'` in `script-src`
+   with a comment that standard Alpine.js requires it.
+2. `docs/ARCHITECTURE.md` documents why `'unsafe-eval'` is required on the
+   public site and that it can be removed only after migrating to
+   `@alpinejs/csp`.
+3. `resources/css/app.css` + the navbar/menu components add a guarded backstop:
+   `.mobile-menu-js` and `.mobile-nav-close` start hidden and are revealed only
+   after Alpine confirms it is healthy by adding `alpine-ready` to the
+   `<header>` in `Navbar.init()`. If Alpine is slow/blocked/broken, the full
+   menu and close-icon state can never appear at once.
+
+
+## 9. Risks / Decisions
 
 - **Breakpoint choice:** `lg` (1024px). If tablet users are expected to use the hamburger, switch the toggle threshold to `md` (768px) after product confirmation.
 - **Scroll locking approach:** currently `x-trap.noscroll`. Keep it unless a layout-shift (scrollbar compensation) is noticed; then fall back to manual lock in `releaseScrollLock`.

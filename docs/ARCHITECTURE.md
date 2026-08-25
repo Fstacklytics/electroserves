@@ -260,7 +260,7 @@ middleware in Path B).
 
 ```
 default-src 'self';
-script-src 'self' https://identity.netlify.com;
+script-src 'self' 'unsafe-eval' https://identity.netlify.com;
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 font-src https://fonts.gstatic.com;
 img-src 'self' data:;
@@ -268,9 +268,14 @@ connect-src 'self'
 ```
 
 Plus `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
-`Referrer-Policy: strict-origin-when-cross-origin`. The public policy is
-deliberately strict — **no `'unsafe-eval'`**, and scripts are restricted to
-same-origin plus the Netlify Identity host.
+`Referrer-Policy: strict-origin-when-cross-origin`. Scripts are restricted to
+same-origin plus the Netlify Identity host. `'unsafe-eval'` is intentionally
+allowed on the public site because the interactive UI uses standard Alpine.js:
+Alpine compiles template expressions (`x-show`, `:class`, `x-on`, `x-text`)
+with `new Function()` at runtime. Without it, Alpine can load but cannot run
+bindings, which breaks JS-enhanced sections such as the mobile hamburger menu.
+Remove `'unsafe-eval'` only after migrating to Alpine's CSP build
+(`@alpinejs/csp`).
 
 ### Decap CMS (`/admin` and `/admin/*`)
 
@@ -284,10 +289,11 @@ connect-src 'self' https://identity.netlify.com; …
 
 - The CMS bundle is loaded from `unpkg.com`, so that origin is allowed **only**
   under `/admin*`.
-- **`'unsafe-eval'` is required only on `/admin*`.** Decap uses AJV to compile
-  the `config.yml` JSON schema with `new Function()` at load time; without it
-  the admin UI fails with "Error loading the CMS configuration / EvalError".
-  The public-site policy stays free of `'unsafe-eval'`.
+- **`'unsafe-eval'` is required on `/admin*` and on the public site.** Decap
+  uses AJV to compile the `config.yml` JSON schema with `new Function()` at
+  load time; without it the admin UI fails with "Error loading the CMS
+  configuration / EvalError". The public site also needs it because standard
+  Alpine.js evaluates template bindings with `new Function()` at runtime.
 - Both `/admin` (Astro uses `trailingSlash: 'never'`) and `/admin/*` are
   covered.
 

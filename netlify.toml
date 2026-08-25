@@ -32,21 +32,27 @@
 # host (the admin login widget), styles from self + Google Fonts, fonts from
 # fonts.gstatic.com, images from self + data: URIs. The /admin/* rule below
 # relaxes script-src so the Decap CMS bundle (served from unpkg) can load.
+#
+# Standard Alpine.js evaluates template bindings (x-show / :class / x-on /
+# x-text) with new Function() at runtime, so the public site needs
+# 'unsafe-eval'. Remove it only after migrating to Alpine's CSP build
+# (@alpinejs/csp).
 [[headers]]
   for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
 
 # The Decap CMS admin page must be able to load its own JS bundle from unpkg
 # and the Netlify Identity widget; the strict site CSP would block those.
 #
-# 'unsafe-eval' is required only here: Decap CMS (AJV) compiles the config.yml
-# JSON Schema with `new Function()` at load time. Without it the admin UI
-# reports "Error loading the CMS configuration / EvalError". The public-site
-# CSP above stays without 'unsafe-eval'.
+# 'unsafe-eval' is required here and on the public site. Decap CMS (AJV)
+# compiles the config.yml JSON Schema with `new Function()` at load time.
+# Without it the admin UI reports "Error loading the CMS configuration /
+# EvalError". The public-site CSP also needs it because standard Alpine.js
+# evaluates template bindings with `new Function()` at runtime.
 #
 # blob: is required on img-src and connect-src so Decap can preview and process
 # local file selections before the Git Gateway media upload. Without it the
