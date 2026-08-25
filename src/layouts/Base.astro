@@ -77,6 +77,9 @@ const ogImage = resolvedSeo.image
 
     <meta name="theme-color" content="#1e40af">
 
+    <!-- Critical: hide x-cloak'd elements even if the external CSS bundle is stale or slow to load. -->
+    <style is:inline>[x-cloak]{display:none !important;}</style>
+
     <link rel="icon" href={`data:image/svg+xml,${encodeURIComponent(faviconSvg)}`}>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
