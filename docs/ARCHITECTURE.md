@@ -140,6 +140,17 @@ Unpublish action — see below).
 - Hashed JS/CSS under `dist/_assets/` are served with
   `Cache-Control: public, max-age=31536000, immutable`.
 
+### Navigation startup safety
+
+The sticky header, logo, desktop navigation, and mobile hamburger are ordinary
+rendered HTML and do not depend on Alpine initialization for visibility. Only
+the JS-controlled mobile panel and close/X icon start with native `hidden`
+attributes. Alpine coordinates `x-show` with `x-bind:hidden` to remove those
+attributes while the menu is open and restore them when it closes. This avoids
+a flash of the panel or both icons if Alpine is slow or fails without relying
+on broad `.alpine-ready` CSS selectors. The desktop list remains controlled by
+Tailwind's `hidden lg:flex`, and the toggle by `lg:hidden`.
+
 ---
 
 ## 5. Content collections

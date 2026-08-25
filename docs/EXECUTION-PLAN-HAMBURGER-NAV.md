@@ -63,9 +63,9 @@ Breakpoint: keep Tailwind's default `lg: 1024px`. Do **not** add a new custom br
    - Remove inline `display:none` if a hard reset previously forced it (already implemented).
    - Flip `mobileOpen`.
 3. Panel bindings (`MobileMenu.astro`):
-   - `x-show="mobileOpen"`.
-   - `x-cloak` to avoid flashing raw links.
-   - `:class="{ 'hidden': ! mobileOpen }"` as a redundant guard.
+   - A native `hidden` attribute prevents raw links flashing before Alpine.
+   - `x-show="mobileOpen"` controls Alpine transitions/display.
+   - `x-bind:hidden="! mobileOpen"` removes `hidden` only while open.
    - Smooth `x-transition` enter/leave.
 4. Button icon should swap between hamburger and close (X).
 
@@ -99,7 +99,7 @@ Breakpoint: keep Tailwind's default `lg: 1024px`. Do **not** add a new custom br
 6. **Resize behavior:** at `>= 1024px`, close the menu and restore the desktop layout.
 7. **Orientation change:** close the menu unconditionally (iOS innerWidth quirk).
 8. **Back/forward cache:** `pagehide` / `pageshow` reset the menu and release scroll lock.
-9. **No-JS / Alpine failure:** menu stays hidden via `x-cloak` + mobile-nav-guard; plain links still navigate.
+9. **No-JS / Alpine failure:** the JS panel and close icon stay hidden via native `hidden`; the header and hamburger remain visible, and the `<noscript>` links still navigate.
 
 **Exit criteria:** all listed behaviors pass manual checks.
 
@@ -107,7 +107,7 @@ Breakpoint: keep Tailwind's default `lg: 1024px`. Do **not** add a new custom br
 1. **Rapid taps / double-tap:** panel should not get stuck; toggle remains idempotent.
 2. **Menu open + viewport resize:** close and release lock.
 3. **Menu open + navigation via browser back/forward:** reset on `pageshow`.
-4. **Alpine slow/never loads:** `mobile-nav-guard.ts` keep the panel hidden and scroll unlocked.
+4. **Alpine slow/never loads:** native `hidden` keeps the panel and close icon hidden without hiding the header, logo, or hamburger.
 5. **Content height on small screens:** ensure the menu scrolls if it exceeds viewport height (add `max-h`/`overflow-y-auto` if needed).
 6. **Reduced motion:** if `prefers-reduced-motion` is on, transitions should not be distracting.
 
@@ -163,9 +163,9 @@ Test in a narrow viewport (360px, 390px, 768px) and desktop (1280px+).
 
 1. `src/components/common/Navbar.astro`
    - Removed `x-cloak` from the hamburger toggle button so the 3-line button is visible immediately (before Alpine boots and in slow-load scenarios) instead of briefly disappearing.
-   - Removed `x-cloak` from the hamburger (`open`) SVG while keeping it on the close (`X`) SVG, so exactly one icon is shown at all times.
-   - Added a `mobile-toggle` class hook for the JavaScript-free fallback.
-   - Added a `<noscript>` primary mobile navigation fallback on small screens: hides the (non-functional, JS-only) hamburger and renders a plain link list so mobile users still have main navigation when JS is disabled/failing. Desktop CSS nav is untouched.
+   - Removed `x-cloak` from both icons. The hamburger has no initial `hidden` attribute, while the close (`X`) SVG uses native `hidden` plus `x-bind:hidden`, so exactly one icon is shown and the hamburger remains visible before Alpine.
+   - Kept the `mobile-toggle` class as a stable control hook; no CSS rule hides it.
+   - Kept a `<noscript>` primary mobile navigation fallback on small screens. It renders a plain link list while preserving the navbar/logo/hamburger layout. Desktop CSS nav is untouched.
 
 2. `src/components/common/MobileMenu.astro`
    - Added `max-h-[calc(100vh-9rem)]`, `overflow-y-auto`, and `overscroll-contain` so the open mobile menu scrolls on short phone viewports instead of clipping links.
@@ -208,11 +208,13 @@ once and non-functional. Investigation found the cause was **not** the markup
 2. `docs/ARCHITECTURE.md` documents why `'unsafe-eval'` is required on the
    public site and that it can be removed only after migrating to
    `@alpinejs/csp`.
-3. `resources/css/app.css` + the navbar/menu components add a guarded backstop:
-   `.mobile-menu-js` and `.mobile-nav-close` start hidden and are revealed only
-   after Alpine confirms it is healthy by adding `alpine-ready` to the
-   `<header>` in `Navbar.init()`. If Alpine is slow/blocked/broken, the full
-   menu and close-icon state can never appear at once.
+3. The first CSS backstop used `.mobile-menu-js`, `.mobile-nav-close`, and
+   an `.alpine-ready` class on the header. That class-based approach was removed
+   after it caused a deployed navbar visibility regression. The mobile panel
+   and close icon now start with native `hidden` attributes and pair `x-show`
+   with `x-bind:hidden`. The header, nav, logo, toggle, and default hamburger
+   icon have no Alpine-readiness visibility dependency, while a slow or broken
+   Alpine bundle still cannot expose the JS panel or close icon.
 
 
 ## 9. Risks / Decisions
