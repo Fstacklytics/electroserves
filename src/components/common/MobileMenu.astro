@@ -17,6 +17,17 @@ const { links, id = 'mobile-menu' } = Astro.props;
 const settings = siteSettings();
 const phoneHref = settings.phoneHref();
 ---
+<!--
+    Mobile menu panel. Consumes `mobileOpen` from the Navbar's x-data scope
+    (single source of truth in Navbar.astro).
+
+    - x-cloak keeps the raw links invisible until Alpine initialises.
+    - x-trap.noscroll traps focus while open and locks body scrolling
+      (<html> overflow + paddingRight, released by Navbar.closeMobileMenu()).
+    - Every link calls closeMobileMenu() *before* its href is followed so the
+      menu is never left open across an MPA navigation; Navbar's pagehide /
+      pageshow handlers hard-reset the state for bfcache restores.
+-->
 <div
     id={id}
     x-show="mobileOpen"

@@ -8,5 +8,13 @@
  * executes during static generation.
  */
 if (typeof window !== 'undefined' && typeof document !== 'undefined') {
-    void import('../../resources/js/app.js');
+    // Vanilla safety net: releases scroll locks and keeps the JS-only mobile
+    // menu shut even if Alpine never initialises (see mobile-nav-guard.ts).
+    void import('./mobile-nav-guard.ts').then(({ installMobileNavGuard }) => {
+        installMobileNavGuard();
+    });
+
+    void import('../../resources/js/app.js').catch((error) => {
+        console.error('[client] Alpine.js failed to initialise; JS-enhanced UI (mobile menu, tabs, carousels) stays hidden.', error);
+    });
 }
