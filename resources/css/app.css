@@ -59,6 +59,16 @@
     [id] {
         scroll-margin-top: calc(var(--header-height) + 1rem);
     }
+
+    /*
+     * Applied by Alpine before it initialises, to avoid a flash of raw markup
+     * (mobile menu links, alternate icons, JS-only widgets). Lives in the base
+     * layer so the `!important` wins over any later display utility, and is
+     * loaded before any element can paint.
+     */
+    [x-cloak] {
+        display: none !important;
+    }
 }
 
 /*
@@ -130,11 +140,6 @@
 */
 
 @layer utilities {
-    /* Applied by Alpine before it initialises, to avoid a flash of raw markup. */
-    [x-cloak] {
-        display: none !important;
-    }
-
     .text-balance {
         text-wrap: balance;
     }
