@@ -44,8 +44,25 @@ const logo = settings.logo;
             this.mobileOpen = !this.mobileOpen;
         },
         closeMobileMenu() {
+            const wasOpen = this.mobileOpen;
             this.mobileOpen = false;
             this.releaseScrollLock();
+            // Return focus to the toggle button when the menu closes via
+            // Escape / resize / orientationchange / link-click / bfcache.
+            // x-trap.noscroll already tries to restore focus, but an explicit
+            // fallback covers the cases where focus is still inside the panel
+            // or the trap was interrupted by navigation.
+            if (wasOpen) {
+                this.$nextTick(() => {
+                    const btn = this.$refs.mobileToggle;
+                    if (btn && document.activeElement !== btn) {
+                        const activeInsideMenu = document.getElementById('mobile-menu')?.contains(document.activeElement);
+                        if (activeInsideMenu || document.activeElement === document.body) {
+                            btn.focus();
+                        }
+                    }
+                });
+            }
         },
         releaseScrollLock() {
             // x-trap.noscroll (@alpinejs/focus) locks <html> and compensates
@@ -160,6 +177,7 @@ const logo = settings.logo;
                 <button
                     type="button"
                     x-cloak
+                    x-ref="mobileToggle"
                     x-on:click="toggleMobileMenu()"
                     :aria-expanded="mobileOpen ? 'true' : 'false'"
                     aria-expanded="false"
@@ -167,10 +185,11 @@ const logo = settings.logo;
                     class="touch-target rounded-md text-neutral-700 hover:bg-neutral-100 hover:text-neutral-900 lg:hidden"
                 >
                     <span class="sr-only" x-text="mobileOpen ? 'Close main menu' : 'Open main menu'">{t('common.nav.open_menu')}</span>
-                    <svg x-show="! mobileOpen" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
+                    <!-- Triple-layered exclusivity: x-cloak (pre-init) + x-show (Alpine state) + :class hidden (redundant guard) -->
+                    <svg x-show="! mobileOpen" x-cloak :class="{ 'hidden': mobileOpen }" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
                     </svg>
-                    <svg x-show="mobileOpen" x-cloak class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
+                    <svg x-show="mobileOpen" x-cloak :class="{ 'hidden': ! mobileOpen }" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke-width="1.75" stroke="currentColor" aria-hidden="true" focusable="false">
                         <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
                     </svg>
                 </button>

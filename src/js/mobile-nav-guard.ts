@@ -26,28 +26,33 @@ export function installMobileNavGuard(): void {
         document.body.style.overflow = '';
     };
 
+    const hideMobileMenu = () => {
+        const menu = document.getElementById('mobile-menu');
+        if (menu) menu.style.display = 'none';
+    };
+
     const hideMobileMenuIfUnmanaged = () => {
-        // Only force the panel shut when Alpine is not available to manage it;
-        // otherwise this would fight Alpine's own x-show/transition handling.
-        // `window.Alpine` is set by resources/js/app.js right before Alpine.start().
+        // Only force the panel shut when Alpine is not available to manage it
+        // during normal interaction; otherwise this would fight Alpine's own
+        // x-show/transition handling. `window.Alpine` is set by
+        // resources/js/app.js right before Alpine.start().
         const alpineLoaded = typeof (window as { Alpine?: unknown }).Alpine !== 'undefined';
-        if (!alpineLoaded) {
-            const menu = document.getElementById('mobile-menu');
-            if (menu) menu.style.display = 'none';
-        }
+        if (!alpineLoaded) hideMobileMenu();
     };
 
     // The page may be frozen into the back/forward cache with the menu open.
-    // Release the scroll lock (and hide the panel if unmanaged) on the way out
-    // and again on every (re)show, so a restored page is never left covered
-    // or unscrollable.
+    // Release the scroll lock on the way out and again on every (re)show, so a
+    // restored page is never left unscrollable. We hide the panel unconditionally
+    // on pagehide/pageshow — a restored page must never start with the menu
+    // open. toggleMobileMenu() removes the inline display:none on the next open,
+    // so this does not prevent future opens.
     window.addEventListener('pagehide', () => {
         releaseScrollLock();
-        hideMobileMenuIfUnmanaged();
+        hideMobileMenu();
     });
     window.addEventListener('pageshow', () => {
         releaseScrollLock();
-        hideMobileMenuIfUnmanaged();
+        hideMobileMenu();
     });
 
     // If Alpine never starts (e.g. a broken chunk), keep the JS-only mobile
