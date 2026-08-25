@@ -40,7 +40,7 @@ const phoneHref = settings.phoneHref();
     x-transition:leave="transition ease-in duration-150"
     x-transition:leave-start="opacity-100"
     x-transition:leave-end="opacity-0"
-    class="border-t border-neutral-200 bg-white pb-4 shadow-lg lg:hidden"
+    class="max-h-[calc(100vh-9rem)] overflow-y-auto overscroll-contain border-t border-neutral-200 bg-white pb-4 shadow-lg lg:hidden"
 >
     <nav aria-label={t('common.nav.mobile_menu_label')}>
         <ul role="list" class="flex flex-col py-2">
