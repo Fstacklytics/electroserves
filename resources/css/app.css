@@ -108,6 +108,38 @@
         @apply flex items-center justify-center bg-gradient-to-br from-primary-100 to-primary-200 text-primary-800;
     }
 
+    /*
+     * Backstop for the JS-only mobile menu and its close icon.
+     *
+     * Before Alpine has initialised, these elements start hidden so a slow or
+     * broken Alpine bundle can never leave the full menu open or show both
+     * hamburger states at once. Once Alpine is healthy it adds `alpine-ready`
+     * to the <header> (Navbar.init()), which switches the elements to their
+     * normal display. From there x-show writes an inline display (none when
+     * closed) and removes it when open; the `alpine-ready` rule provides the
+     * default visible state for an open menu.
+     */
+    .mobile-menu-js,
+    .mobile-nav-close {
+        display: none;
+    }
+
+    .alpine-ready .mobile-menu-js {
+        display: block;
+    }
+
+    .alpine-ready .mobile-nav-close {
+        display: block;
+    }
+
+    /* The mobile panel is only ever shown below the lg breakpoint. */
+    @media (min-width: 1024px) {
+        .alpine-ready .mobile-menu-js,
+        .alpine-ready .mobile-nav-close {
+            display: none;
+        }
+    }
+
     /* Keep long CMS-authored content from widening the page on phones. */
     .prose {
         @apply min-w-0 max-w-full;
