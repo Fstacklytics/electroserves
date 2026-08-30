@@ -13,12 +13,25 @@ const { heading, body, buttonLabel, buttonHref, secondaryLabel, secondaryHref, v
 const isEmergency = variant === 'emergency';
 const showActions = (buttonLabel && buttonHref) || (secondaryLabel && secondaryHref);
 ---
-<section class:list={[isEmergency ? 'bg-danger-700' : 'bg-primary-800']}>
-    <div class="container-page py-12 sm:py-16">
+{
+    /* The emergency variant is a compact, centred blue card (narrow, not full-bleed). */
+}
+<section
+    class:list={[
+        isEmergency
+            ? 'mx-auto my-12 max-w-4xl rounded-2xl shadow-lg bg-primary-800'
+            : 'bg-primary-800',
+    ]}
+>
+    <div
+        class:list={[
+            isEmergency ? 'px-6 py-8 sm:px-10 sm:py-10' : 'container-page py-12 sm:py-16',
+        ]}
+    >
         <div class="flex flex-col items-center gap-6 text-center lg:flex-row lg:justify-between lg:text-left">
             <div class="max-w-2xl">
                 <h2 class="text-2xl font-bold text-white sm:text-3xl">{heading}</h2>
-                {body && <p class:list={['mt-3 text-base leading-relaxed', isEmergency ? 'text-danger-100' : 'text-primary-100']}>{body}</p>}
+                {body && <p class="mt-3 text-base leading-relaxed text-primary-100">{body}</p>}
             </div>
 
             {
@@ -43,7 +56,7 @@ const showActions = (buttonLabel && buttonHref) || (secondaryLabel && secondaryH
                                     href={secondaryHref}
                                     class:list={[
                                         'inline-flex min-h-touch w-full items-center justify-center rounded-md border-2 border-white/70 px-6 py-3 text-base font-semibold text-white transition-colors hover:bg-white/10 focus-visible:ring-white sm:w-auto',
-                                        isEmergency ? 'focus-visible:ring-offset-danger-700' : 'focus-visible:ring-offset-primary-700',
+                                        isEmergency ? 'focus-visible:ring-offset-primary-800' : 'focus-visible:ring-offset-primary-700',
                                     ]}
                                 >{secondaryLabel}</a>
                             )
