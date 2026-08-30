@@ -4,18 +4,16 @@
 # this site authenticates editors directly against GitHub via a GitHub OAuth
 # App, with the OAuth dance handled by an in-repo Netlify Function:
 #   netlify/functions/oauth.js
-# routed at `backend.base_url` below (auth_endpoint appends /auth, and the
-# Function appends /auth/callback for GitHub's redirect).
+# routed by `backend.base_url` + `backend.auth_endpoint` below.
 #
 # HOW THIS WORKS
-#   1. A GitHub OAuth App (GitHub -> Settings -> Developer settings -> GitHub
+#   1. A GitHub OAuth App (GitHub -> Settings -> Developer settings -> OAuth
 #      Apps) is created. Homepage URL = the site root; Redirect URI =
-#      <base_url>/auth/callback. Repo permissions: Contents: Read and write,
-#      Metadata: Read-only; webhook off.
+#      https://electroserve.netlify.app/.netlify/functions/oauth/auth/callback.
 #   2. Its Client ID + Client Secret are stored as Netlify site environment
 #      variables OAUTH_GITHUB_CLIENT_ID / OAUTH_GITHUB_CLIENT_SECRET — never
 #      committed to this repo. The Function exchanges the code for a token and
-#      bounces Decap to /admin/?provider=github&token=...
+#      returns Decap's expected popup postMessage response.
 #   3. Editors need Write collaborator/team access on the repo to sign in.
 #
 # Do NOT commit the OAuth client secret anywhere in this repo — it lives only
@@ -24,10 +22,14 @@ backend:
   name: github
   repo: Fstacklytics/electroserves
   branch: main
-  base_url: https://electroserve.netlify.app/.netlify/functions/oauth
-  auth_endpoint: /auth
-  # public_repo is enough for a public repo; use "repo" for a private one.
-  auth_scope: public_repo
+  # Decap's popup OAuth client compares postMessage `event.origin` to
+  # `base_url`, so this must be the site origin only. The Function path belongs
+  # in auth_endpoint; otherwise the token callback can land in /admin without
+  # Decap ever accepting the popup handoff.
+  base_url: https://electroserve.netlify.app
+  auth_endpoint: /.netlify/functions/oauth/auth
+  # GitHub OAuth Apps need this scope to call /user and write repository content.
+  auth_scope: repo,read:user
   commit_messages:
     create: "content(create): {{collection}} — {{slug}}"
     update: "content(update): {{collection}} — {{slug}}"
