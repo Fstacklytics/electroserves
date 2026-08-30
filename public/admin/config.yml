@@ -1,12 +1,30 @@
-# Decap CMS — Path B (Netlify Identity + Git Gateway)
+# Decap CMS — GitHub backend + GitHub OAuth App
 #
-# Unlike the old GitHub-OAuth backend, this uses Netlify Identity + Git Gateway
-# so editors authenticate against Netlify rather than a server-side OAuth
-# broker. Enable Identity -> Enable Git Gateway in the Netlify UI, then invite
-# editors (free for <5 editors) from the Identity tab.
+# Netlify's Git Gateway (and its OAuth proxy) are deprecated (sunset 2026), so
+# this site now authenticates editors directly against GitHub via a GitHub OAuth
+# App instead of Netlify Identity.
+#
+# HOW THIS WORKS
+#   1. Create a GitHub OAuth App (GitHub -> Settings -> Developer settings ->
+#      OAuth Apps -> New OAuth App). Homepage URL = the site root; Authorization
+#      callback URL = <base_url><auth_endpoint>/callback, e.g.
+#      https://oauth.example.com/auth/callback.
+#   2. Run a small OAuth provider that performs the authorization-code exchange
+#      and hands Decap the token (e.g. the official `decap-oauth` npm package, or
+#      a Netlify Function). Point `base_url` / `auth_endpoint` at it.
+#   3. Grant repo collaborators write access — they can then sign in to /admin.
+#
+# Fill in `base_url` (and set the matching auth_endpoint) with your real OAuth
+# provider once it is deployed. Do NOT commit the OAuth client secret anywhere
+# in this repo — it lives only in the OAuth provider's environment variables.
 backend:
-  name: git-gateway
+  name: github
+  repo: Fstacklytics/electroserves
   branch: main
+  base_url: https://oauth.example.com  # TODO: your GitHub OAuth provider host
+  auth_endpoint: /auth
+  # public_repo is enough for a public repo; use "repo" for a private one.
+  auth_scope: public_repo
   commit_messages:
     create: "content(create): {{collection}} — {{slug}}"
     update: "content(update): {{collection}} — {{slug}}"
@@ -118,9 +136,11 @@ collections:
     identifier_field: "heading"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Heading", name: "heading", widget: "string" }
       - { label: "Subheading", name: "subheading", widget: "text" }
@@ -150,9 +170,11 @@ collections:
     identifier_field: "title"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -189,9 +211,11 @@ collections:
     identifier_field: "title"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -239,9 +263,11 @@ collections:
     identifier_field: "title"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - { label: "Slug", name: "slug", widget: "string" }
@@ -272,9 +298,11 @@ collections:
     identifier_field: "client_name"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Client Name", name: "client_name", widget: "string" }
       - { label: "Company / Organization", name: "company", widget: "string", required: false }
@@ -302,9 +330,11 @@ collections:
     identifier_field: "name"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Full Name", name: "name", widget: "string" }
       - { label: "Role / Title", name: "role", widget: "string" }
@@ -339,9 +369,11 @@ collections:
     identifier_field: "question"
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Question", name: "question", widget: "string" }
       - { label: "Answer", name: "answer", widget: "markdown" }
@@ -370,9 +402,11 @@ collections:
     delete: false
     view_filters:
       - label: "Visible"
-        field: { name: "published", value: true }
+        field: published
+        pattern: 'true'
       - label: "Hidden"
-        field: { name: "published", value: false }
+        field: published
+        pattern: 'false'
     fields:
       - { label: "Layout", name: "layout", widget: "hidden", default: "page" }
       - { label: "Title", name: "title", widget: "string" }

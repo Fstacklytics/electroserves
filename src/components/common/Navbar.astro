@@ -9,7 +9,6 @@ interface Props {
 
 const { pathname = '/' } = Astro.props;
 const settings = siteSettings();
-const emergencyHref = settings.emergencyPhoneHref();
 
 const isActive = (pattern: string): boolean => {
     if (pattern === '/') return pathname === '/';
@@ -109,23 +108,6 @@ const logo = settings.logo;
     class="sticky top-0 z-50 bg-white transition-shadow duration-200"
     :class="scrolled ? 'shadow-md' : 'shadow-sm'"
 >
-    {
-        emergencyHref && (
-            <div class="bg-primary-900 text-white">
-                <div class="container-page flex items-center justify-center gap-2 py-1.5 text-center text-xs sm:text-sm">
-                    <svg class="h-4 w-4 shrink-0 text-secondary-300" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                        <path d="M11.983 1.907a.75.75 0 0 0-1.292-.657l-6.5 8.5A.75.75 0 0 0 4.75 11h3.925l-.658 5.093a.75.75 0 0 0 1.292.657l6.5-8.5A.75.75 0 0 0 15.25 7h-3.925l.658-5.093Z" />
-                    </svg>
-                    <span>{t('home.emergency.body')}</span>
-                    <a
-                        href={emergencyHref}
-                        class="font-semibold underline underline-offset-2 hover:text-secondary-200 focus-visible:ring-offset-primary-900"
-                    >{settings.emergencyPhone}</a>
-                </div>
-            </div>
-        )
-    }
-
     <nav class="container-page" aria-label={t('common.nav.label')}>
         <div class="flex min-h-[4.5rem] items-center justify-between gap-2 py-2.5 sm:gap-4 sm:py-3">
             <a

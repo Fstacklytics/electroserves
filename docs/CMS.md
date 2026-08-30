@@ -14,17 +14,20 @@ build**. The public HTML only changes after that build finishes and is
 ## 1. Sign in
 
 1. Go to **`/admin`** on the production site.
-2. Click **Login** → **Netlify Identity**.
-3. Sign in with the email/password from your Identity invitation.
+2. Click **Login with GitHub**.
+3. Authorize the site's GitHub OAuth App in the GitHub popup, then confirm the
+   repository write access for the collection you want to edit.
 
-   - Invitation and confirmation emails link to the site root with a hash
-     token (e.g. `#invite_token=…`). The homepage loads the Netlify Identity
-     widget, processes the token, and bounces you to `/admin`. Open the email
-     link from a normal browser tab — not an incognito window that blocks the
-     widget — and then hard-refresh `/admin` after accepting the invite.
+Editors authenticate **directly against GitHub** via a GitHub OAuth App (no
+Netlify Identity). Anyone with write/collaborator access to the repository can
+sign in; the OAuth provider exchanges the GitHub authorization code for a
+token used by Decap's `github` backend to commit through the GitHub API.
 
-There is **no** separate Git/GitHub login: the `git-gateway` backend pushes
-through Netlify Identity, which has scoped push access to this repository.
+> **Setup (once, by an owner):** create a GitHub OAuth App (Settings →
+> Developer settings → OAuth Apps), deploy an OAuth provider (e.g. the official
+> `decap-oauth` package or a Netlify Function) that holds the client secret,
+> and set `backend.base_url` / `auth_endpoint` in `public/admin/config.yml`
+> (and the matching host in the `/admin` CSP in `netlify.toml`) to it.
 
 ---
 

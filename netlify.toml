@@ -28,10 +28,10 @@
 # Security headers for the whole site. These replace Nginx hardening +
 # SecurityHeadersMiddleware from the Laravel build.
 #
-# CSP is deliberately conservative: scripts from self and the Netlify Identity
-# host (the admin login widget), styles from self + Google Fonts, fonts from
-# fonts.gstatic.com, images from self + data: URIs. The /admin/* rule below
-# relaxes script-src so the Decap CMS bundle (served from unpkg) can load.
+# CSP is deliberately conservative: scripts from self, styles from self +
+# Google Fonts, fonts from fonts.gstatic.com, images from self + data: URIs.
+# The /admin/* rule below relaxes script-src so the Decap CMS bundle (served
+# from unpkg) can load.
 #
 # Standard Alpine.js evaluates template bindings (x-show / :class / x-on /
 # x-text) with new Function() at runtime, so the public site needs
@@ -43,10 +43,10 @@
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval' https://identity.netlify.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self'"
 
 # The Decap CMS admin page must be able to load its own JS bundle from unpkg
-# and the Netlify Identity widget; the strict site CSP would block those.
+# and talk to GitHub; the strict site CSP would block those.
 #
 # 'unsafe-eval' is required here and on the public site. Decap CMS (AJV)
 # compiles the config.yml JSON Schema with `new Function()` at load time.
@@ -55,17 +55,18 @@
 # evaluates template bindings with `new Function()` at runtime.
 #
 # blob: is required on img-src and connect-src so Decap can preview and process
-# local file selections before the Git Gateway media upload. Without it the
-# admin UI fails with "Failed to persist entry: TypeError: Failed to fetch"
-# and CSP violations on blob: image/fetch URLs — before any upload request is
-# sent. connect-src also allows unpkg (source maps for the pinned Decap
-# bundle) and www.netlifystatus.com (Netlify Identity status checks).
+# local file selections before upload. Without it the admin UI fails with
+# "Failed to persist entry: TypeError: Failed to fetch" and CSP violations on
+# blob: image/fetch URLs — before any upload request is sent. connect-src also
+# allows unpkg (source maps for the pinned Decap bundle), api.github.com
+# (the GitHub backend's API calls) and the GitHub OAuth provider host. Update
+# the oauth host to match `backend.base_url` in public/admin/config.yml.
 #
 # Cover both /admin (trailingSlash: never) and /admin/* (index.html, config.yml).
 [[headers]]
   for = "/admin"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://identity.netlify.com https://unpkg.com https://www.netlifystatus.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
@@ -73,7 +74,7 @@
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://identity.netlify.com https://unpkg.com https://www.netlifystatus.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"

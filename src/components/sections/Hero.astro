@@ -12,13 +12,9 @@ const hasSlides = slides.length > 0;
 const total = hasSlides ? slides.length : 1;
 ---
 <section
-    x-data={`carousel({ total: ${total}, interval: 7000, autoplay: ${total > 1 ? 'true' : 'false'} })`}
+    x-data={`carousel({ total: ${total}, interval: 5000, autoplay: ${total > 1 ? 'true' : 'false'} })`}
     x-on:mouseenter="onEnter()"
     x-on:mouseleave="onLeave()"
-    x-on:focusin="onEnter()"
-    x-on:focusout="onLeave()"
-    x-on:keydown.arrow-right.prevent="manualNext()"
-    x-on:keydown.arrow-left.prevent="manualPrevious()"
     class="relative isolate overflow-hidden bg-primary-900"
     role="region"
     aria-roledescription="carousel"
@@ -96,45 +92,7 @@ const total = hasSlides ? slides.length : 1;
 
                 {
                     total > 1 && (
-                        <>
-                            <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-primary-950/85 to-transparent" aria-hidden="true"></div>
-                            <div class="container-page relative z-10 flex items-center gap-2 pb-6 sm:gap-3">
-                                <button type="button" x-on:click="manualPrevious()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
-                                    <span class="sr-only">{t('home.hero.previous_slide')}</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                                        <path fill-rule="evenodd" d="M12.79 5.23a.75.75 0 0 1-.02 1.06L8.832 10l3.938 3.71a.75.75 0 1 1-1.04 1.08l-4.5-4.25a.75.75 0 0 1 0-1.08l4.5-4.25a.75.75 0 0 1 1.06.02Z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-
-                                <button type="button" x-on:click="manualNext()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
-                                    <span class="sr-only">{t('home.hero.next_slide')}</span>
-                                    <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                                        <path fill-rule="evenodd" d="M7.21 14.77a.75.75 0 0 1 .02-1.06L11.168 10 7.23 6.29a.75.75 0 1 1 1.04-1.08l4.5 4.25a.75.75 0 0 1 0 1.08l-4.5 4.25a.75.75 0 0 1-1.06-.02Z" clip-rule="evenodd" />
-                                    </svg>
-                                </button>
-
-                                <button type="button" x-on:click="toggle()" class="touch-target rounded-full bg-white/15 text-white ring-1 ring-white/25 backdrop-blur transition-colors hover:bg-white/25 focus-visible:ring-white focus-visible:ring-offset-primary-900">
-                                    <span class="sr-only" x-text={`playing ? '${t('home.hero.pause')}' : '${t('home.hero.play')}'`}>{t('home.hero.pause')}</span>
-                                    <svg x-show="playing" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                                        <path d="M5.75 3a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75A.75.75 0 0 0 7.25 3h-1.5Zm7 0a.75.75 0 0 0-.75.75v12.5c0 .414.336.75.75.75h1.5a.75.75 0 0 0 .75-.75V3.75a.75.75 0 0 0-.75-.75h-1.5Z" />
-                                    </svg>
-                                    <svg x-show="! playing" x-cloak class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true" focusable="false">
-                                        <path d="M6.3 2.84A1.5 1.5 0 0 0 4 4.11v11.78a1.5 1.5 0 0 0 2.3 1.27l9.344-5.891a1.5 1.5 0 0 0 0-2.538L6.3 2.841Z" />
-                                    </svg>
-                                </button>
-
-                                <div class="ml-auto flex items-center gap-2">
-                                    {
-                                        Array.from({ length: total }).map((_, i) => (
-                                            <button type="button" x-on:click={`manualGo(${i})`} class="flex h-touch w-6 items-center justify-center focus-visible:ring-white focus-visible:ring-offset-primary-900">
-                                                <span class="sr-only">{t('home.hero.go_to_slide', { number: i + 1 })}</span>
-                                                <span class="block h-2 rounded-full transition-all duration-200" x-bind:class={`isActive(${i}) ? 'w-5 bg-secondary-400' : 'w-2 bg-white/40'`} aria-hidden="true"></span>
-                                            </button>
-                                        ))
-                                    }
-                                </div>
-                            </div>
-                        </>
+                        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-primary-950/85 to-transparent" aria-hidden="true"></div>
                     )
                 }
             </>
