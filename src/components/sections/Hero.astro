@@ -12,7 +12,7 @@ const hasSlides = slides.length > 0;
 const total = hasSlides ? slides.length : 1;
 ---
 <section
-    x-data={`carousel({ total: ${total}, interval: 5000, autoplay: ${total > 1 ? 'true' : 'false'} })`}
+    x-data={`carousel({ total: ${total}, interval: 4000, autoplay: ${total > 1 ? 'true' : 'false'} })`}
     x-on:mouseenter="onEnter()"
     x-on:mouseleave="onLeave()"
     class="relative isolate overflow-hidden bg-primary-900"
@@ -37,16 +37,19 @@ const total = hasSlides ? slides.length : 1;
             </div>
         ) : (
             <>
-                <div :aria-live="liveSetting">
+                <div :aria-live="liveSetting" class="grid">
                     {
                         slides.map((slide, index) => (
                             <div
                                 x-show={`isActive(${index})`}
                                 x-cloak={index > 0 ? true : undefined}
-                                x-transition:enter="transition ease-out duration-500"
-                                x-transition:enter-start="opacity-0"
-                                x-transition:enter-end="opacity-100"
-                                class:list={['relative', index > 0 && 'absolute inset-0']}
+                                x-transition:enter="transition transform ease-out duration-700"
+                                x-transition:enter-start="opacity-0 translate-x-12"
+                                x-transition:enter-end="opacity-100 translate-x-0"
+                                x-transition:leave="transition transform ease-in duration-700"
+                                x-transition:leave-start="opacity-100 translate-x-0"
+                                x-transition:leave-end="opacity-0 -translate-x-12"
+                                class="relative col-start-1 row-start-1"
                                 role="group"
                                 aria-roledescription="slide"
                                 aria-label={t('home.hero.slide_position', { current: index + 1, total })}
@@ -93,6 +96,26 @@ const total = hasSlides ? slides.length : 1;
                 {
                     total > 1 && (
                         <div class="pointer-events-none absolute inset-x-0 bottom-0 h-28 bg-gradient-to-t from-primary-950/85 to-transparent" aria-hidden="true"></div>
+                    )
+                }
+
+                {
+                    total > 1 && (
+                        <div class="pointer-events-auto absolute inset-x-0 bottom-6 z-10 flex items-center justify-center gap-2">
+                            {
+                                Array.from({ length: total }).map((_, i) => (
+                                    <button
+                                        type="button"
+                                        x-on:click={`manualGo(${i})`}
+                                        class="flex h-touch w-5 items-center justify-center rounded-full focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-primary-900"
+                                        :aria-current={`isActive(${i}) ? 'true' : 'false'`}
+                                    >
+                                        <span class="sr-only">{t('home.hero.go_to_slide', { number: i + 1 })}</span>
+                                        <span class="block h-2 rounded-full transition-all duration-200" :class={`isActive(${i}) ? 'w-5 bg-white' : 'w-2 bg-white/50'`} aria-hidden="true"></span>
+                                    </button>
+                                ))
+                            }
+                        </div>
                     )
                 }
             </>
