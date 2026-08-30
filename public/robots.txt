@@ -3,4 +3,4 @@ Allow: /
 Disallow: /admin/
 
 # Temporary production host until electroserves.co.tz DNS is connected.
-Sitemap: https://zippy-kitten-7cad33.netlify.app/sitemap.xml
+Sitemap: https://electroserve.netlify.app/sitemap.xml

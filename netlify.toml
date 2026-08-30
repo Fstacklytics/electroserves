@@ -16,7 +16,11 @@
 # and is set as the primary domain, change this (or override it in the
 # Netlify UI environment variables) to https://electroserves.co.tz.
 [build.environment]
-  SITE_URL = "https://zippy-kitten-7cad33.netlify.app"
+  SITE_URL = "https://electroserve.netlify.app"
+
+# In-repo serverless functions (the GitHub OAuth provider for Decap CMS).
+[functions]
+  directory = "netlify/functions"
 
 # Immutable hashed assets get a long cache. Astro writes build assets to
 # dist/_assets/ with content hashes in the filename.
@@ -58,15 +62,16 @@
 # local file selections before upload. Without it the admin UI fails with
 # "Failed to persist entry: TypeError: Failed to fetch" and CSP violations on
 # blob: image/fetch URLs — before any upload request is sent. connect-src also
-# allows unpkg (source maps for the pinned Decap bundle), api.github.com
-# (the GitHub backend's API calls) and the GitHub OAuth provider host. Update
-# the oauth host to match `backend.base_url` in public/admin/config.yml.
+# allows unpkg (source maps for the pinned Decap bundle) and api.github.com
+# (the GitHub backend's API calls). The OAuth provider is now an in-repo
+# Netlify Function served same-origin with this site, so it is covered by
+# 'self' and needs no extra host entry here.
 #
 # Cover both /admin (trailingSlash: never) and /admin/* (index.html, config.yml).
 [[headers]]
   for = "/admin"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"
@@ -74,7 +79,7 @@
 [[headers]]
   for = "/admin/*"
   [headers.values]
-    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com"
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:; connect-src 'self' blob: https://unpkg.com https://api.github.com"
     X-Frame-Options = "DENY"
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "no-referrer"

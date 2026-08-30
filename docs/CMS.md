@@ -90,14 +90,14 @@ Save.
 ## 6. View live
 
 The **View live** button (and the site link in the CMS header) always opens
-`https://zippy-kitten-7cad33.netlify.app` — the value of `site_url` /
+`https://electroserve.netlify.app` — the value of `site_url` /
 `display_url` in `public/admin/config.yml`. It does **not** open "whatever host
 you happened to open `/admin` on". Keep those two URLs aligned with the host
 that actually serves this Netlify site (and with `SITE_URL` in `netlify.toml`).
 
 > `electroserves.co.tz` has no public DNS yet (2026-08-12). Until that domain
 > is added in Netlify → Domain management, resolves, and is set as the primary
-> domain with TLS, all three values stay on `https://zippy-kitten-7cad33.netlify.app`.
+> domain with TLS, all three values stay on `https://electroserve.netlify.app`.
 > Switch them together when DNS/TLS/primary are proven.
 
 ---

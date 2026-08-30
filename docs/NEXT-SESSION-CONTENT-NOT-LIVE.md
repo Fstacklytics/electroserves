@@ -41,14 +41,14 @@ and does **not** use “whatever `*.netlify.app` you opened `/admin` on”.
 Per-entry **View** (a published project, service, blog post, or page) appends
 that collection’s `preview_path` — for example
 `projects/{{fields.slug}}` →
-`https://zippy-kitten-7cad33.netlify.app/projects/kariakoo-retail-fitout`
+`https://electroserve.netlify.app/projects/kariakoo-retail-fitout`
 (HTTPS, no trailing slash). Use that URL, not `http://…/projects/…/`.
 
 | Host | Role (2026-08-12) |
 |---|---|
-| `https://zippy-kitten-7cad33.netlify.app` | Working production host for this repo (Netlify site `zippy-kitten-7cad33`) |
+| `https://electroserve.netlify.app` | Working production host for this repo (Netlify site `electroserve`) |
 | `https://electroserves.co.tz` | Intended custom domain — **no public DNS** from 1.1.1.1 / 8.8.8.8 / 9.9.9.9 |
-| `https://deploy-preview-N--zippy-kitten-7cad33.netlify.app` | PR preview only |
+| `https://deploy-preview-N--electroserve.netlify.app` | PR preview only |
 
 Until `electroserves.co.tz` is added in **Netlify → Domain management**, has
 DNS + TLS, and is set as the **primary domain**, keep Decap `site_url` /
@@ -108,8 +108,8 @@ checked `*.netlify.app`.
 **2026-08-12 evidence:**
 
 - `electroserves.co.tz` and `www.electroserves.co.tz` → **NXDOMAIN** (no A / AAAA / NS)
-- Netlify site for this repo is **`zippy-kitten-7cad33`**
-  (`https://zippy-kitten-7cad33.netlify.app`)
+- Netlify site for this repo is **`electroserve`**
+  (`https://electroserve.netlify.app`)
 - That Netlify subdomain is behind **Team protection** (“This site is private —
   Sign in with an invited Netlify account”). Unauthenticated visitors never
   see the HTML.
@@ -120,13 +120,13 @@ are fixed.
 
 ### 4) Identity / admin on one host, “live site” on another
 
-Editors may open `/admin` on `https://zippy-kitten-7cad33.netlify.app/admin`
+Editors may open `/admin` on `https://electroserve.netlify.app/admin`
 while `site_url` pointed at a domain that does not resolve. This PR points
 `site_url` / `display_url` at the Netlify subdomain so View live matches the
 host that exists.
 
 Confirm in the dashboard that **Identity + Git Gateway** are enabled on
-**this** site (`zippy-kitten-7cad33`), and that only one Netlify site is
+**this** site (`electroserve`), and that only one Netlify site is
 linked to `Fstacklytics/electroserves`.
 
 ### 5) Content filtered out at build — **this was the code bug**
@@ -175,8 +175,8 @@ Do these in order. The unique string to search for after a green deploy is:
 
 `We are here to serve you`
 
-1. **Netlify → Domain management** for site `zippy-kitten-7cad33`
-   - Confirm the production URL is `https://zippy-kitten-7cad33.netlify.app`
+1. **Netlify → Domain management** for site `electroserve`
+   - Confirm the production URL is `https://electroserve.netlify.app`
    - Add `electroserves.co.tz` / `www` when ready; copy the DNS records
      Netlify shows to the registrar; wait for DNS + TLS **Issued**
    - Set the **primary domain** intentionally

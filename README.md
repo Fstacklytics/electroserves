@@ -96,7 +96,7 @@ editor runbook (Create / Edit / Show / Hide / Delete / View live / wait-for-gree
 
 Decap **View live** always opens `site_url` / `display_url` in
 `public/admin/config.yml`. It is not “whatever host you opened `/admin` on”.
-Today those point at `https://zippy-kitten-7cad33.netlify.app` because
+Today those point at `https://electroserve.netlify.app` because
 `electroserves.co.tz` has no public DNS yet. Switch them (and `SITE_URL`)
 to the custom domain only after Netlify Domain management shows the domain
 as primary with TLS issued.

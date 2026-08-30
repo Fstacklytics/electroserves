@@ -184,15 +184,18 @@ Netlify's Git Gateway / Netlify Identity flow is deprecated (sunset 2026), so
 editors authenticate **directly against GitHub** via a GitHub OAuth App:
 
 1. **Create a GitHub OAuth App** (GitHub → Settings → Developer settings →
-   OAuth Apps → New OAuth App). Homepage URL = the site root; Authorization
-   callback URL = `<base_url><auth_endpoint>/callback` of the OAuth provider.
-2. **Deploy an OAuth provider** that performs the authorization-code exchange
-   and returns the token to Decap — e.g. the official `decap-oauth` npm package
-   (a small Node server) or a Netlify Function. The GitHub **client secret**
-   lives only in that provider's environment variables, never in this repo.
-3. **Set `backend.base_url` / `auth_endpoint`** in `public/admin/config.yml`
-   (and the matching host in the `/admin` CSP in `netlify.toml`) to the
-   deployed provider.
+   GitHub Apps → your app). Homepage URL = the site root; Redirect URI =
+   `<base_url>/auth/callback` (the in-repo provider). Repo permissions:
+   Contents: Read and write, Metadata: Read-only; webhook off.
+2. **An in-repo Netlify Function performs the OAuth exchange** —
+   `netlify/functions/oauth.js` (routed at `backend.base_url` below). The
+   GitHub **client secret** lives only in the Netlify site environment
+   variables `OAUTH_GITHUB_CLIENT_ID` / `OAUTH_GITHUB_CLIENT_SECRET`, never in
+   this repo.
+3. **Set `backend.base_url` / `auth_endpoint`** in `public/admin/config.yml`.
+   The function is same-origin, so it needs no extra host entry in the `/admin`
+   CSP in `netlify.toml` (only `api.github.com` and `unpkg.com` are allow-listed
+   there).
 4. **Grant repo write access** to editors (GitHub collaborator/team). Anyone
    with write access can sign in at `/admin` via **Login with GitHub** — no
    per-seat Netlify Identity invites.
@@ -240,10 +243,10 @@ editors authenticate **directly against GitHub** via a GitHub OAuth App:
   delete. Each folder collection also exposes **Visible / Hidden** `view_filters`
   built on the `published` field so editors can see what the next build will
   include.
-- Production for this repo is Netlify site `zippy-kitten-7cad33`. The custom
+- Production for this repo is Netlify site `electroserve`. The custom
   domain `electroserves.co.tz` is the intended primary host once DNS + TLS
   are connected in Domain management; until then `SITE_URL` and Decap
-  `site_url` point at `https://zippy-kitten-7cad33.netlify.app`.
+  `site_url` point at `https://electroserve.netlify.app`.
 
 ---
 
@@ -298,14 +301,14 @@ only where Decap needs it:
 
 ```
 script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com;
-connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com; …
+connect-src 'self' blob: https://unpkg.com https://api.github.com; …
 ```
 
 `connect-src` must allow `api.github.com` (the `github` backend's API calls)
-and the GitHub OAuth provider host (match `backend.base_url` in
-`public/admin/config.yml`). `blob:` is required for Decap's image preview and
-media upload. The OAuth provider host is a placeholder in the repo — replace it
-with your real host.
+The GitHub OAuth provider is now an in-repo Netlify Function served same-origin
+with this site (see `netlify/functions/oauth.js`), so it is covered by `'self'`
+and needs no extra host entry. `blob:` is required for Decap's image preview and
+media upload.
 
 - The CMS bundle is loaded from `unpkg.com`, so that origin is allowed **only**
   under `/admin*`.

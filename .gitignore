@@ -6,6 +6,9 @@
 /.astro
 /_astro
 
+# Netlify local state / build cache
+.netlify
+
 # Environment
 .env
 .env.production
