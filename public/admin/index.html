@@ -44,11 +44,10 @@
     </div>
 
     <!--
-        Netlify Identity widget: required by the git-gateway backend so editors
-        can sign in with Netlify Identity. Enable Identity -> Enable Git Gateway
-        in the Netlify UI and invite editors from the Identity tab.
+        Decap CMS authenticates editors directly against GitHub via a GitHub
+        OAuth App (see the backend block in config.yml). No Netlify Identity
+        widget is needed here — editors sign in through GitHub's OAuth flow.
     -->
-    <script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
 
     <!-- Version is pinned; update deliberately on security releases (ADR-002). -->
     <script

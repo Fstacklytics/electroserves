@@ -25,7 +25,7 @@ live and how they are labelled.
 | Content parsing | `gray-matter`, `yaml`, `zod` | 4.x / 2.x / 3.x |
 | Markdown rendering | Astro's bundled `@astrojs/markdown-remark` + `rehype-sanitize ^6` | Astro-bundled |
 | CMS | Decap CMS (pinned CDN build) | `decap-cms@3.3.3` in `public/admin/index.html` |
-| CMS auth | Netlify Identity + Git Gateway | configured in the Netlify dashboard |
+| CMS auth | GitHub OAuth App | `backend: github` in `public/admin/config.yml` + an OAuth provider |
 | Forms | Netlify Forms (honeypot) | configured in markup, no app code |
 | Deployment | Netlify (build + CDN + TLS) | free **Starter** plan; no upgrade required |
 | CI | GitHub Actions | `.github/workflows/ci.yml` |
@@ -108,11 +108,10 @@ netlify dev                  # http://localhost:8888 → open /admin
 ```
 
 The local backend proxy writes edits directly to `content/` and `public/uploads/`
-without going through Git Gateway or Identity. On the deployed site the CMS
-uses the `git-gateway` backend against `main` with
-`publish_mode: simple` (every **Save** commits straight to `main` and triggers
-the Production build; hiding an entry is the **Published** toggle, not an
-Unpublish action — see below).
+without going through GitHub. On the deployed site the CMS uses the `github`
+backend against `main` with `publish_mode: simple` (every **Save** commits
+straight to `main` and triggers the Production build; hiding an entry is the
+**Published** toggle, not an Unpublish action — see below).
 
 ---
 
@@ -181,33 +180,37 @@ Uploaded media is committed to `public/uploads/` (`media_folder`) and served at
 
 ### Editor access
 
-1. **Enable Netlify Identity** on the site (Site settings → Identity).
-2. **Enable Git Gateway** (Identity → Services → Git Gateway); this grants the
-   CMS scoped push access to the repository through Netlify, not a
-   GitHub OAuth app.
-3. **Invite editors** from the Identity tab. The Netlify **Starter (free)**
-   plan covers up to 5 registered users — enough for the normal CMS workflow;
-   no paid upgrade is required. Beyond 5 users Netlify charges per seat.
+Netlify's Git Gateway / Netlify Identity flow is deprecated (sunset 2026), so
+editors authenticate **directly against GitHub** via a GitHub OAuth App:
 
-### Invitation / confirmation flow
+1. **Create a GitHub OAuth App** (GitHub → Settings → Developer settings →
+   OAuth Apps → New OAuth App). Homepage URL = the site root; Authorization
+   callback URL = `<base_url><auth_endpoint>/callback` of the OAuth provider.
+2. **Deploy an OAuth provider** that performs the authorization-code exchange
+   and returns the token to Decap — e.g. the official `decap-oauth` npm package
+   (a small Node server) or a Netlify Function. The GitHub **client secret**
+   lives only in that provider's environment variables, never in this repo.
+3. **Set `backend.base_url` / `auth_endpoint`** in `public/admin/config.yml`
+   (and the matching host in the `/admin` CSP in `netlify.toml`) to the
+   deployed provider.
+4. **Grant repo write access** to editors (GitHub collaborator/team). Anyone
+   with write access can sign in at `/admin` via **Login with GitHub** — no
+   per-seat Netlify Identity invites.
 
-- Netlify Identity invitation and confirmation emails link to the **site root**
-  with a hash token, e.g. `https://electroserves.co.tz/#invite_token=...` (also
-  `#confirmation_token=`, `#recovery_token=`, `#email_change=`).
-- Only the Netlify Identity widget can consume those tokens, so
-  `src/pages/index.astro` loads
-  `https://identity.netlify.com/v1/netlify-identity-widget.js` on the homepage.
-- The login handler (`window.netlifyIdentity.on('login', …)`) redirects
-  authenticated users to **`/admin/`**. Astro/Vite hoists that handler out of
-  the page into an external module under `/_assets/*.js` rather than inlining
-  it, which keeps the homepage HTML free of inline script.
+### Sign-in flow
+
+- An editor opens `/admin` and clicks **Login with GitHub**.
+- The OAuth provider redirects them to GitHub to authorize the OAuth App, then
+  back through the provider, which exchanges the code for an access token.
+- Decap's `github` backend uses that token to read/write the repository through
+  the GitHub API (`api.github.com`). No Netlify Identity widget is loaded.
 
 ### Deployed CMS
 
 - `public/admin/index.html` is a static host page that loads the pinned Decap
-  bundle `https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js` and the Identity
-  widget, with a visible fallback message if the CDN bundle fails to load.
-- Backend in `public/admin/config.yml`: `name: git-gateway`, `branch: main`,
+  bundle `https://unpkg.com/decap-cms@3.3.3/dist/decap-cms.js`, with a visible
+  fallback message if the CDN bundle fails to load.
+- Backend in `public/admin/config.yml`: `name: github`, `branch: main`,
   `publish_mode: simple`. Every **Save** commits directly to `main`; there is
   no editorial-workflow branch, so the **Ready / Publish / Unpublish** menu no
   longer appears. Hiding an entry is the `Published` boolean (Off = skipped by
@@ -271,7 +274,7 @@ middleware in Path B).
 
 ```
 default-src 'self';
-script-src 'self' 'unsafe-eval' https://identity.netlify.com;
+script-src 'self' 'unsafe-eval';
 style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
 font-src https://fonts.gstatic.com;
 img-src 'self' data:;
@@ -280,7 +283,7 @@ connect-src 'self'
 
 Plus `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff`,
 `Referrer-Policy: strict-origin-when-cross-origin`. Scripts are restricted to
-same-origin plus the Netlify Identity host. `'unsafe-eval'` is intentionally
+same-origin. `'unsafe-eval'` is intentionally
 allowed on the public site because the interactive UI uses standard Alpine.js:
 Alpine compiles template expressions (`x-show`, `:class`, `x-on`, `x-text`)
 with `new Function()` at runtime. Without it, Alpine can load but cannot run
@@ -294,9 +297,15 @@ The admin policy is scoped narrowly to the CMS paths and relaxes `script-src`
 only where Decap needs it:
 
 ```
-script-src 'self' 'unsafe-inline' 'unsafe-eval' https://identity.netlify.com https://unpkg.com;
-connect-src 'self' https://identity.netlify.com; …
+script-src 'self' 'unsafe-inline' 'unsafe-eval' https://unpkg.com;
+connect-src 'self' blob: https://unpkg.com https://api.github.com https://oauth.example.com; …
 ```
+
+`connect-src` must allow `api.github.com` (the `github` backend's API calls)
+and the GitHub OAuth provider host (match `backend.base_url` in
+`public/admin/config.yml`). `blob:` is required for Decap's image preview and
+media upload. The OAuth provider host is a placeholder in the repo — replace it
+with your real host.
 
 - The CMS bundle is loaded from `unpkg.com`, so that origin is allowed **only**
   under `/admin*`.

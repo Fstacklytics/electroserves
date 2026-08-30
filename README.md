@@ -14,7 +14,7 @@
 | Language | TypeScript / JavaScript (Node 20 LTS) |
 | CSS | Tailwind CSS 3 (design tokens in `tailwind.config.js`) |
 | Interactivity | Alpine.js 3 (`resources/js/`) |
-| CMS | Decap CMS (Netlify Identity + Git Gateway) |
+| CMS | Decap CMS (GitHub backend + GitHub OAuth App) |
 | Content Storage | Markdown + YAML files in Git (`content/`) |
 | Content validation | zod at the build-time boundary (`src/content/config.ts`) |
 | Forms | Netlify Forms + honeypot |
@@ -36,8 +36,8 @@
 ```
 Content files (content/*)  ──┐
                               ├─►  build-time parse + zod validation  ──►  static HTML (dist/)
-Netlify Identity + Git Gateway │
-   (Decap CMS /admin)  ────────┘                 ▲
+GitHub OAuth App + GitHub API │
+   (Decap CMS /admin)  ───────┘                 ▲
                                                  │ deployed
 Visitor ──► Netlify CDN (static HTML + headers from netlify.toml)
 ```
@@ -70,11 +70,12 @@ npm run build
 netlify dev                  # http://localhost:8888 → open /admin
 ```
 
-On the deployed site, an administrator enables **Identity → Git Gateway** in
-the Netlify dashboard and invites editors; editors sign in at `/admin` with
-Netlify Identity (up to 5 editors on the free Starter plan). Invitation and
-confirmation emails link to the homepage, where the Identity widget processes
-the token and redirects to `/admin/`.
+On the deployed site, editors sign in at `/admin` with **Login with GitHub**
+(GitHub OAuth App). Anyone with write/collaborator access to the repository
+can sign in. A small OAuth provider (e.g. the official `decap-oauth` package or
+a Netlify Function) performs the authorization-code exchange; its host is set
+as `backend.base_url` / `auth_endpoint` in `public/admin/config.yml` and in the
+`/admin` CSP in `netlify.toml`.
 
 ### Publishing (Save → Production deploy)
 

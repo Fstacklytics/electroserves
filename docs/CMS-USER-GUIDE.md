@@ -14,11 +14,15 @@ the site.
 ## 1. How to sign in
 
 1. Open **`/admin`** on the website (e.g. the production site URL).
-2. Click **Login → Netlify Identity**.
-3. Sign in with the email and password from your invite.
+2. Click **Login with GitHub**.
+3. A GitHub window opens — sign in to GitHub (or approve) and **Authorize** the
+   site's app. If you are already signed in to GitHub, it may skip straight to
+   the **Authorize** button.
+4. You are taken back to the content manager, signed in.
 
-If you were just invited, open the invitation email and click its link first
-(it lands on the site and sets up your login), then go to `/admin`.
+Anyone with write access to the site's GitHub repository can sign in. If you
+were just added as a collaborator, accept the GitHub invitation from your
+email first, then open `/admin`.
 
 ---
 

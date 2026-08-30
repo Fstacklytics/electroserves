@@ -77,12 +77,12 @@ What you give up:
 - **No OPcache / response-cache tunables.** The old `CONTENT_CACHE_*` and
   `RESPONSE_CACHE_*` env vars and `content:flush` / `responsecache:clear`
   commands are removed. Cache behaviour is governed by `netlify.toml`.
-- **CMS auth moved from GitHub OAuth to Netlify Identity + Git Gateway.**
-  Enabling it is a Netlify UI step (below), not a repo change. The site runs on
-  Netlify's **free Starter plan**, which is sufficient for the normal CMS
-  workflow: Identity supports up to 5 registered users, Git Gateway and Netlify
-  Forms are included within Starter usage quotas, and no plan upgrade is
-  currently required. Beyond 5 editors Netlify charges per seat.
+- **CMS auth is the GitHub backend + GitHub OAuth App.** Netlify's Git Gateway
+  and Netlify Identity were deprecated (sunset 2026), so editors now
+  authenticate directly against GitHub via a GitHub OAuth App and an OAuth
+  provider. Netlify still hosts the static site and Netlify Forms on the free
+  **Starter** plan; editor management is GitHub collaborator/team membership
+  rather than Netlify Identity seats.
 
 What you gain:
 
@@ -102,12 +102,14 @@ What you gain:
 2. In Netlify: **New site from Git** → pick this repo → build command
    `npm run build`, publish directory `dist` (these are already in
    `netlify.toml`).
-3. In the **Site settings → Identity**: enable Netlify Identity, then enable
-   **Git Gateway** (needs a GitHub account with repo access), then **Invite
-   editors**.
-4. Editors open `/admin` on the deployed site, sign in with Netlify Identity,
-   and manage content. Because `publish_mode: editorial_workflow` is set, their
-   edits open a PR that goes through normal review + build.
+3. **Set up GitHub OAuth:** create a GitHub OAuth App, deploy an OAuth provider
+   (e.g. `decap-oauth` or a Netlify Function) holding the client secret, and set
+   `backend.base_url` / `auth_endpoint` in `public/admin/config.yml` (plus the
+   matching host in the `/admin` CSP in `netlify.toml`). Grant write access to
+   editors as GitHub collaborators/team members.
+4. Editors open `/admin` on the deployed site and sign in with **Login with
+   GitHub**. With `publish_mode: simple`, their edits commit straight to `main`
+   and trigger a Netlify build.
 
 For local development with the CMS proxy:
 
@@ -136,9 +138,9 @@ npx netlify dev   # serves the site and the /admin local backend proxy
 
 **Cannot be verified in this sandbox (label as NOT verified):**
 - A real Netlify deploy (no Netlify account here).
-- The Netlify Identity email-flow / Git Gateway login end-to-end.
+- The GitHub OAuth login end-to-end (OAuth provider + authorize + commit).
 - A real browser screen-reader / keyboard pass (no browser in the sandbox).
 - Netlify's actual form-submission and honeypot behaviour in production.
 
 Run `netlify deploy` from a Netlify CLI-authenticated machine to confirm the
-build, and click through `/admin` once Identity + Git Gateway are enabled.
+build, and click through `/admin` once the GitHub OAuth provider is deployed.
